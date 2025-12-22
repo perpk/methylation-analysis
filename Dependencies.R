@@ -1,0 +1,12 @@
+install.packages('progress', 'tidyverse', 'BiocManager')
+install.packages('patchwork')
+
+BiocManager::install('minfi')
+BiocManager::install('limma')
+BiocManager::install('missMethyl')
+BiocManager::install('FlowSorted.Blood.450k')
+BiocManager::install('clusterProfiler')
+BiocManager::install('pheatmap')
+BiocManager::install('DMRcate')
+BiocManager::install('annotatr')
+
