@@ -78,14 +78,6 @@ data_to_clean <- list(
   m_values_data = list(
     filepath = file.path(project_context$paths$processed, "m_values.rds"),
     clean_filename = file.path(project_context$paths$processed, "m_values_s_mismatch.rds")
-  ),
-  rg_set_data = list(
-    filepath = file.path(project_context$paths$qc, "rg_set_clean.rds"),
-    clean_filename = file.path(project_context$paths$qc, "rg_set_s_mismatch.rds")
-  ),
-  methyl_set_data = list(
-    filepath = file.path(project_context$paths$normalized, "methyl_set.rds"),
-    clean_filename = file.path(project_context$paths$normalized, "methyl_set_s_mismatch.rds")
   )
 )
 
@@ -99,6 +91,26 @@ samples_to_remove <- rownames(mismatches)
 source('R/clean_data.R')
 clean_data(samples_to_remove = samples_to_remove, data_to_clean = data_to_clean)
 
+rg_set_to_clean <- list(
+  rg_set_data = list(
+    filepath = file.path(project_context$paths$qc, "rg_set_clean.rds"),
+    clean_filename = file.path(project_context$paths$qc, "rg_set_s_mismatch.rds")
+  )
+)
+
+clean_data(samples_to_remove = samples_to_remove, data_to_clean = rg_set_to_clean)
+gc(full = T, verbose = T)
+
+methyl_set_to_clean <- list(
+  methyl_set_data = list(
+    filepath = file.path(project_context$paths$normalized, "methyl_set.rds"),
+    clean_filename = file.path(project_context$paths$normalized, "methyl_set_s_mismatch.rds")
+  )
+)
+
+clean_data(samples_to_remove = samples_to_remove, data_to_clean = methyl_set_to_clean)
+gc(full = T, verbose = T)
+
 targets_to_clean <-   list(
   targets_data = list(
     filepath = file.path(project_context$paths$qc, "targets_clean.rds"),
@@ -109,4 +121,7 @@ targets_to_clean <-   list(
 )
 
 rows_to_remove <- mismatches[['Sample_Name']]
+source('R/clean_data.R')
 clean_data(samples_to_remove = rows_to_remove, data_to_clean = targets_to_clean)
+
+gc(full = T, verbose = T)

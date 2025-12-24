@@ -100,3 +100,8 @@ head(t)
 
 t_1 <- t[-indices,]
 dim(t_1)
+
+??ggplot2
+
+data <- data.frame( ID = 1:5, Name = c("Alice", "Bob", "Charlie", "David", "Eva"), Age = c(25, 30, 35, 40, 45), Gender = c("Female", "Male", "Male", "Male", "Female") )
+str(data)
