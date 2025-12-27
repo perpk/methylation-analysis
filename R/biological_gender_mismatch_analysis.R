@@ -1,9 +1,16 @@
-biological_gender_mismatch_analysis <- function(context=NULL, methyl_set_filename="methyl_set.rds", targets_filename=NULL, recorded_sex_col=NULL) {
+biological_gender_mismatch_analysis <- function(context=NULL,
+                                                methyl_set_filename = "methyl_set_clean.rds",
+                                                rg_set_filename = "rg_set_clean.rds",
+                                                targets_filename="targets_clean.rds",
+                                                targets_sample_col="Sample_Name",
+                                                recorded_sex_col=NULL) {
   prog <- .create_progress_manager(5)
 
-  methyl_set_file <- file.path(context$paths$normalized, methyl_set_filename)
+  methyl_set_file <- file.path(context$paths$qc, methyl_set_filename)
+  rg_set_file <- file.path(context$paths$qc, rg_set_filename)
   prog$update(1, paste("Reading Methylset from filesystem", methyl_set_file))
   methyl_set <- readRDS(methyl_set_file)
+  rg_set <- readRDS(rg_set_file)
 
   prog$update(2, "Map Methylation Data to the Genome")
   methyl_set_genomic <- mapToGenome(methyl_set)
@@ -46,7 +53,7 @@ biological_gender_mismatch_analysis <- function(context=NULL, methyl_set_filenam
     theme_minimal() +
     theme(legend.position = "bottom")
 
-  mismatch_plot_file <- file.path(context$paths$results, "sex_mismatch_plot.png")
+  mismatch_plot_file <- file.path(context$paths$plots, "sex_mismatch_plot.png")
   ggsave(filename = mismatch_plot_file,
          plot = mismatch_plot,
          width = 8,
@@ -56,6 +63,18 @@ biological_gender_mismatch_analysis <- function(context=NULL, methyl_set_filenam
   print(paste("Found", nrow(mismatches), "sex mismatches:"))
   print(mismatches)
 
+  s <- colnames(methyl_set)
+  indices <- which(s %in% rownames(mismatches))
+  methyl_set_remove_mismatch <- methyl_set[, -indices]
+  rg_set_remove_mismatch <- rg_set[, -indices]
+
+  s <- targets[[targets_sample_col]]
+  indices <- which(s %in% mismatches[[targets_sample_col]])
+  targets_remove_mismatch <- targets[-indices, ]
+
+  saveRDS(methyl_set_remove_mismatch, file.path(context$paths$processed, "methyl_set_remove_mismatch.rds"))
+  saveRDS(rg_set_remove_mismatch, file.path(context$paths$processed, "rg_set_remove_mismatch.rds"))
+  saveRDS(targets_remove_mismatch, file.path(context$paths$processed, "targets_remove_mismatch.rds"))
+
   prog$complete()
-  (mismatches)
 }

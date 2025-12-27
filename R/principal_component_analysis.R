@@ -1,9 +1,9 @@
-principal_component_analysis <- function(context = NULL, col_maps, keys, npc) {
-  targets_filepath <- file.path(context$paths$qc, "targets_clean.rds")
+principal_component_analysis <- function(context = NULL, beta_matrix_filename = NULL, targets_filename = NULL, col_maps, keys, npc) {
+  targets_filepath <- file.path(context$paths$qc, targets_filename)
   cat(paste("\nReading targets from", targets_filepath, "\n"))
   targets <- readRDS(targets_filepath)
 
-  beta_val_filepath <- file.path(context$paths$processed, "beta_matrix.rds")
+  beta_val_filepath <- file.path(context$paths$processed, beta_matrix_filename)
   cat(paste("\nReading beta-values from", beta_val_filepath, "\n"))
   beta_matrix <- readRDS(beta_val_filepath)
 

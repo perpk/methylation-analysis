@@ -9,4 +9,6 @@ BiocManager::install('clusterProfiler')
 BiocManager::install('pheatmap')
 BiocManager::install('DMRcate')
 BiocManager::install('annotatr')
-
+BiocManager::install('wateRmelon')
+BiocManager::install('reshape2')
+BiocManager::install('RPMM')

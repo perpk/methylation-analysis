@@ -20,7 +20,7 @@ outlier_analysis <- function(context=NULL, pca = NULL, targets_filename=NULL, sa
   print(outlier_metadata[, sample_metadata])
   print(table(outlier_metadata$Sample_Group))
 
-  beta_val_filepath <- file.path(context$paths$processed, "beta_matrix.rds")
+  beta_val_filepath <- file.path(context$paths$processed, "beta_matrix_bmiq.rds")
   cat(paste("\nReading beta-values from", beta_val_filepath, "\n"))
   beta_matrix <- readRDS(beta_val_filepath)
 

@@ -31,12 +31,6 @@ normalize_extract_methylset <- function(context = NULL, force=F) {
   saveRDS(m_values, m_val_filepath)
   cat(paste("Saved m-values under", m_val_filepath, "\n"))
 
-  list(
-    m_values = m_values,
-    beta_matrix = beta_matrix,
-    paths = list(
-        m_values = m_val_filepath,
-        beta_values = b_val_filepath
-      )
-  )
+  rm(list = ls())
+  gc(full = T)
 }
