@@ -1,13 +1,15 @@
 apply_BMIQ <- function(context = NULL,
-                       beta_matrix_filepath = NULL,
-                       plot = TRUE) {
+                       beta_matrix_file = "beta_matrix_noob.rds",
+                       plot = FALSE) {
 
-  if (is.null(beta_matrix_filepath)) {
-    beta_matrix_filepath <- file.path(context$paths$processed, "beta_matrix.rds")
-    print(paste("No beta-matrix passed in argument list, using file under", beta_matrix_filepath))
-    beta_matrix <- readRDS(beta_matrix_filepath)
-  }
+  prog <- .create_progress_manager(2)
 
+  beta_matrix_filepath <- file.path(context$paths$results, beta_matrix_file)
+
+  prog$update(1, paste("Reading beta-matrix file from", beta_matrix_filepath))
+  beta_matrix <- readRDS(beta_matrix_filepath)
+
+  prog$update(2, "Creating probe design vector")
   design.v <- .get_probe_design_vector(rownames(beta_matrix))
 
   print(paste("Type I probes:", sum(design.v == 1)))
@@ -17,8 +19,11 @@ apply_BMIQ <- function(context = NULL,
   rownames(beta_bmiq) <- rownames(beta_matrix)
   colnames(beta_bmiq) <- colnames(beta_matrix)
 
+  prog$complete()
+
+  prog <- .create_progress_manager(ncol(beta_matrix))
   for (i in 1:ncol(beta_matrix)) {
-    print(paste("Processing sample", i, "of", ncol(beta_matrix)))
+    prog$update(i, paste("Processing sample", i, "of", ncol(beta_matrix)))
 
     # Extract beta values for this sample
     beta.v <- beta_matrix[, i]
@@ -39,23 +44,28 @@ apply_BMIQ <- function(context = NULL,
       beta_bmiq[, i] <- beta.v  # Keep original values if BMIQ fails
     })
   }
-  print("Plot beta distribution before and after normalization")
   if (plot) {
+    print("Plot beta distribution before and after normalization")
     .plot_BMIQ_comparison(beta_matrix, beta_bmiq)
   }
   rm(beta_matrix)
   gc(full=T)
 
-  print("Calculating M-Values based on BMIQ normalized betas")
+  prog$complete()
+
+  prog <- .create_progress_manager(2)
+
+  prog$update(1, "Calculating M-Values based on BMIQ normalized betas")
   m_bmiq <- log2(beta_bmiq / (1 - beta_bmiq))
   m_bmiq[is.infinite(m_bmiq)] <- NA
 
-  print("Saving normalized beta and m-values")
-  beta_bmiq_filepath <- file.path(context$paths$processed, "beta_matrix_bmiq.rds")
+  prog$update(2, "Saving normalized beta and m-values")
+  beta_bmiq_filepath <- file.path(context$paths$results, "beta_matrix_bmiq.rds")
   saveRDS(beta_bmiq, beta_bmiq_filepath)
 
-  m_bmiq_filepath <- file.path(context$paths$processed, "m_values_bmiq.rds")
+  m_bmiq_filepath <- file.path(context$paths$results, "m_values_bmiq.rds")
   saveRDS(m_bmiq, m_bmiq_filepath)
+  prog$complete()
   rm(list = ls())
   gc(full = T)
 }

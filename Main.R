@@ -72,6 +72,10 @@ filter_rg_set(context = project_context)
 source('R/bg_correction_dye_bias_norm.R')
 bg_correction_dye_bias_norm(context = project_context)
 
+### Beta-Mixture Quantile (BMIQ) Normalization for 450k
+source('R/apply_BMIQ.R')
+apply_BMIQ(context = project_context)
+
 
 methyl_set <- readRDS(file.path(project_context$paths$processed, "methyl_set_removed_cross_reactive.rds"))
 rg_set <- readRDS(file.path(project_context$paths$processed, "rg_set_remove_mismatch.rds"))
