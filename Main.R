@@ -64,11 +64,28 @@ remove_sex_chromosome_probes(context = project_context)
 source('R/remove_cross_reactive_probes_450k.R')
 remove_cross_reactive_probes_450k(context = project_context)
 
+### Filter rg_set according to the remaining methyl_set probes after it has been cleared off from SNPs, X/Y-Chromosome- and cross-reactive probes.
+source('R/filter_rg_set.R')
+filter_rg_set(context = project_context)
+
+### Perform background correction and dye-bias normalization on rg_set and extract new methyl_set & beta-matrix based on the filtered rg_set from previous step
+source('R/bg_correction_dye_bias_norm.R')
+bg_correction_dye_bias_norm(context = project_context)
 
 
+methyl_set <- readRDS(file.path(project_context$paths$processed, "methyl_set_removed_cross_reactive.rds"))
+rg_set <- readRDS(file.path(project_context$paths$processed, "rg_set_remove_mismatch.rds"))
+rg_set_raw <- readRDS(file.path(project_context$paths$raw, "rg_set.rds"))
+methyl_set_raw <- readRDS(file.path(project_context$paths$raw, "methyl_set.rds"))
 
+rm(list = setdiff(ls(), "project_context"))
 
+library(minfi)
+annotation <- getAnnotation(rg_set)
 
-
-
-
+filtered_probes <- rownames(methyl_set)
+filtered_rg_set <- rg_set[annotation$Name %in% filtered_probes, ]
+dim(rg_set)
+head(filtered_probes)
+head(annotation$Name)
+dim(annotation)
