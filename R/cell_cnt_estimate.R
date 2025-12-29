@@ -1,6 +1,6 @@
-cell_cnt_estimate <- function(context = NULL, rg_set_filename = NULL, targets_filename = NULL) {
-  rg_set_path <- file.path(context$paths$qc, rg_set_filename)
-  targets_path <- file.path(context$paths$qc, targets_filename)
+cell_cnt_estimate <- function(context = NULL, rg_set_filename = "rg_set_filtered.rds", targets_filename = "targets_remove_mismatch.rds") {
+  rg_set_path <- file.path(context$paths$processed, rg_set_filename)
+  targets_path <- file.path(context$paths$processed, targets_filename)
 
   print("Estimating cell counts")
 

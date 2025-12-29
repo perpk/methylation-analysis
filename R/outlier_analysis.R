@@ -1,4 +1,7 @@
-outlier_analysis <- function(context=NULL, pca = NULL, targets_filename=NULL, sample_metadata=NULL) {
+outlier_analysis <- function(context=NULL, pca_filename = "pca_df.rds", targets_filename="targets_remove_mismatch.rds", sample_metadata=NULL) {
+
+  pca <- readRDS(file.path(context$paths$results, pca_filename))
+
   prog <- .create_progress_manager(4)
 
   prog$update(1, "Detecting Outliers")
@@ -11,7 +14,7 @@ outlier_analysis <- function(context=NULL, pca = NULL, targets_filename=NULL, sa
   print("PCA outliers detected:")
   print(rownames(pca_scores)[outliers])
 
-  targets_filepath <- file.path(context$paths$qc, targets_filename)
+  targets_filepath <- file.path(context$paths$processed, targets_filename)
   cat(paste("\nReading targets from", targets_filepath, "\n"))
   targets <- readRDS(targets_filepath)
 
@@ -20,7 +23,7 @@ outlier_analysis <- function(context=NULL, pca = NULL, targets_filename=NULL, sa
   print(outlier_metadata[, sample_metadata])
   print(table(outlier_metadata$Sample_Group))
 
-  beta_val_filepath <- file.path(context$paths$processed, "beta_matrix_bmiq.rds")
+  beta_val_filepath <- file.path(context$paths$results, "beta_matrix_bmiq.rds")
   cat(paste("\nReading beta-values from", beta_val_filepath, "\n"))
   beta_matrix <- readRDS(beta_val_filepath)
 
@@ -42,7 +45,7 @@ outlier_analysis <- function(context=NULL, pca = NULL, targets_filename=NULL, sa
     scale_color_manual(values = c("FALSE" = "gray", "TRUE" = "red")) +
     ggtitle("PCA Showing Outlier Positions")
 
-  filename <- file.path(context$paths$results, "pca_outliers.png")
+  filename <- file.path(context$paths$plots, "pca_outliers.png")
 
   ggsave(filename = filename,
          plot = plot_outliers,
@@ -56,4 +59,7 @@ outlier_analysis <- function(context=NULL, pca = NULL, targets_filename=NULL, sa
   outlier_cases <- pca[pca$Is_Outlier, ]
   write.csv(outlier_cases, file=outlier_cases_logfile)
   prog$complete()
+
+  rm(list = ls())
+  gc(full = T)
 }

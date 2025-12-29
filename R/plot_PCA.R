@@ -71,7 +71,7 @@ plot_PCA <- function(context = NULL, pca_results_rds_filename = NULL, pca_vars =
   # 5. Save individual plots
   for (i in seq_along(plots)) {
     var_name <- available_vars[i]
-    filename <- file.path(context$paths$results,
+    filename <- file.path(context$paths$plots,
                           paste0(pca_output_name, var_name, ".png"))
 
     ggsave(filename = filename,
@@ -85,7 +85,7 @@ plot_PCA <- function(context = NULL, pca_results_rds_filename = NULL, pca_vars =
   # 6. Save combined plot if we have any plots
   if (length(plots) > 0) {
     combined <- grid.arrange(grobs = plots, ncol = min(2, length(plots)))
-    combined_filename <- file.path(context$paths$results,
+    combined_filename <- file.path(context$paths$plots,
                                    "pca_all_variables_grid.png")
 
     ggsave(filename = combined_filename,
@@ -184,7 +184,7 @@ plot_PCA <- function(context = NULL, pca_results_rds_filename = NULL, pca_vars =
 
   # Save if context provided
   if (!is.null(context)) {
-    filename <- file.path(context$paths$results, paste0(output_name, ".png"))
+    filename <- file.path(context$paths$plots, paste0(output_name, ".png"))
     ggsave(filename, pairplot,
            width = 3 * length(pc_columns),
            height = 3 * length(pc_columns),
@@ -192,5 +192,6 @@ plot_PCA <- function(context = NULL, pca_results_rds_filename = NULL, pca_vars =
     print(paste("Saved pairplot to:", filename))
   }
 
-  return(pairplot)
+  rm(list=ls())
+  gc(full=T)
 }
