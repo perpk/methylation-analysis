@@ -1,5 +1,6 @@
 install.packages('progress', 'tidyverse', 'BiocManager')
 install.packages('patchwork')
+install.packages('rlist')
 
 BiocManager::install('minfi')
 BiocManager::install('limma')

@@ -43,8 +43,12 @@ qc <- function(context = NULL,
   } else {
     rg_set_clean <- rg_set
     targets_clean <- targets
+    methyl_set_clean <- methyl_set
     cat("No samples failed QC\n")
   }
+
+  rm(list = c("targets", "methyl_set"))
+  gc(full = T)
 
   prog$update(6, "Saving results")
 

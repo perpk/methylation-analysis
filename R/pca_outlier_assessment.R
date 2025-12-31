@@ -5,9 +5,15 @@ pca_outlier_assessment <- function(context = NULL) {
   prog$update(1, paste("Reading raw rg_set from", raw_rg_set_filepath))
   rg_set <- readRDS(raw_rg_set_filepath)
 
-  outlier_filepath <- file.path(project_context$paths$results, "outlier_log.csv")
+  outlier_filepath <- file.path(context$paths$results, "outlier_log.csv")
   prog$update(2, paste("Reading outlier log from ", outlier_filepath))
   outliers <- read.csv(outlier_filepath, row.names = 1)
+
+  if (nrow(outliers) == 0) {
+    print("No outliers available")
+    prog$complete()
+    return()
+  }
 
   prog$update(3, "Calculating detection p-values")
   detP <- detectionP(rg_set)

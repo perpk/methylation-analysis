@@ -1,7 +1,7 @@
 plot_cell_proportions <- function(context = NULL,
                                   targets_file = "targets_s_mismatch_cells.rd",
                                   cell_types = c("CD8T", "CD4T", "NK", "Bcell", "Mono")) {
-  targets <- readRDS(file.path(project_context$paths$qc, "targets_s_mismatch_cells.rds"))
+  targets <- readRDS(file.path(context$paths$qc, "targets_s_mismatch_cells.rds"))
 
   library(ggpubr)
   cell_results <- list()

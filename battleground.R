@@ -1,7 +1,8 @@
-source('R/project_context.R')
+context <- .load_methylation_project("/Volumes/Elements/methyl-pipe-out", "GSE165081_20251230_222519")
 
-project_context <- .load_methylation_project("/Volumes/Elements/methyl-pipe-out", "GSE111629_20251226_102044")
+rg_set <- readRDS(file.path(context$paths$processed, "rg_set_filtered.rds"))
+targets <- readRDS(file.path(context$paths$processed, "targets_remove_mismatch.rds"))
+densityPlot(rg_set, sampGroups = targets$Sample_Group, main = "Beta Value Distribution")
 
-targets <- readRDS(file.path(project_context$paths$qc, "targets_s_mismatch_cells.rds"))
+beta_matrix <- readRDS(file.path(context$paths$results, "beta_matrix_bmiq.rds"))
 
-# BCells, CD4T, CD8T,
