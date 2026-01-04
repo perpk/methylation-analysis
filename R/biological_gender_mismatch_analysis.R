@@ -65,12 +65,24 @@ biological_gender_mismatch_analysis <- function(context=NULL,
 
   s <- colnames(methyl_set)
   indices <- which(s %in% rownames(mismatches))
-  methyl_set_remove_mismatch <- methyl_set[, -indices]
-  rg_set_remove_mismatch <- rg_set[, -indices]
+  # TODO in case there aren't any samples to remove, just copy the files
+  if (length(indices) > 0) {
+    methyl_set_remove_mismatch <- methyl_set[, -indices]
+    rg_set_remove_mismatch <- rg_set[, -indices]
+  } else {
+    print("No samples with biological gender mismatch found")
+    methyl_set_remove_mismatch <- methyl_set
+    rg_set_remove_mismatch <- rg_set
+  }
 
   s <- targets[[targets_sample_col]]
   indices <- which(s %in% mismatches[[targets_sample_col]])
-  targets_remove_mismatch <- targets[-indices, ]
+  if (length(indices) > 0) {
+    targets_remove_mismatch <- targets[-indices, ]
+  } else {
+    print("No samples with biological gender mismatch found")
+    targets_remove_mismatch <- targets
+  }
 
   saveRDS(methyl_set_remove_mismatch, file.path(context$paths$processed, "methyl_set_remove_mismatch.rds"))
   saveRDS(rg_set_remove_mismatch, file.path(context$paths$processed, "rg_set_remove_mismatch.rds"))

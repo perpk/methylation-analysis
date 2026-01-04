@@ -1,15 +1,24 @@
-.load_methylation_project <- function(base_dir, project_id) {
-  filepath <- paste(base_dir, "/", project_id, sep="")
+.load_methylation_project <- function(base_dir, project_id, platform = NULL) {
+  if (is.null(platform)) {
+    stop("Platform must be specified when loading a project (Either 450k or EPIC).")
+  }
+  filepath <- paste(base_dir, "/", project_id, sep = "")
   if (!file.exists(filepath)) {
     stop("Project not found", filepath)
   }
   project_path <- file.path(filepath, "project_context.rds")
 
   project_context <- readRDS(project_path)
+  if (is.null(project_context$platform)) {
+    project_context$platform <- platform
+  }
+  (project_context)
 }
 
-create_methylation_project <- function(project_name, output_dir, keep_intermediates=T) {
-
+create_methylation_project <- function(project_name, output_dir, keep_intermediates = T, platform = NULL) {
+  if (is.null(platform)) {
+    stop("Platform must be specified when creating a project (Either 450k or EPIC).")
+  }
   prog <- .create_progress_manager(1)
   prog$update(1, "Creating Project Context...", "Preparing file and folder structures")
   project_id <- paste0(project_name, "_", format(Sys.time(), "%Y%m%d_%H%M%S"))
@@ -39,16 +48,7 @@ create_methylation_project <- function(project_name, output_dir, keep_intermedia
     project_name = project_name,
     base_dir = base_dir,
     paths = as.list(paths),
-    config = list(
-      keep_intermediates = keep_intermediates,
-      created = Sys.time()
-    ),
-    state = list(
-      current_step = "initialized",
-      steps_completed = character(0),
-      objects_in_memory = list(),
-      files_on_disk = list()
-    )
+    platform = platform
   )
 
   class(context) <- "methylation_project"

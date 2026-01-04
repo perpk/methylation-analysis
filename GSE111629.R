@@ -1,3 +1,4 @@
+library(IlluminaHumanMethylation450kanno.ilmn12.hg19)
 
 project_to_load <- "GSE111629_20251226_102044"
 data_folder <- paste0(project_name, "_RAW")

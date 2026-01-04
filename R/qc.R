@@ -7,9 +7,9 @@ qc <- function(context = NULL,
   prog <- .create_progress_manager(7)
 
   methyl_set_filepath <- file.path(context$paths$raw_data, methyl_set_filename)
-  rg_set_filepath <- file.path(context$paths$raw_data, rg_set_filename)
   prog$update(1, paste("Reading methyl set from ", methyl_set_filepath))
   methyl_set <- readRDS(methyl_set_filepath)
+  rg_set_filepath <- file.path(context$paths$raw_data, rg_set_filename)
   rg_set <- readRDS(rg_set_filepath)
 
   prog$update(2, "Performing QC")
@@ -32,6 +32,7 @@ qc <- function(context = NULL,
 
   bad_samples <- .identify_failed_samples(qc, threshold, prog)
 
+  # TODO in case there aren't any samples to remove, just copy the files
   if (length(bad_samples$indices) > 0) {
     rg_set_clean <- rg_set[, -bad_samples$indices, drop = FALSE]
     targets_clean <- targets[-bad_samples$indices, , drop = FALSE]
