@@ -1,4 +1,4 @@
-.load_methylation_project <- function(base_dir, project_id, platform = NULL) {
+.load_methylation_project <- function(base_dir, project_id, platform = NULL, cohorts = NULL) {
   if (is.null(platform)) {
     stop("Platform must be specified when loading a project (Either 450k or EPIC).")
   }
@@ -12,12 +12,18 @@
   if (is.null(project_context$platform)) {
     project_context$platform <- platform
   }
+  if (is.null(project_context$design$cohorts)) {
+    project_context$design$cohorts <- cohorts
+  }
   (project_context)
 }
 
-create_methylation_project <- function(project_name, output_dir, keep_intermediates = T, platform = NULL) {
+create_methylation_project <- function(project_name, output_dir, keep_intermediates = T, platform = NULL, cohorts = NULL) {
   if (is.null(platform)) {
     stop("Platform must be specified when creating a project (Either 450k or EPIC).")
+  }
+  if (is.null(cohorts)) {
+    stop("Cohorts must be specified as a design attribute when creating a project.")
   }
   prog <- .create_progress_manager(1)
   prog$update(1, "Creating Project Context...", "Preparing file and folder structures")
@@ -48,7 +54,10 @@ create_methylation_project <- function(project_name, output_dir, keep_intermedia
     project_name = project_name,
     base_dir = base_dir,
     paths = as.list(paths),
-    platform = platform
+    platform = platform,
+    design = list(
+      cohorts = cohorts
+    )
   )
 
   class(context) <- "methylation_project"

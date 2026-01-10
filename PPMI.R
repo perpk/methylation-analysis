@@ -8,9 +8,7 @@ demographics <- read.csv("./ppmi/Demographics_24Nov2025.csv")
 
 participant_status <- read.csv("./ppmi/Participant_Status_24Nov2025.csv")
 
-
 participant_status <- participant_status %>% filter(!ENROLL_STATUS %in% c("Excluded", "Declined", "Screen_failed"))
-dim(participant_status)
 
 patient_meta <- merge(
   x = demographics[, c("PATNO", "SEX")],
@@ -19,8 +17,6 @@ patient_meta <- merge(
   by.y = "PATNO",
   all.x = FALSE
 )
-dim(patient_meta)
-
 
 ppmi_meth_120_txt <- read.delim("./ppmi/Project120_IDATS_n524final_toLONI_030718/PPMI_Meth_n524_for_LONI030718.txt", header = T, sep = "\t")
 
@@ -31,7 +27,6 @@ ppmi_meth_120_meta <- merge(
   by.y = "PATNO",
   all.x = FALSE
 )
-dim(ppmi_meth_120_meta)
 
 ppmi_meth_120_meta$Basename <- paste0(ppmi_meth_120_meta$Sentrix.ID, "_", ppmi_meth_120_meta$Sentrix.Position)
 ppmi_meth_120_meta$Sample_Name <- paste0(ppmi_meth_120_meta$PATNO, "_", ppmi_meth_120_meta$Sentrix.ID, "_", ppmi_meth_120_meta$Sentrix.Position)
@@ -71,9 +66,15 @@ project_name <- "ppmi"
 data_folder <- "ppmi"
 
 targets <- read.metharray.sheet(data_folder, pattern = "sample_sheet")
+saveRDS(targets, file = file.path(data_folder, "targets.rds"))
 
 source("./meta_vars_mapping.R")
 var_mappings <- meta_vars_mapping(dataset = project_name)
+
+cohorts <- list(
+  PD_vs_Control = c("PD", "Control"),
+  SWEDD_vs_Control = c("SWEDD", "Control")
+)
 
 source("./pre_process_eda.R")
 pre_process_eda(
@@ -83,11 +84,12 @@ pre_process_eda(
   project_location = "/Volumes/Elements/methyl-pipe-out",
   var_mapping = var_mappings,
   platform = "EPIC",
-  qc_threshold = "auto"
+  qc_threshold = "auto",
+  cohorts = cohorts
 )
 
 project_to_load <- "ppmi_20260103_120001"
-
+targets <- readRDS(file.path(data_folder, "targets.rds"))
 source("./pre_process_eda.R")
 pre_process_eda(
   project_to_load = project_to_load,
@@ -96,5 +98,6 @@ pre_process_eda(
   project_location = "/Volumes/Elements/methyl-pipe-out",
   var_mapping = var_mappings,
   platform = "EPIC",
-  qc_threshold = "auto"
+  qc_threshold = "auto",
+  cohorts = cohorts
 )

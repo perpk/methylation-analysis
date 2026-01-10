@@ -1,6 +1,10 @@
-"[r]": {
+{
+  "editor.tabSize": 2,
+  "[r]": {
     "editor.formatOnSave": true,
     "editor.defaultFormatter": "REditorSupport.r",
+    "editor.wordWrap": "wordWrapColumn",
     "files.trimTrailingWhitespace": true,
     "files.insertFinalNewline": true
+  }
 }
