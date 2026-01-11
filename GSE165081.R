@@ -34,8 +34,17 @@ gc(full = T)
 source("./meta_vars_mapping.R")
 var_mappings <- meta_vars_mapping(dataset = project_name)
 
+cohorts <- list(
+  PD_vs_Control = c("PD", "Control")
+)
+
 source("./pre_process_eda.R")
 # pre_process_eda(project_name = project_name, targets = targets, data_folder = data_folder, project_location = "/Volumes/Elements/methyl-pipe-out")
-pre_process_eda(project_to_load = "GSE165081_20251230_222519", targets = targets, data_folder = data_folder, project_location = "/Volumes/Elements/methyl-pipe-out", var_mapping = var_mappings)
-
-
+pre_process_eda(
+  project_to_load = "GSE165081_20251230_222519",
+  targets = targets,
+  data_folder = data_folder,
+  project_location = "/Volumes/Elements/methyl-pipe-out",
+  var_mapping = var_mappings,
+  cohorts = cohorts
+)

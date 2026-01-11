@@ -1,7 +1,7 @@
 source("R/progress_mgr.R")
 
 source("R/project_context.R")
-context <- .load_methylation_project(base_dir = "/Volumes/Elements/methyl-pipe-out", project_id = "ppmi_20260103_120001", platform = "EPIC")
+context <- .load_methylation_project(base_dir = "/Volumes/Elements/methyl-pipe-out", project_id = "ppmi_20260103_120001", platform = "EPIC", cohorts = cohorts)
 
 targets <- readRDS(file.path(context$paths$qc, "targets_s_mismatch_cells.rds"))
 targets_pd <- targets[targets$Sample_Group %in% c("PD", "Control"), ]
@@ -16,9 +16,13 @@ g <- list(
 )
 
 target_groups <- list()
+targets <- readRDS(file.path(context$paths$qc, "targets_s_mismatch_cells.rds"))
 for (gs in names(g)) {
     target_groups[[gs]] <- targets[targets$Sample_Group %in% g[[gs]], ]
 }
+
+names(target_groups)
+context$design$cohorts[["PD_vs_Control"]][2]
 
 names(target_groups)
 
