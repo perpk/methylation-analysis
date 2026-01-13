@@ -3,28 +3,19 @@ library(minfi)
 library(dplyr)
 
 main <- function() {
-    project_to_load <- "ppmi_20260103_120001"
-    data_folder <- "ppmi"
-    
-    targets <- readRDS(file.path(data_folder, "targets.rds"))
-
+    project_to_load <- "GSE111629_20251226_102044"
     cohorts <- list(
-        PD_vs_Control = c("PD", "Control"),
-        SWEDD_vs_Control = c("SWEDD", "Control")
+        PD_vs_Control = c("PD", "Control")
     )
 
-    source("./meta_vars_mapping.R")
-    var_mappings <- meta_vars_mapping(dataset = project_name)
+    design_formula <- "0 + Sample_Group + PC1 + PC2 + PC3"
 
-    source("./pre_process_eda.R")
-    pre_process_eda(
+    source("./differential_analysis.R")
+    differential_analysis(
         project_to_load = project_to_load,
-        targets = targets,
-        data_folder = data_folder,
         project_location = "/Volumes/Elements/methyl-pipe-out",
-        var_mapping = var_mappings,
-        platform = "EPIC",
-        qc_threshold = "auto",
-        cohorts = cohorts
+        platform = "450k",
+        cohorts = cohorts,
+        design_formula = design_formula
     )
 }

@@ -1,150 +1,175 @@
-source("R/progress_mgr.R")
+### Differential Methylation Analysis
 
-source("R/project_context.R")
-context <- .load_methylation_project(base_dir = "/Volumes/Elements/methyl-pipe-out", project_id = "ppmi_20260103_120001", platform = "EPIC", cohorts = cohorts)
+library(dplyr)
+library(stringr)
 
-targets <- readRDS(file.path(context$paths$qc, "targets_s_mismatch_cells.rds"))
-targets_pd <- targets[targets$Sample_Group %in% c("PD", "Control"), ]
-targets_swedd <- targets[targets$Sample_Group %in% c("SWEDD", "Control"), ]
+project_to_load <- "GSE111629_20251226_102044"
+data_folder <- "GSE111629_RAW"
 
-library(ggpubr)
-cell_types <- c("CD8T", "CD4T", "NK", "Bcell", "Mono")
-
-g <- list(
-    PD_vs_Control = c("PD", "Control"),
-    SWEDD_vs_Control = c("SWEDD", "Control")
+cohorts <- list(
+    PD_vs_Control = c("PD", "Control")
 )
 
-target_groups <- list()
+source("R/project_context.R")
+context <- .load_methylation_project(
+    base_dir = "/Volumes/Elements/methyl-pipe-out",
+    project_id = project_to_load,
+    cohorts = cohorts,
+    platform = "450K"
+)
+
 targets <- readRDS(file.path(context$paths$qc, "targets_s_mismatch_cells.rds"))
-for (gs in names(g)) {
-    target_groups[[gs]] <- targets[targets$Sample_Group %in% g[[gs]], ]
-}
+pcs <- readRDS(file.path(context$paths$results, "pca_df.rds"))
+View(pcs)
+View(targets)
 
-names(target_groups)
-context$design$cohorts[["PD_vs_Control"]][2]
+pcs$Sample_Name <- pcs %>%
+    tibble::rownames_to_column("Sample_Name") %>%
+    mutate(Sample_Name = str_extract(Sample_Name, "^[^_]+")) %>%
+    pull(Sample_Name)
 
-names(target_groups)
+targets <- merge(targets, pcs[c("Sample_Name", "PC1", "PC2", "PC3", "PC4", "PC5")],
+    by.x = "Sample_Name", by.y = "Sample_Name", all.x = TRUE
+)
 
-cell_results <- list()
-for (target_group in names(target_groups)) {
-    current_target <- target_groups[[target_group]]
-    for (cell_type in cell_types) {
-        test_result <- wilcox.test(current_target[[cell_type]] ~ current_target$Sample_Group)
-        cell_results[[cell_type]] <- data.frame(
-            CellType = cell_type,
-            p_value = test_result$p.value,
-            pd_median = median(current_target[[cell_type]][current_target$Sample_Group == "PD"], na.rm = TRUE),
-            hc_median = median(current_target[[cell_type]][current_target$Sample_Group == "Control"], na.rm = TRUE),
-            pd_mean = mean(current_target[[cell_type]][current_target$Sample_Group == "PD"], na.rm = TRUE),
-            hc_mean = mean(current_target[[cell_type]][current_target$Sample_Group == "Control"], na.rm = TRUE),
-            effect_size = median(current_target[[cell_type]][current_target$Sample_Group == "PD"], na.rm = TRUE) -
-                median(current_target[[cell_type]][current_target$Sample_Group == "Control"], na.rm = TRUE)
-        )
-    }
-    results <- do.call(rbind, cell_results)
-    results$fdr <- p.adjust(results$p_value, method = "fdr")
-    results$bonf <- p.adjust(results$p_value, method = "bonferroni")
+saveRDS(targets, file.path(context$paths$qc, "targets_s_mismatch_cells_pcs.rds"))
 
-    results <- results[order(results$fdr), ]
-    write.csv(results, file.path(context$paths$results, paste0(target_group, "_cell_statistic_sign.csv")))
+design <- model.matrix(
+    ~ 0 + Sample_Group + CD4T + Bcell + PC1 + PC2,
+    data = targets
+)
 
-    plots <- list()
+# targets$`age:ch1` <- as.numeric(targets$`age:ch1`)
+# targets$`gender:ch1` <- as.character(targets$`gender:ch1`)
+# names(targets)[names(targets) == "gender:ch1"] <- "Sex"
+# names(targets)[names(targets) == "age:ch1"] <- "Age"
 
-    for (ct in cell_types) {
-        current <- results[results$CellType == ct, ]
+# # Have a look at correlation between covariates, just for kicks
+# design_1 <- model.matrix(
+#   ~ 0 + Sample_Group + PC1 + PC2 + PC3 + PC4 + PC5 + Age + Sex,
+#   data = targets
+# )
 
-        p <- .create_celltype_plot(
-            targets = current_target,
-            cell_type = ct,
-            fdr_p = current$fdr,
-            bonf_p = current$bonf,
-            raw_p = current$p_value
-        )
+cor_matrix <- cor(design[, -1])
+heatmap(cor_matrix,
+    main = "Covariate Correlation Matrix",
+    margins = c(10, 10)
+)
 
-        ggsave(
-            filename = file.path(context$paths$plots, paste0(target_group, "_", ct, "_proportions.png")),
-            plot = p,
-            width = 8,
-            height = 6,
-            dpi = 300
-        )
+library(limma)
 
-        plots[[ct]] <- p
-    }
+m_values <- readRDS(file.path(context$paths$results, "m_values_bmiq.rds"))
 
-    library(patchwork)
-    multi_plot <- wrap_plots(plots, ncol = 3) +
-        plot_annotation(
-            title = "Blood Cell Type Proportions in Parkinson's Disease",
-            theme = theme(plot.title = element_text(hjust = 0.5, face = "bold"))
-        )
+fit <- lmFit(m_values, design)
+cont.matrix <- makeContrasts(Parkinsons_vs_Control = Sample_GroupPD - Sample_GroupControl, levels = design)
+fit2 <- contrasts.fit(fit, cont.matrix)
+fit2 <- eBayes(fit2)
+results <- topTable(fit2, number = Inf, coef = "Parkinsons_vs_Control")
+print("Sum of statistically significant differentially methylated probes")
+sum(results$adj.P.Val < 0.05 & abs(results$logFC) > 0.3)
 
-    ggsave(
-        filename = file.path(context$paths$plots, paste0(target_group, "_all_celltypes_multipanel.png")),
-        plot = multi_plot,
-        width = 16,
-        height = 12,
-        dpi = 300
-    )
-}
+hist(results[results$adj.P.Val < 0.05, ]$logFC, breaks = 50, main = "LogFC Distribution of Significant DMPs", xlab = "LogFC")
+
+results$ProbeID <- rownames(results)
+ann_450k <- getAnnotation(IlluminaHumanMethylation450kanno.ilmn12.hg19)
+ann_sub <- ann_450k[rownames(results), c("chr", "pos", "UCSC_RefGene_Name", "UCSC_RefGene_Group", "Relation_to_Island")]
+annotated_results <- merge(results, ann_sub, by.x = "ProbeID", by.y = "row.names")
+annotated_results <- annotated_results[order(annotated_results$adj.P.Val, -annotated_results$logFC), ]
+
+library(ggplot2)
+volcano_plot <- ggplot(annotated_results, aes(x = logFC, y = -log10(adj.P.Val))) +
+    geom_point(alpha = 0.6, aes(color = (adj.P.Val < 0.05 & abs(logFC) > 0.3))) +
+    geom_hline(yintercept = -log10(0.05), linetype = "dashed") +
+    geom_vline(xintercept = c(-0.3, 0.3), linetype = "dashed") +
+    ggtitle("Volcano Plot of Differential Methylation") +
+    theme_minimal()
+print(volcano_plot)
+
+### PCA on HC only
+
+beta <- readRDS(file.path(context$paths$results, "beta_matrix_bmiq.rds"))
+
+colnames(beta)
+
+targets$Sample_Id <- targets$Basename %>%
+    str_remove(paste0(data_folder, "/"))
+
+hc_samples <- targets %>%
+    filter(Sample_Group == "Control") %>%
+    pull(Sample_Id)
+
+beta_hc <- beta[, colnames(beta) %in% hc_samples]
+dim(beta_hc)
+
+pca_hc <- prcomp(t(beta_hc))
+
+beta_pd <- beta[, !colnames(beta) %in% hc_samples]
+
+beta_all <- cbind(beta_hc, beta_pd)
+all_projected <- predict(pca_hc, newdata = t(beta_all))
+original_controls <- pca_hc$x
+head(original_controls)
+
+projected_controls <- all_projected[rownames(pca_hc$x), 1:10]
+cor(original_controls[, 1], projected_controls[, 1])
+summary(pca_hc)$importance[, 1:5]
+
+View(projected_controls)
+
+keep <- which(!colnames(targets) %in% c("PC1", "PC2", "PC3", "PC4", "PC5"))
+targets <- targets[, keep]
+
+targets <- merge(
+    targets,
+    data.frame(
+        Sample_Id = rownames(all_projected),
+        all_projected[, 1:5]
+    ),
+    by.x = "Sample_Id",
+    by.y = "Sample_Id",
+    all.x = TRUE
+)
+View(targets)
+
+design <- model.matrix(
+    ~ 0 + Sample_Group + CD4T + Bcell + PC1 + PC2 + PC3,
+    data = targets
+)
+
+cor_matrix <- cor(design[, -1])
+heatmap(cor_matrix,
+    main = "Covariate Correlation Matrix",
+    margins = c(10, 10)
+)
+
+library(limma)
+
+m_values <- readRDS(file.path(context$paths$results, "m_values_bmiq.rds"))
+
+fit <- lmFit(m_values, design)
+cont.matrix <- makeContrasts(Parkinsons_vs_Control = Sample_GroupPD - Sample_GroupControl, levels = design)
+fit2 <- contrasts.fit(fit, cont.matrix)
+fit2 <- eBayes(fit2)
+results <- topTable(fit2, number = Inf, coef = "Parkinsons_vs_Control")
+print("Sum of statistically significant differentially methylated probes")
+sum(results$adj.P.Val < 0.05 & abs(results$logFC) > 0.2)
+
+hist(results[results$adj.P.Val < 0.05, ]$logFC, breaks = 50, main = "LogFC Distribution of Significant DMPs", xlab = "LogFC")
+
+results$ProbeID <- rownames(results)
+ann_450k <- getAnnotation(IlluminaHumanMethylation450kanno.ilmn12.hg19)
+ann_sub <- ann_450k[rownames(results), c("chr", "pos", "UCSC_RefGene_Name", "UCSC_RefGene_Group", "Relation_to_Island")]
+annotated_results <- merge(results, ann_sub, by.x = "ProbeID", by.y = "row.names")
+annotated_results <- annotated_results[order(annotated_results$adj.P.Val, -annotated_results$logFC), ]
+
+library(ggplot2)
+volcano_plot <- ggplot(annotated_results, aes(x = logFC, y = -log10(adj.P.Val))) +
+    geom_point(alpha = 0.6, aes(color = (adj.P.Val < 0.05 & abs(logFC) > 0.2))) +
+    geom_hline(yintercept = -log10(0.05), linetype = "dashed") +
+    geom_vline(xintercept = c(-0.2, 0.2), linetype = "dashed") +
+    ggtitle("Volcano Plot of Differential Methylation") +
+    theme_minimal()
+print(volcano_plot)
 
 
-.create_celltype_plot <- function(targets, cell_type, fdr_p, bonf_p, raw_p) {
-    display_p <- fdr_p
-    display_label <- paste0("p[FDR] = ", fdr_p)
-
-    if (bonf_p < 0.05) {
-        display_label <- paste0(
-            "p[FDR] = ", fdr_p,
-            "\np[Bonf] = ", bonf_p
-        )
-    }
-
-    p <- ggplot(targets, aes(
-        x = Sample_Group, y = .data[[cell_type]],
-        fill = Sample_Group
-    )) +
-        geom_boxplot(alpha = 0.7, outlier.shape = NA) +
-        geom_jitter(width = 0.2, alpha = 0.6, size = 1.5) +
-        annotate("text",
-            x = 1.5,
-            y = max(targets[[cell_type]], na.rm = TRUE) * 1.05,
-            label = display_label,
-            parse = TRUE,
-            size = 4,
-            fontface = "bold"
-        ) +
-        geom_signif(
-            comparisons = list(c("Control", "PD")),
-            annotations = ifelse(fdr_p < 0.001, "***",
-                ifelse(fdr_p < 0.01, "**",
-                    ifelse(fdr_p < 0.05, "*", "ns")
-                )
-            ),
-            y_position = max(targets[[cell_type]], na.rm = TRUE) * 1.1,
-            tip_length = 0.01
-        ) +
-        labs(
-            title = paste(cell_type, "Proportions in Parkinson's Disease"),
-            subtitle = paste(
-                "FDR =", fdr_p,
-                ifelse(bonf_p < 0.05, paste0("(Bonferroni = ", bonf_p, ")"), "")
-            ),
-            y = "Estimated Proportion",
-            x = "",
-            caption = ifelse(fdr_p < 0.05,
-                "Significant after FDR correction",
-                "Not significant after multiple testing correction"
-            )
-        ) +
-        scale_fill_manual(values = c("Control" = "#2E86AB", "PD" = "#A23B72")) +
-        theme_minimal() +
-        theme(
-            legend.position = "none",
-            plot.title = element_text(face = "bold", size = 14),
-            plot.subtitle = element_text(color = "gray40")
-        )
-
-    return(p)
-}
+main <- function() {}
