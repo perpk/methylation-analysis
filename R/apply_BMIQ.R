@@ -5,12 +5,12 @@ apply_BMIQ <- function(context = NULL,
                        beta_matrix_file = "beta_matrix_noob.rds",
                        plot = FALSE) {
   platform <- NULL
-  if (context$platform == "450K") {
+  if (context$platform == "450k") {
     platform <- IlluminaHumanMethylation450kanno.ilmn12.hg19
   } else if (context$platform == "EPIC") {
     platform <- IlluminaHumanMethylationEPICanno.ilm10b4.hg19
   } else {
-    stop("Unsupported platform. Please specify '450K' or 'EPIC'.")
+    stop("Unsupported platform. Please specify '450k' or 'EPIC'.")
   }
 
   prog <- .create_progress_manager(2)
