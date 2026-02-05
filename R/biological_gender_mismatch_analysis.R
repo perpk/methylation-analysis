@@ -1,10 +1,12 @@
-biological_gender_mismatch_analysis <- function(context=NULL,
+biological_gender_mismatch_analysis <- function(context = NULL,
                                                 methyl_set_filename = "methyl_set_clean.rds",
-                                                rg_set_filename = "rg_set_clean.rds",
-                                                targets_filename="targets_clean.rds",
-                                                targets_sample_col="Sample_Name",
-                                                recorded_sex_col=NULL) {
+                                                rg_set_filename = "rg_set_probe_qc.rds",
+                                                targets_filename = "methyl_set_probe_qc.rds",
+                                                targets_sample_col = "Sample_Name",
+                                                recorded_sex_col = NULL) {
   prog <- .create_progress_manager(5)
+
+  print("biological gender mismatch analysis")
 
   methyl_set_file <- file.path(context$paths$qc, methyl_set_filename)
   rg_set_file <- file.path(context$paths$qc, rg_set_filename)
@@ -41,24 +43,31 @@ biological_gender_mismatch_analysis <- function(context=NULL,
   print(paste("Writing mismatch results to file", sex_mismatch_log))
   write.csv(mismatches, sex_mismatch_log)
 
-  mismatch_plot <- ggplot(sex_check, aes(x = X_chr_median, y = Y_chr_median,
-                        color = Recorded_Sex,
-                        shape = Predicted_Sex)) +
-    geom_point(aes(shape = Predicted_Sex), size = 3, alpha = 0.5) +  scale_color_manual(values = c("Female" = "red", "Male" = "blue")) +
-    labs(x = "X Chromosome Median Intensity",
-         y = "Y Chromosome Median Intensity",
-         title = "Sex Prediction Quality Control",
-         color = "Recorded Sex",
-         shape = "Predicted Sex") +
+  mismatch_plot <- ggplot(sex_check, aes(
+    x = X_chr_median, y = Y_chr_median,
+    color = Recorded_Sex,
+    shape = Predicted_Sex
+  )) +
+    geom_point(aes(shape = Predicted_Sex), size = 3, alpha = 0.5) +
+    scale_color_manual(values = c("Female" = "red", "Male" = "blue")) +
+    labs(
+      x = "X Chromosome Median Intensity",
+      y = "Y Chromosome Median Intensity",
+      title = "Sex Prediction Quality Control",
+      color = "Recorded Sex",
+      shape = "Predicted Sex"
+    ) +
     theme_minimal() +
     theme(legend.position = "bottom")
 
   mismatch_plot_file <- file.path(context$paths$plots, "sex_mismatch_plot.png")
-  ggsave(filename = mismatch_plot_file,
-         plot = mismatch_plot,
-         width = 8,
-         height = 6,
-         dpi = 300)
+  ggsave(
+    filename = mismatch_plot_file,
+    plot = mismatch_plot,
+    width = 8,
+    height = 6,
+    dpi = 300
+  )
   print(paste("Saved:", mismatch_plot_file))
   print(paste("Found", nrow(mismatches), "sex mismatches:"))
   print(mismatches)

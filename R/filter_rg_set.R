@@ -1,6 +1,8 @@
 filter_rg_set <- function(context = NULL, methyl_set_filename = "methyl_set_removed_cross_reactive.rds", rg_set_filename = "rg_set_remove_mismatch.rds") {
   prog <- .create_progress_manager(5)
 
+  print("filter rg set")
+
   rg_set_filepath <- file.path(context$paths$processed, rg_set_filename)
   methyl_set_filepath <- file.path(context$paths$processed, methyl_set_filename)
 

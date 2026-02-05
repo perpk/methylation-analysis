@@ -15,6 +15,8 @@ apply_BMIQ <- function(context = NULL,
 
   prog <- .create_progress_manager(2)
 
+  print("Beta-Mixture quantile normalization (BMIQ)")
+
   beta_matrix_filepath <- file.path(context$paths$results, beta_matrix_file)
 
   prog$update(1, paste("Reading beta-matrix file from", beta_matrix_filepath))

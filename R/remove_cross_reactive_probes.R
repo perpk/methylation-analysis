@@ -1,7 +1,8 @@
 library(maxprobes)
 remove_cross_reactive_probes <- function(context = NULL, methyl_set_filename = "methyl_set_filtered_chrom.rds") {
-
   prog <- .create_progress_manager(4)
+
+  print("remove cross reactive probes")
 
   prog$update(1, "Fetching set of cross-reactive probes")
 
@@ -18,7 +19,7 @@ remove_cross_reactive_probes <- function(context = NULL, methyl_set_filename = "
   ann <- getAnnotation(annlib)
 
   # cross_reactive_probes <- read.csv("https://github.com/sirselim/illumina450k_filtering/raw/master/48639-non-specific-probes-Illumina450k.csv", header = TRUE)
-  
+
   # cross_reactive <- cross_reactive_probes$TargetID
 
   prog$update(2, "Reading methyl set raw data")

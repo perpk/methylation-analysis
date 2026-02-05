@@ -36,9 +36,14 @@ pre_process_eda <- function(
   # source("R/extract_methyl_set.R")
   # extract_methyl_set(context = project_context, targets = targets)
 
-  # ### QC - Outlier detection and removal
+  # ### Sample QC - Outlier detection and removal
   # source("R/qc.R")
   # qc(context = project_context, targets = targets, qc_threshold = qc_threshold)
+
+  ### Probe QC - Detection p-value based probe filtering
+  # source("R/probe_qc.R")
+  # probe_qc(context = project_context)
+
 
   # ### Remove sex-mismatched samples
   # source("R/biological_gender_mismatch_analysis.R")
@@ -66,7 +71,7 @@ pre_process_eda <- function(
   # source("R/bg_correction_dye_bias_norm.R")
   # bg_correction_dye_bias_norm(context = project_context)
 
-  ### Beta-Mixture Quantile (BMIQ) Normalization
+  # ### Beta-Mixture Quantile (BMIQ) Normalization
   source("R/apply_BMIQ.R")
   apply_BMIQ(context = project_context)
 
@@ -100,10 +105,10 @@ pre_process_eda <- function(
   # source("R/outlier_analysis.R")
   # outlier_analysis(context = project_context, sample_metadata = c("Sample_Group", var_mapping$gender_var, var_mapping$age_var))
 
-  #### PCA Outlier assessment (TODO Doesn't really work out)
-  # source("R/pca_outlier_assessment.R")
-  # pca_outlier_assessment(context = project_context)
-  # metrics <- readRDS(file.path(project_context$paths$qc, "metrics_pca_outlier_assessment.rds"))
+  # #### PCA Outlier assessment (TODO Doesn't really work out)
+  # # source("R/pca_outlier_assessment.R")
+  # # pca_outlier_assessment(context = project_context)
+  # # metrics <- readRDS(file.path(project_context$paths$qc, "metrics_pca_outlier_assessment.rds"))
 
   # ### Calculate Delta-Beta values
   # beta_matrix <- readRDS(file.path(project_context$paths$results, "beta_matrix_bmiq.rds"))
@@ -136,7 +141,7 @@ pre_process_eda <- function(
   # source("R/cell_cnt_estimate.R")
   # cell_cnt_estimate(context = project_context)
 
-  ### Plot Cell proportion per cohort and write results to files for each cell type
+  # ## Plot Cell proportion per cohort and write results to files for each cell type
   # source("R/plot_cell_proportions.R")
   # plot_cell_proportions(context = project_context)
 }
