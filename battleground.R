@@ -11,52 +11,27 @@ context <- .load_methylation_project(project_location, project_to_load, platform
 
 rg_set_filename <- "rg_set_clean.rds"
 methyl_set_filename <- "methyl_set_clean.rds"
+targets_filename <- "targets_remove_mismatch.rds"
 det_p_threshold <- 0.01
 max_failed_samples <- 0.05
 
-rg_set_filepath <- file.path(context$paths$qc, rg_set_filename)
-rg_set <- readRDS(rg_set_filepath)
+rg_set_path <- file.path(context$paths$processed, rg_set_filename)
+targets_path <- file.path(context$paths$processed, targets_filename)
 
-# methyl_set_filepath <- file.path(context$paths$qc, methyl_set_filename)
-# methyl_set <- readRDS(methyl_set_filepath)
+print("Estimating cell counts")
 
-library(minfi)
-det_p <- detectionP(rg_set)
-failed <- det_p > det_p_threshold
-prop_failed <- rowMeans(failed, na.rm = TRUE)
-keep_probes <- prop_failed < max_failed_samples
+prog <- .create_progress_manager(3)
 
-cat("\n=== Probe QC Results ===\n")
-cat("Total probes:", length(keep_probes), "\n")
-cat("Probes kept:", sum(keep_probes), "\n")
-cat("Probes removed:", sum(!keep_probes), "\n")
-cat("Percentage removed:", round(mean(!keep_probes) * 100, 2), "%\n")
+prog$update(1, "Reading files")
+rg_set <- readRDS(rg_set_path)
+targets <- readRDS(targets_path)
 
-removed_indices <- which(!keep_probes)
-removed_probes <- rownames(rg_set)[removed_indices]
-failure_rates <- prop_failed[removed_indices] * 100
+prog$update(2, "Estimating cell counts")
+cell_counts <- estimateCellCounts(rg_set, compositeType = "Blood", probeSelect = "IDOL")
+targets <- cbind(targets, cell_counts)
 
-if (length(removed_probes) != length(failure_rates)) {
-  cat("WARNING: Length mismatch! Debug info:\n")
-  cat("  removed_probes length:", length(removed_probes), "\n")
-  cat("  failure_rates length:", length(failure_rates), "\n")
-  cat("  removed_indices length:", length(removed_indices), "\n")
-  cat("  prop_failed length:", length(prop_failed), "\n")
-}
-
-removed_df <- data.frame(
-  probe_id = removed_probes,
-  failure_rate_percent = failure_rates,
-  reason = ifelse(failure_rates >= max_failed_samples * 100,
-    paste0("Failed in >= ", max_failed_samples * 100, "% samples"),
-    "Other QC failure"
-  ),
-  stringsAsFactors = FALSE
-)
-
-rg_set_filtered <- rg_set[keep_probes, ]
-
-methyl_set_filepath <- file.path(context$paths$qc, methyl_set_filename)
-methyl_set <- readRDS(methyl_set_filepath)
-
-methyl_set_filtered <- methyl_set[keep_probes, ]
+prog$update(3, "Saving results in targets as metadata for downstream analysis")
+targets_cell_types_path <- file.path(context$paths$qc, "targets_s_mismatch_cells.rds")
+saveRDS(targets, targets_cell_types_path)
+rm(list = ls())
+gc(full = T)

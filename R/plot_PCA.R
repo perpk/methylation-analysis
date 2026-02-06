@@ -1,9 +1,10 @@
 plot_PCA <- function(context = NULL, pca_results_rds_filename = NULL, pca_vars = NULL,
-                     convert_fun = NULL, continuously_scaled = c(), pca_output_name = "pca_plot_", npc=5, create_pairplot=TRUE, pairplot_color_by=NULL) {
-
+                     convert_fun = NULL, continuously_scaled = c(), pca_output_name = "pca_plot_", npc = 5, create_pairplot = TRUE, pairplot_color_by = NULL) {
   # Load required libraries
   library(ggplot2)
   library(gridExtra)
+
+  print("plot PCA")
 
   prog <- .create_progress_manager(1)
 
@@ -15,7 +16,7 @@ plot_PCA <- function(context = NULL, pca_results_rds_filename = NULL, pca_vars =
 
   # 2. Apply conversion function if provided (FIXED)
   if (!is.null(convert_fun)) {
-    pca_df <- convert_fun(pca_df)  # Function must RETURN the modified dataframe
+    pca_df <- convert_fun(pca_df) # Function must RETURN the modified dataframe
   }
 
   # Debug: Check pca_df structure
@@ -38,8 +39,8 @@ plot_PCA <- function(context = NULL, pca_results_rds_filename = NULL, pca_vars =
   # 4. Create plots only for available variables
   plot_index <- 1
   for (i in seq_along(available_vars)) {
-    var_name <- available_vars[i]           # Column name in pca_df ("Sample_Group", "Gender", "Age")
-    plot_title <- pca_vars[var_name]        # Plot title ("By Diagnosis", etc.)
+    var_name <- available_vars[i] # Column name in pca_df ("Sample_Group", "Gender", "Age")
+    plot_title <- pca_vars[var_name] # Plot title ("By Diagnosis", etc.)
 
     print(paste("Creating plot:", var_name, "->", plot_title))
 
@@ -48,19 +49,25 @@ plot_PCA <- function(context = NULL, pca_results_rds_filename = NULL, pca_vars =
       plots[[plot_index]] <- ggplot(pca_df, aes(x = PC1, y = PC2, color = .data[[var_name]])) +
         geom_point(size = 3, alpha = 0.8) +
         scale_color_viridis_c(name = var_name) +
-        labs(title = plot_title,
-             x = "Principal Component 1",
-             y = "Principal Component 2") +
+        labs(
+          title = plot_title,
+          x = "Principal Component 1",
+          y = "Principal Component 2"
+        ) +
         theme_minimal()
     } else {
       # Categorical variable
-      plots[[plot_index]] <- ggplot(pca_df, aes(x = PC1, y = PC2,
-                                                color = as.factor(.data[[var_name]]))) +
+      plots[[plot_index]] <- ggplot(pca_df, aes(
+        x = PC1, y = PC2,
+        color = as.factor(.data[[var_name]])
+      )) +
         geom_point(size = 3, alpha = 0.8) +
-        labs(title = plot_title,
-             x = "Principal Component 1",
-             y = "Principal Component 2",
-             color = var_name) +
+        labs(
+          title = plot_title,
+          x = "Principal Component 1",
+          y = "Principal Component 2",
+          color = var_name
+        ) +
         theme_minimal() +
         theme(legend.position = "right")
     }
@@ -71,28 +78,36 @@ plot_PCA <- function(context = NULL, pca_results_rds_filename = NULL, pca_vars =
   # 5. Save individual plots
   for (i in seq_along(plots)) {
     var_name <- available_vars[i]
-    filename <- file.path(context$paths$plots,
-                          paste0(pca_output_name, var_name, ".png"))
+    filename <- file.path(
+      context$paths$plots,
+      paste0(pca_output_name, var_name, ".png")
+    )
 
-    ggsave(filename = filename,
-           plot = plots[[i]],
-           width = 8,
-           height = 6,
-           dpi = 300)
+    ggsave(
+      filename = filename,
+      plot = plots[[i]],
+      width = 8,
+      height = 6,
+      dpi = 300
+    )
     print(paste("Saved:", filename))
   }
 
   # 6. Save combined plot if we have any plots
   if (length(plots) > 0) {
     combined <- grid.arrange(grobs = plots, ncol = min(2, length(plots)))
-    combined_filename <- file.path(context$paths$plots,
-                                   "pca_all_variables_grid.png")
+    combined_filename <- file.path(
+      context$paths$plots,
+      "pca_all_variables_grid.png"
+    )
 
-    ggsave(filename = combined_filename,
-           plot = combined,
-           width = min(2, length(plots)) * 8,
-           height = ceiling(length(plots)/2) * 6,
-           dpi = 300)
+    ggsave(
+      filename = combined_filename,
+      plot = combined,
+      width = min(2, length(plots)) * 8,
+      height = ceiling(length(plots) / 2) * 6,
+      dpi = 300
+    )
     print(paste("Saved combined plot:", combined_filename))
   } else {
     print("No plots were created - check if variables exist in pca_df")
@@ -121,12 +136,11 @@ plot_PCA <- function(context = NULL, pca_results_rds_filename = NULL, pca_vars =
   }
 
   prog$complete()
-  return(invisible(list(individual_plots = plots, pairplot = if(exists("pairplot")) pairplot else NULL)))
+  return(invisible(list(individual_plots = plots, pairplot = if (exists("pairplot")) pairplot else NULL)))
 }
 
 .add_pca_pairplot <- function(pca_df, n_pcs = 4, color_by = NULL,
-                                    context = NULL, output_name = "pca_pairplot") {
-
+                              context = NULL, output_name = "pca_pairplot") {
   library(ggplot2)
   library(patchwork)
 
@@ -159,8 +173,10 @@ plot_PCA <- function(context = NULL, pca_results_rds_filename = NULL, pca_vars =
     } else {
       # Off-diagonal: Scatter plot
       if (!is.null(color_by) && color_by %in% colnames(pca_df)) {
-        p <- ggplot(pca_df, aes(x = .data[[x_var]], y = .data[[y_var]],
-                                color = as.factor(.data[[color_by]]))) +
+        p <- ggplot(pca_df, aes(
+          x = .data[[x_var]], y = .data[[y_var]],
+          color = as.factor(.data[[color_by]])
+        )) +
           geom_point(size = 0.5, alpha = 0.5) +
           scale_color_viridis_d(name = color_by)
       } else {
@@ -170,8 +186,10 @@ plot_PCA <- function(context = NULL, pca_results_rds_filename = NULL, pca_vars =
       p <- p +
         labs(x = x_var, y = y_var) +
         theme_minimal() +
-        theme(axis.text = element_text(size = 6),
-              legend.position = "none")
+        theme(
+          axis.text = element_text(size = 6),
+          legend.position = "none"
+        )
     }
 
     plots[[plot_idx]] <- p
@@ -186,12 +204,13 @@ plot_PCA <- function(context = NULL, pca_results_rds_filename = NULL, pca_vars =
   if (!is.null(context)) {
     filename <- file.path(context$paths$plots, paste0(output_name, ".png"))
     ggsave(filename, pairplot,
-           width = 3 * length(pc_columns),
-           height = 3 * length(pc_columns),
-           dpi = 300)
+      width = 3 * length(pc_columns),
+      height = 3 * length(pc_columns),
+      dpi = 300
+    )
     print(paste("Saved pairplot to:", filename))
   }
 
-  rm(list=ls())
-  gc(full=T)
+  rm(list = ls())
+  gc(full = T)
 }

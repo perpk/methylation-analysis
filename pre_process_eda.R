@@ -46,8 +46,8 @@ pre_process_eda <- function(
 
 
   # ### Remove sex-mismatched samples
-  # source("R/biological_gender_mismatch_analysis.R")
-  # biological_gender_mismatch_analysis(context = project_context, recorded_sex_col = var_mapping$gender_var)
+  source("R/biological_gender_mismatch_analysis.R")
+  biological_gender_mismatch_analysis(context = project_context, recorded_sex_col = var_mapping$gender_var)
 
   # ## Remove cross-reactive probes, sex-chromosome related probes and single nucleotide polymorphisms (SNPs)
   # ## Order matters, firstly SNPs must be removed then probes on XY chromosomes and thus keeping only those on autosomal and finally filtering of cross-reactive probes.
@@ -72,34 +72,34 @@ pre_process_eda <- function(
   # bg_correction_dye_bias_norm(context = project_context)
 
   # ### Beta-Mixture Quantile (BMIQ) Normalization
-  source("R/apply_BMIQ.R")
-  apply_BMIQ(context = project_context)
+  # source("R/apply_BMIQ.R")
+  # apply_BMIQ(context = project_context)
 
 
   # ### Principal Component Analysis
-  # source("R/principal_component_analysis.R")
-  # col_map <- list()
-  # col_map[["Sample_Group"]] <- "Sample_Group"
-  # col_map[["Gender"]] <- var_mapping$gender_var
-  # col_map[["Age"]] <- var_mapping$age_var
-  # keys <- c("Sample_Group", "Gender", "Age")
-  # principal_component_analysis(project_context, col_maps = col_map, keys = keys, npc = 5)
+  source("R/principal_component_analysis.R")
+  col_map <- list()
+  col_map[["Sample_Group"]] <- "Sample_Group"
+  col_map[["Gender"]] <- var_mapping$gender_var
+  col_map[["Age"]] <- var_mapping$age_var
+  keys <- c("Sample_Group", "Gender", "Age")
+  principal_component_analysis(project_context, col_maps = col_map, keys = keys, npc = 5)
   # #
   # # #### Plot PCA
-  # source("R/plot_PCA.R")
-  # pca_vars <- c("Sample_Group" = "By Diagnosis", "Gender" = "By Biological Gender", "Age" = "By Age")
-  # convert_f <- function(df) {
-  #   (transform(df, Age = as.numeric(Age)))
-  # }
-  # plot_PCA(
-  #   context = project_context,
-  #   pca_results_rds_filename = "pca_df.rds",
-  #   pca_vars = pca_vars,
-  #   convert_fun = convert_f,
-  #   continuously_scaled = c("Age"),
-  #   "pca_plot_",
-  #   pairplot_color_by = "Age"
-  # )
+  source("R/plot_PCA.R")
+  pca_vars <- c("Sample_Group" = "By Diagnosis", "Gender" = "By Biological Gender", "Age" = "By Age")
+  convert_f <- function(df) {
+    (transform(df, Age = as.numeric(Age)))
+  }
+  plot_PCA(
+    context = project_context,
+    pca_results_rds_filename = "pca_df.rds",
+    pca_vars = pca_vars,
+    convert_fun = convert_f,
+    continuously_scaled = c("Age"),
+    "pca_plot_",
+    pairplot_color_by = "Age"
+  )
 
   # #### Outlier detection from PCA
   # source("R/outlier_analysis.R")
@@ -111,37 +111,38 @@ pre_process_eda <- function(
   # # metrics <- readRDS(file.path(project_context$paths$qc, "metrics_pca_outlier_assessment.rds"))
 
   # ### Calculate Delta-Beta values
-  # beta_matrix <- readRDS(file.path(project_context$paths$results, "beta_matrix_bmiq.rds"))
-  # targets <- readRDS(file.path(project_context$paths$processed, "targets_remove_mismatch.rds"))
-  # rownames(targets) <- targets$Basename %>% str_remove(paste0(data_folder, "/"))
+  print("Calculate Delta-Beta values")
+  beta_matrix <- readRDS(file.path(project_context$paths$results, "beta_matrix_bmiq.rds"))
+  targets <- readRDS(file.path(project_context$paths$processed, "targets_remove_mismatch.rds"))
+  rownames(targets) <- targets$Basename %>% str_remove(paste0(data_folder, "/"))
 
-  # pd_samples <- rownames(targets[targets$Sample_Group == "PD", ])
-  # hc_samples <- rownames(targets[targets$Sample_Group == "Control", ])
+  pd_samples <- rownames(targets[targets$Sample_Group == "PD", ])
+  hc_samples <- rownames(targets[targets$Sample_Group == "Control", ])
 
-  # colnames_pd <- which(colnames(beta_matrix) %in% pd_samples)
-  # colnames_hc <- which(colnames(beta_matrix) %in% hc_samples)
+  colnames_pd <- which(colnames(beta_matrix) %in% pd_samples)
+  colnames_hc <- which(colnames(beta_matrix) %in% hc_samples)
 
-  # mean_beta_pd <- rowMeans(beta_matrix[, colnames_pd], na.rm = TRUE)
-  # mean_beta_hc <- rowMeans(beta_matrix[, colnames_hc], na.rm = TRUE)
-  # delta_beta <- mean_beta_pd - mean_beta_hc
+  mean_beta_pd <- rowMeans(beta_matrix[, colnames_pd], na.rm = TRUE)
+  mean_beta_hc <- rowMeans(beta_matrix[, colnames_hc], na.rm = TRUE)
+  delta_beta <- mean_beta_pd - mean_beta_hc
 
-  # beta_means <- data.frame(
-  #   mean_beta_pd,
-  #   mean_beta_hc,
-  #   delta_beta
-  # )
+  beta_means <- data.frame(
+    mean_beta_pd,
+    mean_beta_hc,
+    delta_beta
+  )
 
-  # write.csv(beta_means, file.path(project_context$paths$results, "beta_means.csv"))
+  write.csv(beta_means, file.path(project_context$paths$results, "beta_means.csv"))
 
-  # rm(beta_matrix)
-  # rm(targets)
-  # gc(full = TRUE)
+  rm(beta_matrix)
+  rm(targets)
+  gc(full = TRUE)
 
   # # Cell Count Estimation
-  # source("R/cell_cnt_estimate.R")
-  # cell_cnt_estimate(context = project_context)
+  source("R/cell_cnt_estimate.R")
+  cell_cnt_estimate(context = project_context)
 
-  # ## Plot Cell proportion per cohort and write results to files for each cell type
-  # source("R/plot_cell_proportions.R")
-  # plot_cell_proportions(context = project_context)
+  ## Plot Cell proportion per cohort and write results to files for each cell type
+  source("R/plot_cell_proportions.R")
+  plot_cell_proportions(context = project_context)
 }
