@@ -188,7 +188,7 @@ plot_PCA <- function(context = NULL, pca_results_rds_filename = NULL, pca_vars =
         theme_minimal() +
         theme(
           axis.text = element_text(size = 6),
-          legend.position = "none"
+          legend.position = "right"
         )
     }
 

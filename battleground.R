@@ -2,36 +2,23 @@ project_to_load <- "GSE111629_20251226_102044"
 project_location <- "/Volumes/Elements/methyl-pipe-out"
 project_name <- "GSE111629"
 
-cohorts <- list(
-  PD_vs_Control = c("PD", "Control")
-)
-
 source("R/project_context.R")
 context <- .load_methylation_project(project_location, project_to_load, platform = "450k", cohorts = cohorts)
 
-rg_set_filename <- "rg_set_clean.rds"
-methyl_set_filename <- "methyl_set_clean.rds"
-targets_filename <- "targets_remove_mismatch.rds"
-det_p_threshold <- 0.01
-max_failed_samples <- 0.05
+cells_only_dmp <- read.csv(file.path(context$paths$results, "CellsOnly_dmp_annotated_results.csv"), row.names = 1)
+pcs_cells_dmp <- read.csv(file.path(context$paths$results, "PCplusCells_dmp_annotated_results.csv"), row.names = 1)
+pcs_only_dmp <- read.csv(file.path(context$paths$results, "PCs_Only_dmp_annotated_results.csv"), row.names = 1)
 
-rg_set_path <- file.path(context$paths$processed, rg_set_filename)
-targets_path <- file.path(context$paths$processed, targets_filename)
+cells_only_dmp_sign <- cells_only_dmp[abs(cells_only_dmp["logFC"]) > 0.2 & cells_only_dmp["adj.P.Val"] < 0.05, ]
+pcs_cells_dmp_sign <- pcs_cells_dmp[abs(pcs_cells_dmp["logFC"]) > 0.2 & pcs_cells_dmp["adj.P.Val"] < 0.05, ]
+pcs_only_dmp_sign <- pcs_only_dmp[abs(pcs_only_dmp["logFC"]) > 0.2 & pcs_only_dmp["adj.P.Val"] < 0.05, ]
 
-print("Estimating cell counts")
+dim(pcs_cells_dmp_sign)
+dim(cells_only_dmp_sign)
+dim(pcs_only_dmp_sign)
 
-prog <- .create_progress_manager(3)
+dfs <- list(pcs_cells_dmp_sign, cells_only_dmp_sign, pcs_only_dmp_sign)
 
-prog$update(1, "Reading files")
-rg_set <- readRDS(rg_set_path)
-targets <- readRDS(targets_path)
-
-prog$update(2, "Estimating cell counts")
-cell_counts <- estimateCellCounts(rg_set, compositeType = "Blood", probeSelect = "IDOL")
-targets <- cbind(targets, cell_counts)
-
-prog$update(3, "Saving results in targets as metadata for downstream analysis")
-targets_cell_types_path <- file.path(context$paths$qc, "targets_s_mismatch_cells.rds")
-saveRDS(targets, targets_cell_types_path)
-rm(list = ls())
-gc(full = T)
+library(dplyr)
+i <- map(dfs, ~.$ProbeID) %>% reduce(intersect)
+i

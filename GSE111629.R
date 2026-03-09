@@ -5,7 +5,7 @@ library(tidyverse)
 rm(list = ls())
 gc(full = TRUE)
 
-project_name = "GSE111629"
+project_name <- "GSE111629"
 project_to_load <- "GSE111629_20251226_102044"
 data_folder <- paste0(project_name, "_RAW")
 
@@ -51,7 +51,7 @@ cohorts <- list(
   PD_vs_Control = c("PD", "Control")
 )
 
-design_formula <- "0 + Sample_Group + CD4T + Bcell + PC1 + PC2 + PC3"
+design_formula <- "0 + Sample_Group + PC1 + PC2 + PC3"
 
 source("./differential_analysis.R")
 differential_analysis(
