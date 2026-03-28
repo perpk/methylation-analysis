@@ -20,6 +20,12 @@ meta_vars_mapping <- function(dataset) {
       gender_var = "SEX",
       age_var = "ENROLL_AGE"
     )
+  } else if (dataset == "GSE145361") {
+    mapping <- list.append(
+      mapping,
+      gender_var = "gender:ch1",
+      age_var = NULL
+    )
   }
-  return (mapping)
+  return(mapping)
 }

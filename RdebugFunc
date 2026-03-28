@@ -11,14 +11,11 @@ main <- function() {
     design_formula <- "0 + Sample_Group + PC1 + PC2 + PC3"
 
     source("./differential_analysis.R")
-    source("./pre_process_eda.R")
-    pre_process_eda(
+    differential_analysis(
         project_to_load = project_to_load,
-        targets = targets,
-        data_folder = data_folder,
         project_location = "/Volumes/Elements/methyl-pipe-out",
-        var_mapping = var_mappings,
+        platform = "450k",
         cohorts = cohorts,
-        platform = "450k"
+        design_formula = design_formula
     )
 }

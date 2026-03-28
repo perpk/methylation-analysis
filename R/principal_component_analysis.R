@@ -1,5 +1,4 @@
 principal_component_analysis <- function(context = NULL, beta_matrix_filename = "beta_matrix_bmiq.rds", targets_filename = "targets_remove_mismatch.rds", col_maps, keys, npc) {
-
   prog <- .create_progress_manager(4)
 
   targets_filepath <- file.path(context$paths$processed, targets_filename)
@@ -20,11 +19,13 @@ principal_component_analysis <- function(context = NULL, beta_matrix_filename = 
     (paste0("PC", pca_df))
   })
   for (index in 1:npc) {
-    pca_df[[paste0("PC", index)]] <- pca$x[,index]
+    pca_df[[paste0("PC", index)]] <- pca$x[, index]
   }
 
   for (k in keys) {
-    pca_df[[k]] <- targets[[col_maps[[k]]]]
+    if (col_maps[[k]] != NULL) {
+      pca_df[[k]] <- targets[[col_maps[[k]]]]
+    }
   }
 
   pca_df_filepath <- file.path(context$paths$results, "pca_df.rds")

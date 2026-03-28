@@ -51,7 +51,7 @@ cohorts <- list(
   PD_vs_Control = c("PD", "Control")
 )
 
-design_formula <- "0 + Sample_Group + PC1 + PC2 + PC3"
+design_formula <- "0 + Sample_Group + PC3"
 
 source("./differential_analysis.R")
 differential_analysis(

@@ -82,6 +82,24 @@ differential_probe_analysis <- function(
 }
 
 .principal_component_covariates <- function(context, beta, targets, pca_cnt) {
+  pca_df_filepath <- file.path(context$paths$results, "pca_df.rds")
+  pca <- readRDS(pca_df_filepath)
+  pca_df <- pca[, 1:pca_cnt]
+  targets$Sample_Id <- gsub(".*/", "", targets$Basename)
+  targets_pcas <- merge(
+    targets,
+    data.frame(
+      Sample_Id = rownames(pca_df),
+      pca_df
+    ),
+    by.x = "Sample_Id",
+    by.y = "Sample_Id",
+    all.x = TRUE
+  )
+  (targets_pcas)
+}
+
+.principal_component_covariates_hc_projection <- function(context, beta, targets, pca_cnt) {
   targets$Sample_Id <- gsub(".*/", "", targets$Basename)
 
   hc_samples <- targets %>%

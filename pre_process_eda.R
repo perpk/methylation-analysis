@@ -32,51 +32,51 @@ pre_process_eda <- function(
     project_context <- .load_methylation_project(project_location, project_to_load, platform = platform, cohorts = cohorts)
   }
 
-  # ### Read raw data and write to disk
-  # source("R/extract_methyl_set.R")
-  # extract_methyl_set(context = project_context, targets = targets)
+  ### Read raw data and write to disk
+  source("R/extract_methyl_set.R")
+  extract_methyl_set(context = project_context, targets = targets)
 
-  # ### Sample QC - Outlier detection and removal
-  # source("R/qc.R")
-  # qc(context = project_context, targets = targets, qc_threshold = qc_threshold)
+  ### Sample QC - Outlier detection and removal
+  source("R/qc.R")
+  qc(context = project_context, targets = targets, qc_threshold = qc_threshold)
 
-  ### Probe QC - Detection p-value based probe filtering
-  # source("R/probe_qc.R")
-  # probe_qc(context = project_context)
+  ## Probe QC - Detection p-value based probe filtering
+  source("R/probe_qc.R")
+  probe_qc(context = project_context)
 
 
   # ### Remove sex-mismatched samples
   source("R/biological_gender_mismatch_analysis.R")
   biological_gender_mismatch_analysis(context = project_context, recorded_sex_col = var_mapping$gender_var)
 
-  # ## Remove cross-reactive probes, sex-chromosome related probes and single nucleotide polymorphisms (SNPs)
-  # ## Order matters, firstly SNPs must be removed then probes on XY chromosomes and thus keeping only those on autosomal and finally filtering of cross-reactive probes.
-  # ### 1. Single Nucleotide Polymorphisms
-  # source("R/remove_snp.R")
-  # remove_snp(context = project_context)
+  ## Remove cross-reactive probes, sex-chromosome related probes and single nucleotide polymorphisms (SNPs)
+  ## Order matters, firstly SNPs must be removed then probes on XY chromosomes and thus keeping only those on autosomal and finally filtering of cross-reactive probes.
+  ### 1. Single Nucleotide Polymorphisms
+  source("R/remove_snp.R")
+  remove_snp(context = project_context)
 
-  # ### 2. Sex-Chromosome Probe filtering
-  # source("R/remove_sex_chromosome_probes.R")
-  # remove_sex_chromosome_probes(context = project_context)
+  ### 2. Sex-Chromosome Probe filtering
+  source("R/remove_sex_chromosome_probes.R")
+  remove_sex_chromosome_probes(context = project_context)
 
-  # # #### 3. Cross Reactive Probes
-  # source("R/remove_cross_reactive_probes.R")
-  # remove_cross_reactive_probes(context = project_context)
+  # #### 3. Cross Reactive Probes
+  source("R/remove_cross_reactive_probes.R")
+  remove_cross_reactive_probes(context = project_context)
 
-  # # ### Filter rg_set according to the remaining methyl_set probes after it has been cleared off from SNPs, X/Y-Chromosome- and cross-reactive probes.
-  # source("R/filter_rg_set.R")
-  # filter_rg_set(context = project_context)
+  # ### Filter rg_set according to the remaining methyl_set probes after it has been cleared off from SNPs, X/Y-Chromosome- and cross-reactive probes.
+  source("R/filter_rg_set.R")
+  filter_rg_set(context = project_context)
 
-  # ### Perform background correction and dye-bias normalization on rg_set and extract new methyl_set & beta-matrix based on the filtered rg_set from previous step
-  # source("R/bg_correction_dye_bias_norm.R")
-  # bg_correction_dye_bias_norm(context = project_context)
+  ### Perform background correction and dye-bias normalization on rg_set and extract new methyl_set & beta-matrix based on the filtered rg_set from previous step
+  source("R/bg_correction_dye_bias_norm.R")
+  bg_correction_dye_bias_norm(context = project_context)
 
-  # ### Beta-Mixture Quantile (BMIQ) Normalization
-  # source("R/apply_BMIQ.R")
-  # apply_BMIQ(context = project_context)
+  ### Beta-Mixture Quantile (BMIQ) Normalization
+  source("R/apply_BMIQ.R")
+  apply_BMIQ(context = project_context)
 
 
-  # ### Principal Component Analysis
+  ### Principal Component Analysis
   source("R/principal_component_analysis.R")
   col_map <- list()
   col_map[["Sample_Group"]] <- "Sample_Group"
@@ -101,9 +101,9 @@ pre_process_eda <- function(
     pairplot_color_by = "Age"
   )
 
-  # #### Outlier detection from PCA
-  # source("R/outlier_analysis.R")
-  # outlier_analysis(context = project_context, sample_metadata = c("Sample_Group", var_mapping$gender_var, var_mapping$age_var))
+  #### Outlier detection from PCA
+  source("R/outlier_analysis.R")
+  outlier_analysis(context = project_context, sample_metadata = c("Sample_Group", var_mapping$gender_var, var_mapping$age_var))
 
   # #### PCA Outlier assessment (TODO Doesn't really work out)
   # # source("R/pca_outlier_assessment.R")
