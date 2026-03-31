@@ -33,31 +33,31 @@ pre_process_eda <- function(
   }
 
   ### Read raw data and write to disk
-  source("R/extract_methyl_set.R")
-  extract_methyl_set(context = project_context, targets = targets)
+  # source("R/extract_methyl_set.R")
+  # extract_methyl_set(context = project_context, targets = targets)
 
   ### Sample QC - Outlier detection and removal
-  source("R/qc.R")
-  qc(context = project_context, targets = targets, qc_threshold = qc_threshold)
+  #source("R/qc.R")
+  #qc(context = project_context, targets = targets, qc_threshold = qc_threshold)
 
   ## Probe QC - Detection p-value based probe filtering
-  source("R/probe_qc.R")
-  probe_qc(context = project_context)
+  #source("R/probe_qc.R")
+  #probe_qc(context = project_context)
 
 
   # ### Remove sex-mismatched samples
-  source("R/biological_gender_mismatch_analysis.R")
-  biological_gender_mismatch_analysis(context = project_context, recorded_sex_col = var_mapping$gender_var)
+  #source("R/biological_gender_mismatch_analysis.R")
+  #biological_gender_mismatch_analysis(context = project_context, recorded_sex_col = var_mapping$gender_var)
 
   ## Remove cross-reactive probes, sex-chromosome related probes and single nucleotide polymorphisms (SNPs)
   ## Order matters, firstly SNPs must be removed then probes on XY chromosomes and thus keeping only those on autosomal and finally filtering of cross-reactive probes.
   ### 1. Single Nucleotide Polymorphisms
-  source("R/remove_snp.R")
-  remove_snp(context = project_context)
+  #source("R/remove_snp.R")
+  #remove_snp(context = project_context)
 
   ### 2. Sex-Chromosome Probe filtering
-  source("R/remove_sex_chromosome_probes.R")
-  remove_sex_chromosome_probes(context = project_context)
+  #source("R/remove_sex_chromosome_probes.R")
+  #remove_sex_chromosome_probes(context = project_context)
 
   # #### 3. Cross Reactive Probes
   source("R/remove_cross_reactive_probes.R")

@@ -1,0 +1,267 @@
+- The project is out-of-sync -- use `renv::status()` for details.
+Loading required package: minfi
+Loading required package: BiocGenerics
+Loading required package: generics
+
+Attaching package: ‘generics’
+
+The following objects are masked from ‘package:base’:
+
+    as.difftime, as.factor, as.ordered, intersect, is.element, setdiff,
+    setequal, union
+
+
+Attaching package: ‘BiocGenerics’
+
+The following objects are masked from ‘package:stats’:
+
+    IQR, mad, sd, var, xtabs
+
+The following objects are masked from ‘package:base’:
+
+    anyDuplicated, aperm, append, as.data.frame, basename, cbind,
+    colnames, dirname, do.call, duplicated, eval, evalq, Filter, Find,
+    get, grep, grepl, is.unsorted, lapply, Map, mapply, match, mget,
+    order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank,
+    rbind, Reduce, rownames, sapply, saveRDS, table, tapply, unique,
+    unsplit, which.max, which.min
+
+Loading required package: GenomicRanges
+Loading required package: stats4
+Loading required package: S4Vectors
+
+Attaching package: ‘S4Vectors’
+
+The following object is masked from ‘package:utils’:
+
+    findMatches
+
+The following objects are masked from ‘package:base’:
+
+    expand.grid, I, unname
+
+Loading required package: IRanges
+Loading required package: Seqinfo
+Loading required package: SummarizedExperiment
+Loading required package: MatrixGenerics
+Loading required package: matrixStats
+
+Attaching package: ‘MatrixGenerics’
+
+The following objects are masked from ‘package:matrixStats’:
+
+    colAlls, colAnyNAs, colAnys, colAvgsPerRowSet, colCollapse,
+    colCounts, colCummaxs, colCummins, colCumprods, colCumsums,
+    colDiffs, colIQRDiffs, colIQRs, colLogSumExps, colMadDiffs,
+    colMads, colMaxs, colMeans2, colMedians, colMins, colOrderStats,
+    colProds, colQuantiles, colRanges, colRanks, colSdDiffs, colSds,
+    colSums2, colTabulates, colVarDiffs, colVars, colWeightedMads,
+    colWeightedMeans, colWeightedMedians, colWeightedSds,
+    colWeightedVars, rowAlls, rowAnyNAs, rowAnys, rowAvgsPerColSet,
+    rowCollapse, rowCounts, rowCummaxs, rowCummins, rowCumprods,
+    rowCumsums, rowDiffs, rowIQRDiffs, rowIQRs, rowLogSumExps,
+    rowMadDiffs, rowMads, rowMaxs, rowMeans2, rowMedians, rowMins,
+    rowOrderStats, rowProds, rowQuantiles, rowRanges, rowRanks,
+    rowSdDiffs, rowSds, rowSums2, rowTabulates, rowVarDiffs, rowVars,
+    rowWeightedMads, rowWeightedMeans, rowWeightedMedians,
+    rowWeightedSds, rowWeightedVars
+
+Loading required package: Biobase
+Welcome to Bioconductor
+
+    Vignettes contain introductory material; view with
+    'browseVignettes()'. To cite Bioconductor, see
+    'citation("Biobase")', and for packages 'citation("pkgname")'.
+
+
+Attaching package: ‘Biobase’
+
+The following object is masked from ‘package:MatrixGenerics’:
+
+    rowMedians
+
+The following objects are masked from ‘package:matrixStats’:
+
+    anyMissing, rowMedians
+
+Loading required package: Biostrings
+Loading required package: XVector
+
+Attaching package: ‘Biostrings’
+
+The following object is masked from ‘package:base’:
+
+    strsplit
+
+Loading required package: bumphunter
+Loading required package: foreach
+Loading required package: iterators
+Loading required package: parallel
+Loading required package: locfit
+locfit 1.5-9.12 	 2025-03-05
+Setting options('download.file.method.GEOquery'='auto')
+Setting options('GEOquery.inmemory.gpl'=FALSE)
+── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.2.0     ✔ readr     2.2.0
+✔ forcats   1.0.1     ✔ stringr   1.6.0
+✔ ggplot2   4.0.2     ✔ tibble    3.3.1
+✔ lubridate 1.9.5     ✔ tidyr     1.3.2
+✔ purrr     1.2.1     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ lubridate::%within%() masks IRanges::%within%()
+✖ purrr::accumulate()   masks foreach::accumulate()
+✖ dplyr::collapse()     masks Biostrings::collapse(), IRanges::collapse()
+✖ dplyr::combine()      masks minfi::combine(), Biobase::combine(), BiocGenerics::combine()
+✖ purrr::compact()      masks XVector::compact()
+✖ dplyr::count()        masks matrixStats::count()
+✖ dplyr::desc()         masks IRanges::desc()
+✖ tidyr::expand()       masks S4Vectors::expand()
+✖ dplyr::filter()       masks stats::filter()
+✖ dplyr::first()        masks S4Vectors::first()
+✖ dplyr::lag()          masks stats::lag()
+✖ purrr::none()         masks locfit::none()
+✖ ggplot2::Position()   masks BiocGenerics::Position(), base::Position()
+✖ purrr::reduce()       masks GenomicRanges::reduce(), IRanges::reduce()
+✖ dplyr::rename()       masks S4Vectors::rename()
+✖ lubridate::second()   masks S4Vectors::second()
+✖ lubridate::second<-() masks S4Vectors::second<-()
+✖ dplyr::slice()        masks XVector::slice(), IRanges::slice()
+✖ purrr::when()         masks foreach::when()
+ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+           used  (Mb) gc trigger   (Mb) max used  (Mb)
+Ncells 11408866 609.3   23447495 1252.3 13187032 704.3
+Vcells 20027943 152.9   33553844  256.0 23179059 176.9
+[read.metharray.sheet] Found the following CSV files:
+[1] "GSE111629_RAW/GPL13534_HumanMethylation450_15017482_v.1.1.csv.gz"
+Warning messages:
+1: In FUN(X[[i]], ...) :
+  Could not infer array name for file: GSE111629_RAW/GPL13534_HumanMethylation450_15017482_v.1.1.csv.gz
+2: In FUN(X[[i]], ...) :
+  Could not infer slide name for file: GSE111629_RAW/GPL13534_HumanMethylation450_15017482_v.1.1.csv.gz
+Found 1 file(s)
+GSE111629_series_matrix.txt.gz
+           used  (Mb) gc trigger   (Mb)  max used   (Mb)
+Ncells 11555659 617.2   23447495 1252.3  18890542 1008.9
+Vcells 22402581 171.0  106362973  811.5 112318343  857.0
+
+Attaching package: ‘rlist’
+
+The following object is masked from ‘package:S4Vectors’:
+
+    List
+
+Loading required package: limma
+
+Attaching package: ‘limma’
+
+The following object is masked from ‘package:BiocGenerics’:
+
+    plotMA
+
+Loading required package: methylumi
+Loading required package: scales
+
+Attaching package: ‘scales’
+
+The following object is masked from ‘package:purrr’:
+
+    discard
+
+The following object is masked from ‘package:readr’:
+
+    col_factor
+
+Loading required package: reshape2
+
+Attaching package: ‘reshape2’
+
+The following object is masked from ‘package:tidyr’:
+
+    smiths
+
+Loading required package: FDb.InfiniumMethylation.hg19
+Loading required package: GenomicFeatures
+Loading required package: AnnotationDbi
+
+Attaching package: ‘AnnotationDbi’
+
+The following object is masked from ‘package:dplyr’:
+
+    select
+
+Loading required package: TxDb.Hsapiens.UCSC.hg19.knownGene
+Loading required package: org.Hs.eg.db
+
+Loading required package: lumi
+No methods found in package ‘RSQLite’ for request: ‘dbListFields’ when loading ‘lumi’
+
+Attaching package: ‘lumi’
+
+The following objects are masked from ‘package:methylumi’:
+
+    estimateM, getHistory
+
+Loading required package: ROC
+Loading required package: illuminaio
+Loading required package: ExperimentHub
+Loading required package: AnnotationHub
+Loading required package: BiocFileCache
+Loading required package: dbplyr
+
+Attaching package: ‘dbplyr’
+
+The following objects are masked from ‘package:dplyr’:
+
+    ident, sql
+
+
+Attaching package: ‘AnnotationHub’
+
+The following object is masked from ‘package:Biobase’:
+
+    cache
+
+
+Attaching package: ‘IlluminaHumanMethylationEPICanno.ilm10b4.hg19’
+
+The following objects are masked from ‘package:IlluminaHumanMethylation450kanno.ilmn12.hg19’:
+
+    Islands.UCSC, Locations, Manifest, Other, SNPs.132CommonSingle,
+    SNPs.135CommonSingle, SNPs.137CommonSingle, SNPs.138CommonSingle,
+    SNPs.141CommonSingle, SNPs.142CommonSingle, SNPs.144CommonSingle,
+    SNPs.146CommonSingle, SNPs.147CommonSingle, SNPs.Illumina
+
+[1] "biological gender mismatch analysis - redo"
+                             Sample_Name Recorded_Sex Predicted_Sex
+GSM3035585_3999984061_R03C01  GSM3035585         Male        Female
+GSM3035586_3999984061_R04C01  GSM3035586         Male        Female
+GSM3035588_3999984061_R06C01  GSM3035588         Male        Female
+                             X_chr_median Y_chr_median
+GSM3035585_3999984061_R03C01     13.41396     10.20518
+GSM3035586_3999984061_R04C01     13.56141     10.26209
+GSM3035588_3999984061_R06C01     13.65391     10.47109
+[1] "Writing mismatch results to file /root/workspace/methyl-pipe-out/GSE111629_20260330_142503/results/sex_mismatch_log.csv"
+[1] "Saved: /root/workspace/methyl-pipe-out/GSE111629_20260330_142503/plots/sex_mismatch_plot.png"
+[1] "Found 3 sex mismatches:"
+                             Sample_Name Recorded_Sex Predicted_Sex
+GSM3035585_3999984061_R03C01  GSM3035585         Male        Female
+GSM3035586_3999984061_R04C01  GSM3035586         Male        Female
+GSM3035588_3999984061_R06C01  GSM3035588         Male        Female
+                             X_chr_median Y_chr_median
+GSM3035585_3999984061_R03C01     13.41396     10.20518
+GSM3035586_3999984061_R04C01     13.56141     10.26209
+GSM3035588_3999984061_R06C01     13.65391     10.47109
+
+
+✨ Pipeline completed successfully!
+[1] "remove single nucleotide polymorphisms"
+[1] "Original probes in dataset: 484418"
+[1] "Probes after removing single nucleotide polymorphisms: 467444"
+
+
+✨ Pipeline completed successfully!
+[1] "remove sex chromosome probes"
+[1] "Probes after removing sex chromosomes: 456298"
+Error in library(maxprobes) : there is no package called ‘maxprobes’
+Calls: pre_process_eda -> source -> withVisible -> eval -> eval -> library
+Execution halted

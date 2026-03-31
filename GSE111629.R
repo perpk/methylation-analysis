@@ -6,7 +6,7 @@ rm(list = ls())
 gc(full = TRUE)
 
 project_name <- "GSE111629"
-project_to_load <- "GSE111629_20251226_102044"
+project_to_load <- "GSE111629_20260330_142503"
 data_folder <- paste0(project_name, "_RAW")
 
 targets <- read.metharray.sheet(data_folder, pattern = "GPL13534_HumanMethylation450_15017482_v.1.1.csv.gz")
@@ -39,25 +39,25 @@ pre_process_eda(
   project_to_load = project_to_load,
   targets = targets,
   data_folder = data_folder,
-  project_location = "/Volumes/Elements/methyl-pipe-out",
+  project_location = "/root/workspace/methyl-pipe-out",
   var_mapping = var_mappings,
   cohorts = cohorts,
   platform = "450k"
 )
 
 ### Differential Methylation Analysis
-project_to_load <- "GSE111629_20251226_102044"
-cohorts <- list(
-  PD_vs_Control = c("PD", "Control")
-)
+#project_to_load <- "GSE111629_20251226_102044"
+#cohorts <- list(
+#  PD_vs_Control = c("PD", "Control")
+#)
 
-design_formula <- "0 + Sample_Group + PC3"
+#design_formula <- "0 + Sample_Group + PC3"
 
-source("./differential_analysis.R")
-differential_analysis(
-  project_to_load = project_to_load,
-  project_location = "/Volumes/Elements/methyl-pipe-out",
-  platform = "450k",
-  cohorts = cohorts,
-  design_formula = design_formula
-)
+#source("./differential_analysis.R")
+#differential_analysis(
+#  project_to_load = project_to_load,
+#  project_location = "/Volumes/Elements/methyl-pipe-out",
+#  platform = "450k",
+#  cohorts = cohorts,
+#  design_formula = design_formula
+#)

@@ -1,5 +1,5 @@
 biological_gender_mismatch_analysis <- function(context = NULL,
-                                                methyl_set_filename = "methyl_set_clean.rds",
+                                                methyl_set_filename = "methyl_set_probe_qc.rds",
                                                 rg_set_filename = "rg_set_probe_qc.rds",
                                                 targets_filename = "targets_clean.rds",
                                                 targets_sample_col = "Sample_Name",
