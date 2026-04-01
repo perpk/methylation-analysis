@@ -33,31 +33,31 @@ pre_process_eda <- function(
   }
 
   ### Read raw data and write to disk
-  # source("R/extract_methyl_set.R")
-  # extract_methyl_set(context = project_context, targets = targets)
+  source("R/extract_methyl_set.R")
+  extract_methyl_set(context = project_context, targets = targets)
 
   ### Sample QC - Outlier detection and removal
-  #source("R/qc.R")
-  #qc(context = project_context, targets = targets, qc_threshold = qc_threshold)
+  source("R/qc.R")
+  qc(context = project_context, targets = targets, qc_threshold = qc_threshold)
 
   ## Probe QC - Detection p-value based probe filtering
-  #source("R/probe_qc.R")
-  #probe_qc(context = project_context)
+  source("R/probe_qc.R")
+  probe_qc(context = project_context)
 
 
   # ### Remove sex-mismatched samples
-  #source("R/biological_gender_mismatch_analysis.R")
-  #biological_gender_mismatch_analysis(context = project_context, recorded_sex_col = var_mapping$gender_var)
+  source("R/biological_gender_mismatch_analysis.R")
+  biological_gender_mismatch_analysis(context = project_context, recorded_sex_col = var_mapping$gender_var)
 
   ## Remove cross-reactive probes, sex-chromosome related probes and single nucleotide polymorphisms (SNPs)
   ## Order matters, firstly SNPs must be removed then probes on XY chromosomes and thus keeping only those on autosomal and finally filtering of cross-reactive probes.
   ### 1. Single Nucleotide Polymorphisms
-  #source("R/remove_snp.R")
-  #remove_snp(context = project_context)
+  source("R/remove_snp.R")
+  remove_snp(context = project_context)
 
   ### 2. Sex-Chromosome Probe filtering
-  #source("R/remove_sex_chromosome_probes.R")
-  #remove_sex_chromosome_probes(context = project_context)
+  source("R/remove_sex_chromosome_probes.R")
+  remove_sex_chromosome_probes(context = project_context)
 
   # #### 3. Cross Reactive Probes
   source("R/remove_cross_reactive_probes.R")
@@ -86,24 +86,24 @@ pre_process_eda <- function(
   principal_component_analysis(project_context, col_maps = col_map, keys = keys, npc = 5)
   # #
   # # #### Plot PCA
-  source("R/plot_PCA.R")
-  pca_vars <- c("Sample_Group" = "By Diagnosis", "Gender" = "By Biological Gender", "Age" = "By Age")
-  convert_f <- function(df) {
-    (transform(df, Age = as.numeric(Age)))
-  }
-  plot_PCA(
-    context = project_context,
-    pca_results_rds_filename = "pca_df.rds",
-    pca_vars = pca_vars,
-    convert_fun = convert_f,
-    continuously_scaled = c("Age"),
-    "pca_plot_",
-    pairplot_color_by = "Age"
-  )
+  #source("R/plot_PCA.R")
+  #pca_vars <- c("Sample_Group" = "By Diagnosis", "Gender" = "By Biological Gender", "Age" = "By Age")
+  #convert_f <- function(df) {
+  #  (transform(df, Age = as.numeric(Age)))
+  #}
+  #plot_PCA(
+  #  context = project_context,
+  #  pca_results_rds_filename = "pca_df.rds",
+  #  pca_vars = pca_vars,
+  #  convert_fun = convert_f,
+  #  continuously_scaled = c("Age"),
+  #  "pca_plot_",
+  #  pairplot_color_by = "Age"
+  #)
 
   #### Outlier detection from PCA
-  source("R/outlier_analysis.R")
-  outlier_analysis(context = project_context, sample_metadata = c("Sample_Group", var_mapping$gender_var, var_mapping$age_var))
+  #source("R/outlier_analysis.R")
+  #outlier_analysis(context = project_context, sample_metadata = c("Sample_Group", var_mapping$gender_var, var_mapping$age_var))
 
   # #### PCA Outlier assessment (TODO Doesn't really work out)
   # # source("R/pca_outlier_assessment.R")

@@ -1,12 +1,14 @@
 library(minfi)
+library(minfiData)
 
 qc <- function(context = NULL,
                targets = NULL,
                rg_set_filename = "rg_set.rds",
                methyl_set_filename = "methyl_set.rds",
-               qc_threshold = 10.5) {
-
-  prog <- .create_progress_manager(7)
+               qc_threshold = 10.5,
+               bisulfite_sd_multiplier = 2,
+               bisulfite_absolute_min = NULL) {
+  prog <- .create_progress_manager(8) # Increased to 8 steps
 
   methyl_set_filepath <- file.path(context$paths$raw_data, methyl_set_filename)
   prog$update(1, paste("Reading methyl set from ", methyl_set_filepath))
@@ -26,23 +28,42 @@ qc <- function(context = NULL,
   plotQC(qc)
   dev.off()
 
-  prog$update(4, "Detecting failed samples")
-  threshold <- .determine_qc_threshold(qc, qc_threshold, context, prog)
+  prog$update(4, "Checking bisulfite conversion controls")
+  bisulfite_results <- .check_bisulfite_conversion(rg_set, bisulfite_sd_multiplier, bisulfite_absolute_min, context, prog)
+  bisulfite_failed_samples <- bisulfite_results$failed_samples
+  bisulfite_thresholds <- bisulfite_results$thresholds
 
+  prog$update(5, "Detecting failed samples")
+  intensity_threshold <- .determine_qc_threshold(qc, qc_threshold, context, prog)
 
-  prog$update(5, "Filtering samples")
+  # Get intensity-based failures
+  intensity_bad_samples <- .identify_failed_samples(qc, intensity_threshold, prog)
 
-  bad_samples <- .identify_failed_samples(qc, threshold, prog)
+  # Combine with bisulfite failures
+  all_bad_indices <- unique(c(intensity_bad_samples$indices, bisulfite_failed_samples$indices))
+  all_bad_names <- unique(c(intensity_bad_samples$names, bisulfite_failed_samples$names))
 
-  # TODO in case there aren't any samples to remove, just copy the files
+  # Create combined bad_samples structure
+  bad_samples <- list(
+    indices = all_bad_indices,
+    names = all_bad_names,
+    intensity_failures = intensity_bad_samples$indices,
+    bisulfite_failures = bisulfite_failed_samples$indices
+  )
+
+  prog$update(6, "Filtering samples")
+
   if (length(bad_samples$indices) > 0) {
     rg_set_clean <- rg_set[, -bad_samples$indices, drop = FALSE]
     targets_clean <- targets[-bad_samples$indices, , drop = FALSE]
     methyl_set_clean <- methyl_set[, -bad_samples$indices, drop = FALSE]
 
-    cat(paste("Removing", length(bad_samples$indices),
-              "failed sample(s):"))
+    cat(paste(
+      "Removing", length(bad_samples$indices),
+      "failed sample(s):\n"
+    ))
     cat(paste(bad_samples$names, collapse = ", "))
+    cat("\n")
   } else {
     rg_set_clean <- rg_set
     targets_clean <- targets
@@ -53,29 +74,44 @@ qc <- function(context = NULL,
   rm(list = c("targets", "methyl_set"))
   gc(full = T)
 
-  prog$update(6, "Saving results")
+  prog$update(7, "Saving results")
 
-  saveRDS(rg_set_clean,
-          file.path(context$paths$qc, "rg_set_clean.rds"))
-  saveRDS(targets_clean,
-          file.path(context$paths$qc, "targets_clean.rds"))
-  saveRDS(methyl_set_clean,
-          file.path(context$paths$qc, "methyl_set_clean.rds"))
+  saveRDS(
+    rg_set_clean,
+    file.path(context$paths$qc, "rg_set_clean.rds")
+  )
+  saveRDS(
+    targets_clean,
+    file.path(context$paths$qc, "targets_clean.rds")
+  )
+  saveRDS(
+    methyl_set_clean,
+    file.path(context$paths$qc, "methyl_set_clean.rds")
+  )
 
-  qc_log <- .create_qc_log(rg_set, bad_samples, qc, threshold)
+  # Save bisulfite thresholds for documentation
+  saveRDS(
+    bisulfite_thresholds,
+    file.path(context$paths$logs, "bisulfite_thresholds.rds")
+  )
+
+  qc_log <- .create_qc_log_with_bisulfite(rg_set, bad_samples, qc, intensity_threshold, bisulfite_thresholds, bisulfite_failed_samples)
   write.csv(qc_log,
-            file.path(context$paths$logs, "sample_removal_log.csv"),
-            row.names = FALSE)
+    file.path(context$paths$logs, "sample_removal_log.csv"),
+    row.names = FALSE
+  )
 
-  summary <- .create_qc_summary(rg_set, rg_set_clean, qc_log, threshold)
-  saveRDS(summary,
-          file.path(context$paths$qc, "qc_summary.rds"))
+  summary <- .create_qc_summary_with_bisulfite(rg_set, rg_set_clean, qc_log, intensity_threshold, bisulfite_thresholds)
+  saveRDS(
+    summary,
+    file.path(context$paths$qc, "qc_summary.rds")
+  )
 
 
   rm(list = setdiff(ls(), c("prog", "qc", "qc_log", "qc_summary", "rg_set_filepath", "qc_plot_path", "targets_clean", "rg_set_clean", "context")))
-  gc(full=T)
+  gc(full = T)
 
-  prog$update(7, "Creating Density Plot...")
+  prog$update(8, "Creating Density Plot...")
   density_plot_path <- file.path(context$paths$plots, "density_plot.png")
 
   png(density_plot_path, width = 800, height = 600)
@@ -83,6 +119,114 @@ qc <- function(context = NULL,
   dev.off()
 
   prog$complete()
+}
+
+.check_bisulfite_conversion <- function(rg_set, sd_multiplier, absolute_min, context, prog) {
+  # Get addresses for both conversion control types
+  ctrls_i <- getControlAddress(rg_set, controlType = "BISULFITE CONVERSION I")
+  ctrls_ii <- getControlAddress(rg_set, controlType = "BISULFITE CONVERSION II")
+
+  # Calculate average intensities per sample
+  # BC I uses Green channel for the 'Converted' signal
+  bc1_scores <- colMeans(getGreen(rg_set)[ctrls_i, , drop = FALSE], na.rm = TRUE)
+  # BC II uses Red channel for the 'Converted' signal
+  bc2_scores <- colMeans(getRed(rg_set)[ctrls_ii, , drop = FALSE], na.rm = TRUE)
+
+  # Calculate thresholds
+  bc1_mean <- mean(bc1_scores, na.rm = TRUE)
+  bc1_sd <- sd(bc1_scores, na.rm = TRUE)
+  bc2_mean <- mean(bc2_scores, na.rm = TRUE)
+  bc2_sd <- sd(bc2_scores, na.rm = TRUE)
+
+  bc1_threshold_stat <- bc1_mean - (sd_multiplier * bc1_sd)
+  bc2_threshold_stat <- bc2_mean - (sd_multiplier * bc2_sd)
+
+  # Apply absolute minimum floor if provided
+  if (!is.null(absolute_min)) {
+    bc1_threshold <- max(bc1_threshold_stat, absolute_min)
+    bc2_threshold <- max(bc2_threshold_stat, absolute_min)
+  } else {
+    bc1_threshold <- bc1_threshold_stat
+    bc2_threshold <- bc2_threshold_stat
+  }
+
+  # Identify failures
+  fail_i_indices <- which(bc1_scores < bc1_threshold)
+  fail_ii_indices <- which(bc2_scores < bc2_threshold)
+  all_fail_indices <- unique(c(fail_i_indices, fail_ii_indices))
+
+  # Get sample names
+  sample_names <- colnames(rg_set)
+  fail_names <- sample_names[all_fail_indices]
+
+  # Store results
+  failed_samples <- list(
+    indices = all_fail_indices,
+    names = fail_names,
+    bc1_failures = sample_names[fail_i_indices],
+    bc2_failures = sample_names[fail_ii_indices]
+  )
+
+  thresholds <- list(
+    bc1 = list(
+      threshold = bc1_threshold,
+      threshold_statistical = bc1_threshold_stat,
+      mean = bc1_mean,
+      sd = bc1_sd,
+      multiplier = sd_multiplier
+    ),
+    bc2 = list(
+      threshold = bc2_threshold,
+      threshold_statistical = bc2_threshold_stat,
+      mean = bc2_mean,
+      sd = bc2_sd,
+      multiplier = sd_multiplier
+    ),
+    absolute_min = absolute_min,
+    date = Sys.time()
+  )
+
+  bisulfite_plot_path <- file.path(context$paths$plots, "bisulfite_conversion_plot.png")
+  png(bisulfite_plot_path, width = 1000, height = 600)
+  par(mfrow = c(1, 2))
+
+  # BC I plot
+  plot(bc1_scores,
+    ylab = "BC I Intensity (Green Channel)",
+    xlab = "Sample Index",
+    main = "Bisulfite Conversion I",
+    pch = 19,
+    col = ifelse(bc1_scores < bc1_threshold, "red", "black")
+  )
+  abline(h = bc1_threshold, col = "red", lty = 2)
+  legend("topright",
+    legend = c("Pass", "Fail", "Threshold"),
+    col = c("black", "red", "red"), pch = c(19, 19, NA), lty = c(NA, NA, 2)
+  )
+
+  # BC II plot
+  plot(bc2_scores,
+    ylab = "BC II Intensity (Red Channel)",
+    xlab = "Sample Index",
+    main = "Bisulfite Conversion II",
+    pch = 19,
+    col = ifelse(bc2_scores < bc2_threshold, "red", "black")
+  )
+  abline(h = bc2_threshold, col = "red", lty = 2)
+  legend("topright",
+    legend = c("Pass", "Fail", "Threshold"),
+    col = c("black", "red", "red"), pch = c(19, 19, NA), lty = c(NA, NA, 2)
+  )
+
+  dev.off()
+  par(mfrow = c(1, 1))
+
+  cat(sprintf("Bisulfite conversion QC: %d sample(s) failed\n", length(fail_names)))
+  if (length(fail_names) > 0) {
+    cat(paste("  Failed:", paste(fail_names, collapse = ", "), "\n"))
+  }
+
+  return(list(failed_samples = failed_samples, thresholds = thresholds))
 }
 
 .determine_qc_threshold <- function(qc, qc_threshold, context, prog) {
