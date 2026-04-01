@@ -36,6 +36,10 @@ pre_process_eda <- function(
   source("R/extract_methyl_set.R")
   extract_methyl_set(context = project_context, targets = targets)
 
+  ### Perform background correction and dye-bias normalization on rg_set and extract new methyl_set & beta-matrix based on the filtered rg_set from previous step
+  source("R/bg_correction_dye_bias_norm.R")
+  bg_correction_dye_bias_norm(context = project_context)
+
   ### Sample QC - Outlier detection and removal
   source("R/qc.R")
   qc(context = project_context, targets = targets, qc_threshold = qc_threshold)
@@ -66,10 +70,6 @@ pre_process_eda <- function(
   # ### Filter rg_set according to the remaining methyl_set probes after it has been cleared off from SNPs, X/Y-Chromosome- and cross-reactive probes.
   source("R/filter_rg_set.R")
   filter_rg_set(context = project_context)
-
-  ### Perform background correction and dye-bias normalization on rg_set and extract new methyl_set & beta-matrix based on the filtered rg_set from previous step
-  source("R/bg_correction_dye_bias_norm.R")
-  bg_correction_dye_bias_norm(context = project_context)
 
   ### Beta-Mixture Quantile (BMIQ) Normalization
   source("R/apply_BMIQ.R")
