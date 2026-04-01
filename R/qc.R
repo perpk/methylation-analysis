@@ -332,3 +332,91 @@ qc <- function(context = NULL,
     qc_method = "Median intensity filtering"
   )
 }
+
+.create_qc_log_with_bisulfite <- function(rg_set, bad_samples, qc, intensity_threshold, bisulfite_thresholds, bisulfite_failed_samples) {
+  if (length(bad_samples$indices) == 0) {
+    return(data.frame(
+      Sample_Name = character(0),
+      Reason = character(0),
+      mMed_Intensity = numeric(0),
+      uMed_Intensity = numeric(0),
+      BC1_Intensity = numeric(0),
+      BC2_Intensity = numeric(0),
+      Intensity_Threshold = numeric(0),
+      BC1_Threshold = numeric(0),
+      BC2_Threshold = numeric(0),
+      Date_Removed = character(0)
+    ))
+  }
+
+  # Get bisulfite scores for all samples
+  ctrls_i <- getControlAddress(rg_set, controlType = "BISULFITE CONVERSION I")
+  ctrls_ii <- getControlAddress(rg_set, controlType = "BISULFITE CONVERSION II")
+  bc1_all <- colMeans(getGreen(rg_set)[ctrls_i, , drop = FALSE], na.rm = TRUE)
+  bc2_all <- colMeans(getRed(rg_set)[ctrls_ii, , drop = FALSE], na.rm = TRUE)
+
+  sample_names <- colnames(rg_set)
+
+  # Build log for each failed sample
+  log_entries <- list()
+
+  for (idx in bad_samples$indices) {
+    sample_name <- sample_names[idx]
+    reasons <- c()
+
+    # Check intensity failure
+    if (idx %in% bad_samples$intensity_failures) {
+      if (!is.null(qc$mMed[idx]) && qc$mMed[idx] < intensity_threshold) {
+        reasons <- c(reasons, "Low methylated intensity")
+      }
+      if (!is.null(qc$uMed[idx]) && qc$uMed[idx] < intensity_threshold) {
+        reasons <- c(reasons, "Low unmethylated intensity")
+      }
+    }
+
+    # Check bisulfite failure
+    if (idx %in% bisulfite_failed_samples$indices) {
+      if (idx %in% which(bc1_all < bisulfite_thresholds$bc1$threshold)) {
+        reasons <- c(reasons, "Poor BC I conversion")
+      }
+      if (idx %in% which(bc2_all < bisulfite_thresholds$bc2$threshold)) {
+        reasons <- c(reasons, "Poor BC II conversion")
+      }
+    }
+
+    log_entries[[length(log_entries) + 1]] <- data.frame(
+      Sample_Name = sample_name,
+      Reason = paste(reasons, collapse = " & "),
+      mMed_Intensity = if (!is.null(qc$mMed[idx])) qc$mMed[idx] else NA,
+      uMed_Intensity = if (!is.null(qc$uMed[idx])) qc$uMed[idx] else NA,
+      BC1_Intensity = bc1_all[idx],
+      BC2_Intensity = bc2_all[idx],
+      Intensity_Threshold = intensity_threshold,
+      BC1_Threshold = bisulfite_thresholds$bc1$threshold,
+      BC2_Threshold = bisulfite_thresholds$bc2$threshold,
+      Date_Removed = Sys.Date(),
+      stringsAsFactors = FALSE
+    )
+  }
+
+  do.call(rbind, log_entries)
+}
+
+.create_qc_summary_with_bisulfite <- function(rg_set, rg_set_clean, qc_log, intensity_threshold, bisulfite_thresholds) {
+  list(
+    date = Sys.time(),
+    total_samples_initial = ncol(rg_set),
+    total_samples_after_qc = ncol(rg_set_clean),
+    samples_removed = nrow(qc_log),
+    intensity_threshold = intensity_threshold,
+    bisulfite_bc1_threshold = bisulfite_thresholds$bc1$threshold,
+    bisulfite_bc2_threshold = bisulfite_thresholds$bc2$threshold,
+    bisulfite_bc1_mean = bisulfite_thresholds$bc1$mean,
+    bisulfite_bc2_mean = bisulfite_thresholds$bc2$mean,
+    bisulfite_sd_multiplier = bisulfite_thresholds$bc1$multiplier,
+    removal_rate = if (ncol(rg_set) > 0) round(nrow(qc_log) / ncol(rg_set) * 100, 2) else 0,
+    removed_samples = if (nrow(qc_log) > 0) qc_log$Sample_Name else "None",
+    qc_method = "Median intensity and bisulfite conversion filtering (BC I and BC II)"
+  )
+}
+

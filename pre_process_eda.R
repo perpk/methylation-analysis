@@ -33,8 +33,8 @@ pre_process_eda <- function(
   }
 
   ### Read raw data and write to disk
-  source("R/extract_methyl_set.R")
-  extract_methyl_set(context = project_context, targets = targets)
+  #source("R/extract_methyl_set.R")
+  #extract_methyl_set(context = project_context, targets = targets)
 
   ### Sample QC - Outlier detection and removal
   source("R/qc.R")
