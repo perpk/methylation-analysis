@@ -385,7 +385,7 @@ qc <- function(context = NULL,
     u_threshold <- median(qc$uMed) - 2 * mad(qc$uMed)
 
     threshold <- min(m_threshold, u_threshold)
-    threshold <- max(threshold, 8) # Don't go below reasonable minimum
+    threshold <- max(threshold, 10.5) # Don't go below reasonable minimum
 
     cat(sprintf("Auto-detected threshold: %.2f", threshold))
 
