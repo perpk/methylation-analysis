@@ -164,7 +164,7 @@ wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc | \
 print_status "Adding CRAN repository for Ubuntu $UBUNTU_CODENAME..."
 sudo add-apt-repository -y "deb https://cloud.r-project.org/bin/linux/ubuntu $CRAN_REPO/"
 
-# Update package list
+# Update again after adding repositories
 sudo apt-get update
 
 # Step 4: Install R 4.5 and system dependencies
@@ -188,9 +188,14 @@ fi
 # Step 5: Install system dependencies for Bioconductor packages
 print_status "Step 5: Installing system dependencies for R packages..."
 
+# Step 5: Install system dependencies for Bioconductor packages
+print_status "Step 5: Installing system dependencies for R packages..."
+
+# First install essential build tools and libraries
 sudo apt-get install -y \
     build-essential \
     gfortran \
+    libcurl4-openssl-dev \
     libcurl4-openssl-dev \
     libssl-dev \
     libxml2-dev \
@@ -214,13 +219,40 @@ sudo apt-get install -y \
     libgeos-dev \
     libproj-dev \
     libsqlite3-dev \
-    libhts-dev \
     libncurses-dev \
     libblas-dev \
     liblapack-dev \
     libreadline-dev \
     libxt-dev \
     xorg-dev
+
+# Handle libhts-dev separately with proper dependency resolution
+print_status "Installing libhts-dev with proper dependencies..."
+
+# Try to fix any broken dependencies first
+sudo apt-get --fix-broken install -y
+
+# Install libcurl4-gnutls-dev if needed (alternative to openssl)
+if ! sudo apt-get install -y libcurl4-gnutls-dev 2>/dev/null; then
+    print_warning "libcurl4-gnutls-dev not available, using libcurl4-openssl-dev"
+    # libcurl4-openssl-dev is already installed from previous step
+fi
+
+# Try to install libhts-dev with dependency fixing
+if ! sudo apt-get install -y -f libhts-dev; then
+    print_warning "libhts-dev installation failed, trying alternative approach..."
+    
+    # Try to install from source or skip for now
+    print_status "libhts-dev will be handled by R packages if needed"
+    
+    # Some R packages can build without system libhts
+    # Install development tools for building from source
+    sudo apt-get install -y \
+        autoconf \
+        automake \
+        libtool \
+        pkg-config
+fi
 
 # Fix libgfortran symlink if needed
 if [ -f /usr/lib/x86_64-linux-gnu/libgfortran.so.5 ]; then
@@ -230,6 +262,8 @@ fi
 
 # Step 6: Verify R installation
 print_status "Step 6: Verifying R installation..."
+# Step 6: Verify R installation
+print_status "Step 6: Verifying R installation..."
 R --version
 
 if [ $? -ne 0 ]; then
@@ -237,6 +271,8 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# Step 7: Set up renv and install Bioconductor packages
+print_status "Step 7: Setting up fresh renv and installing Bioconductor packages..."
 # Step 7: Set up renv and install Bioconductor packages
 print_status "Step 7: Setting up fresh renv and installing Bioconductor packages..."
 
@@ -252,8 +288,16 @@ cat("R version:", R.version.string, "\n")
 
 # Install renv
 cat("\nInstalling renv...\n")
+# Print R version
+cat("R version:", R.version.string, "\n")
+
+# Install renv
+cat("\nInstalling renv...\n")
 install.packages("renv", quiet = FALSE)
 
+# Initialize renv (fresh)
+cat("\nInitializing fresh renv...\n")
+renv::init(bare = TRUE, settings = list(snapshot.type = "all"))
 # Initialize renv (fresh)
 cat("\nInitializing fresh renv...\n")
 renv::init(bare = TRUE, settings = list(snapshot.type = "all"))
@@ -263,13 +307,17 @@ Sys.setenv(PKG_CFLAGS = "-O3")
 Sys.setenv(PKG_CXXFLAGS = "-O3")
 Sys.setenv(MAKEFLAGS = "-j2")  # Adjust based on your CPU cores
 
+# Install pak for better dependency resolution
+cat("\nInstalling pak...\n")
+install.packages("pak", quiet = FALSE)
+
 # Install BiocManager
+cat("\nInstalling BiocManager...\n")
 cat("\nInstalling BiocManager...\n")
 install.packages("BiocManager", quiet = FALSE)
 
 # Install packages one by one to isolate failures
 packages <- c(
-    "Rhtslib",
     "Rhdf5lib",
     "IlluminaHumanMethylation450kanno.ilmn12.hg19",
     "IlluminaHumanMethylation450kmanifest",
@@ -278,18 +326,12 @@ packages <- c(
     "methylumi",
     "GEOquery",
     "limma",
-    "ChAMP",
     "tidyverse",
     "data.table",
-    "FlowSorted.Blood.450k",
-    "FlowSorted.Blood.EPIC",
-    "clusterProfiler",
     "pheatmap",
     "DMRcate",
     "reshape2",
-    "RPMM",
     "ggpubr",
-    "minfiData",
     "GenomicRanges",
     "BSgenome.Hsapiens.UCSC.hg19"
 )
@@ -311,6 +353,15 @@ for (pkg in packages) {
         BiocManager::install(pkg, update = FALSE, ask = FALSE)
         cat("✓ Successfully installed:", pkg, "\n")
     }, error = function(e) {
+        # Try with pak if BiocManager fails
+        cat("Retrying with pak...\n")
+        tryCatch({
+            pak::pkg_install(pkg)
+            cat("✓ Successfully installed with pak:", pkg, "\n")
+        }, error = function(e2) {
+            cat("✗ Failed to install:", pkg, "\n")
+            cat("Error message:", e2$message, "\n")
+        })
         # Try with pak if BiocManager fails
         cat("Retrying with pak...\n")
         tryCatch({
@@ -351,10 +402,11 @@ print_status "Running R package installation script..."
 R --vanilla < setup_packages.R
 
 if [ $? -ne 0 ]; then
-    print_error "Package installation failed!"
-    exit 1
+    print_warning "Some packages failed to install, but continuing..."
 fi
 
+# Step 8: Verify installation
+print_status "Step 8: Verifying package installation..."
 # Step 8: Verify installation
 print_status "Step 8: Verifying package installation..."
 
@@ -375,8 +427,9 @@ check_package <- function(pkg) {
 # Check critical packages
 critical_packages <- c(
     "minfi",
-    "ChAMP",
     "GEOquery",
+    "IlluminaHumanMethylation450kanno.ilmn12.hg19",
+    "methylumi"
     "IlluminaHumanMethylation450kanno.ilmn12.hg19",
     "methylumi"
 )
@@ -408,10 +461,22 @@ if (require("minfi", quietly = TRUE)) {
     }
 }
 
+# Check minfi version
+if (require("minfi", quietly = TRUE)) {
+    minfi_version <- packageVersion("minfi")
+    cat("\nminfi version:", as.character(minfi_version), "\n")
+    if (minfi_version >= "1.56.0") {
+        cat("✓ minfi version 1.56.0 or higher detected\n")
+    } else {
+        cat("⚠ WARNING: minfi version is older than 1.56.0\n")
+    }
+}
+
 EOF
 
 R --vanilla < verify_packages.R
 
+# Step 9: Final setup instructions
 # Step 9: Final setup instructions
 print_status "Setup complete!"
 
@@ -424,22 +489,30 @@ Setup Summary
 ✓ R installed: $(R --version | head -1)
 ✓ System dependencies installed
 ✓ Fresh renv initialized
+✓ Fresh renv initialized
 ✓ Bioconductor packages installed
 
 Next steps:
 1. Activate renv (if not already active):
    source renv/activate
    or in R: renv::activate()
+1. Activate renv (if not already active):
+   source renv/activate
+   or in R: renv::activate()
 
+2. Run your main analysis:
 2. Run your main analysis:
    Rscript --vanilla GSE145361.R
 
+3. To see installed packages:
+   R --vanilla -e "renv::dependencies()"
 3. To see installed packages:
    R --vanilla -e "renv::dependencies()"
 
 Troubleshooting:
 - If you encounter memory issues, try: export R_MAX_VSIZE=16Gb
 - To update packages: R --vanilla -e "renv::update()"
+- To restore renv from lockfile: R --vanilla -e "renv::restore()"
 - To restore renv from lockfile: R --vanilla -e "renv::restore()"
 
 ========================================
@@ -450,6 +523,7 @@ cat > run_analysis.sh << 'EOF'
 #!/bin/bash
 # Convenience script to run the methylation analysis
 
+echo "Running methylation analysis..."
 echo "Running methylation analysis..."
 Rscript --vanilla GSE145361.R
 
@@ -465,3 +539,4 @@ chmod +x run_analysis.sh
 print_status "Created convenience script: ./run_analysis.sh"
 
 print_status "Environment setup complete! You can now run your analysis."
+

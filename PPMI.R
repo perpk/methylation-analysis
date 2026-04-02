@@ -75,27 +75,13 @@ cohorts <- list(
   PD_vs_Control = c("PD", "Control"),
   SWEDD_vs_Control = c("SWEDD", "Control")
 )
-
-source("./pre_process_eda.R")
-pre_process_eda(
-  project_name = project_name,
-  targets = targets,
-  data_folder = data_folder,
-  project_location = "/Volumes/Elements/methyl-pipe-out",
-  var_mapping = var_mappings,
-  platform = "EPIC",
-  qc_threshold = "auto",
-  cohorts = cohorts
-)
-
-project_to_load <- "ppmi_20260103_120001"
-targets <- readRDS(file.path(data_folder, "targets.rds"))
+project_to_load <- "ppmi_20260401_141117"
 source("./pre_process_eda.R")
 pre_process_eda(
   project_to_load = project_to_load,
   targets = targets,
   data_folder = data_folder,
-  project_location = "/Volumes/Elements/methyl-pipe-out",
+  project_location = "/root/workspace/methyl-pipe-out",
   var_mapping = var_mappings,
   platform = "EPIC",
   qc_threshold = "auto",

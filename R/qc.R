@@ -1,18 +1,19 @@
+library(minfi)
 library(minfiData)
 
 qc <- function(context = NULL,
                targets = NULL,
-               rg_set_filename = "rg_set_norm.rds",
-               methyl_set_filename = "methyl_set_norm.rds",
+               rg_set_filename = "rg_set.rds",
+               methyl_set_filename = "methyl_set.rds",
                qc_threshold = 10.5,
                bisulfite_sd_multiplier = 2,
                bisulfite_absolute_min = NULL) {
   prog <- .create_progress_manager(8) # Increased to 8 steps
 
-  methyl_set_filepath <- file.path(context$paths$processed, methyl_set_filename)
+  methyl_set_filepath <- file.path(context$paths$raw_data, methyl_set_filename)
   prog$update(1, paste("Reading methyl set from ", methyl_set_filepath))
   methyl_set <- readRDS(methyl_set_filepath)
-  rg_set_filepath <- file.path(context$paths$processed, rg_set_filename)
+  rg_set_filepath <- file.path(context$paths$raw_data, rg_set_filename)
   rg_set <- readRDS(rg_set_filepath)
 
   prog$update(2, "Performing QC")

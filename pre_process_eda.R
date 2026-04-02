@@ -33,8 +33,8 @@ pre_process_eda <- function(
   }
 
   ### Read raw data and write to disk
-  source("R/extract_methyl_set.R")
-  extract_methyl_set(context = project_context, targets = targets)
+  #source("R/extract_methyl_set.R")
+  #extract_methyl_set(context = project_context, targets = targets)
 
   ### Sample QC - Outlier detection and removal: Here samples are removed based on the median methylated and unmethylated signal intensities. Samples with a median methylated or unmethylated signal intensity below the specified threshold (default: 10.5) are flagged as outliers and removed from the dataset.
   #### It is crucial to do this step alongside cleaning up the data from problematic samples in order to not have outliers skewing the normalization and thus the downstream analyses. It is also important to do this step before the biological
@@ -86,24 +86,24 @@ pre_process_eda <- function(
   principal_component_analysis(project_context, col_maps = col_map, keys = keys, npc = 5)
   # #
   # # #### Plot PCA
-  source("R/plot_PCA.R")
-  pca_vars <- c("Sample_Group" = "By Diagnosis", "Gender" = "By Biological Gender", "Age" = "By Age")
-  convert_f <- function(df) {
-    (transform(df, Age = as.numeric(Age)))
-  }
-  plot_PCA(
-    context = project_context,
-    pca_results_rds_filename = "pca_df.rds",
-    pca_vars = pca_vars,
-    convert_fun = convert_f,
-    continuously_scaled = c("Age"),
-    "pca_plot_",
-    pairplot_color_by = "Age"
-  )
+  #source("R/plot_PCA.R")
+  #pca_vars <- c("Sample_Group" = "By Diagnosis", "Gender" = "By Biological Gender", "Age" = "By Age")
+  #convert_f <- function(df) {
+  #  (transform(df, Age = as.numeric(Age)))
+  #}
+  #plot_PCA(
+  #  context = project_context,
+  #  pca_results_rds_filename = "pca_df.rds",
+  #  pca_vars = pca_vars,
+  #  convert_fun = convert_f,
+  #  continuously_scaled = c("Age"),
+  #  "pca_plot_",
+  #  pairplot_color_by = "Age"
+  #)
 
   #### Outlier detection from PCA
-  source("R/outlier_analysis.R")
-  outlier_analysis(context = project_context, sample_metadata = c("Sample_Group", var_mapping$gender_var, var_mapping$age_var))
+  #source("R/outlier_analysis.R")
+  #outlier_analysis(context = project_context, sample_metadata = c("Sample_Group", var_mapping$gender_var, var_mapping$age_var))
 
   # #### PCA Outlier assessment (TODO Doesn't really work out)
   # # source("R/pca_outlier_assessment.R")

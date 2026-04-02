@@ -10,3 +10,4 @@ renv
 .Ruserdata
 *.Rproj
 .vscode
+logs
