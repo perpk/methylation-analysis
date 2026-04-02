@@ -36,14 +36,18 @@ pre_process_eda <- function(
   #source("R/extract_methyl_set.R")
   #extract_methyl_set(context = project_context, targets = targets)
 
-  ### Sample QC - Outlier detection and removal
-  source("R/qc.R")
+  ### Sample QC - Outlier detection and removal: Here samples are removed based on the median methylated and unmethylated signal intensities. Samples with a median methylated or unmethylated signal intensity below the specified threshold (default: 10.5) are flagged as outliers and removed from the dataset.
+  #### It is crucial to do this step alongside cleaning up the data from problematic samples in order to not have outliers skewing the normalization and thus the downstream analyses. It is also important to do this step before the biological
+  source("R/qc.R") 
   qc(context = project_context, targets = targets, qc_threshold = qc_threshold)
+  
+  ### Perform background correction and dye-bias normalization on rg_set and extract new methyl_set & beta-matrix based on the filtered rg_set from previous step
+  source("R/bg_correction_dye_bias_norm.R")
+  bg_correction_dye_bias_norm(context = project_context)
 
   ## Probe QC - Detection p-value based probe filtering
   source("R/probe_qc.R")
-  probe_qc(context = project_context)
-
+  probe_qc(context = project_context) # TODO do not remove anything and wait after normalization to do so
 
   # ### Remove sex-mismatched samples
   source("R/biological_gender_mismatch_analysis.R")
@@ -66,10 +70,6 @@ pre_process_eda <- function(
   # ### Filter rg_set according to the remaining methyl_set probes after it has been cleared off from SNPs, X/Y-Chromosome- and cross-reactive probes.
   source("R/filter_rg_set.R")
   filter_rg_set(context = project_context)
-
-  ### Perform background correction and dye-bias normalization on rg_set and extract new methyl_set & beta-matrix based on the filtered rg_set from previous step
-  source("R/bg_correction_dye_bias_norm.R")
-  bg_correction_dye_bias_norm(context = project_context)
 
   ### Beta-Mixture Quantile (BMIQ) Normalization
   source("R/apply_BMIQ.R")

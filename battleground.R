@@ -4,61 +4,36 @@ project_name <- "GSE111629"
 
 source("R/project_context.R")
 
+cohorts <- list(
+    PD_vs_Control = c("PD", "Control")
+)
 context <- .load_methylation_project(project_location, project_to_load, platform = "450k", cohorts = cohorts)
 
-beta_means <- read.csv(file.path(context$paths$results, "beta_means.csv"))
-beta_means$ProbeID <- beta_means$X
-beta_means <- beta_means[-1, ]
+rg_set <- readRDS(file.path(context$paths$raw_data, "rg_set.rds"))
 
-dmp_pc1_pc3 <- read_csv("/Volumes/Elements/GSE111629_temp/dmp_annotated_results_PC1_PC3.csv")
-dmp_pc1_3 <- read_csv("/Volumes/Elements/GSE111629_temp/dmp_annotated_results_PC1-3.csv")
-dmp_pc1_2 <- read_csv("/Volumes/Elements/GSE111629_temp/dmp_annotated_results_PC1-2.csv")
-dmp_pc1 <- read_csv("/Volumes/Elements/GSE111629_temp/dmp_annotated_results_PC1.csv")
-dmp_pc2_pc3 <- read_csv("/Volumes/Elements/GSE111629_temp/dmp_annotated_results_PC2_PC3.csv")
-dmp_pc2 <- read_csv("/Volumes/Elements/GSE111629_temp/dmp_annotated_results_PC2.csv")
-dmp_pc3 <- read_csv("/Volumes/Elements/GSE111629_temp/dmp_annotated_results_PC3.csv")
+library(minfi)
+library(minfiData)
+library(IlluminaHumanMethylation450kmanifest)
 
-dmp_pc1_pc3 <- dmp_pc1_pc3 %>%
-    filter(adj.P.Val < 0.05) %>%
-    filter(abs(logFC) > 0.2)
-dmp_pc1_3 <- dmp_pc1_3 %>%
-    filter(adj.P.Val < 0.05) %>%
-    filter(abs(logFC) > 0.2)
-dmp_pc1_2 <- dmp_pc1_2 %>%
-    filter(adj.P.Val < 0.05) %>%
-    filter(abs(logFC) > 0.2)
-dmp_pc1 <- dmp_pc1 %>%
-    filter(adj.P.Val < 0.05) %>%
-    filter(abs(logFC) > 0.2)
-dmp_pc2_pc3 <- dmp_pc2_pc3 %>%
-    filter(adj.P.Val < 0.05) %>%
-    filter(abs(logFC) > 0.2)
-dmp_pc2 <- dmp_pc2 %>%
-    filter(adj.P.Val < 0.05) %>%
-    filter(abs(logFC) > 0.2)
-dmp_pc3 <- dmp_pc3 %>%
-    filter(adj.P.Val < 0.05) %>%
-    filter(abs(logFC) > 0.2)
+# qc_data <- getControlAddress(rg_set, controlType = "BISULFITE CONVERSION I")
+# qcReport(rg_set, pdf = "GSE111629_Bisulfite_Conversion_QC_Report.pdf")
 
-dmp_pc1_pc3 <- merge(dmp_pc1_pc3, beta_means, by = "ProbeID")
-dmp_pc1_3 <- merge(dmp_pc1_3, beta_means, by = "ProbeID")
-dmp_pc1_2 <- merge(dmp_pc1_2, beta_means, by = "ProbeID")
-dmp_pc1 <- merge(dmp_pc1, beta_means, by = "ProbeID")
-dmp_pc2_pc3 <- merge(dmp_pc2_pc3, beta_means, by = "ProbeID")
-dmp_pc2 <- merge(dmp_pc2, beta_means, by = "ProbeID")
-dmp_pc3 <- merge(dmp_pc3, beta_means, by = "ProbeID")
-dmp_pc1_pc3 <- dmp_pc1_pc3 %>% arrange(desc(delta_beta))
-dmp_pc1_3 <- dmp_pc1_3 %>% arrange(desc(delta_beta))
-dmp_pc1_2 <- dmp_pc1_2 %>% arrange(desc(delta_beta))
-dmp_pc1 <- dmp_pc1 %>% arrange(desc(delta_beta))
-dmp_pc2_pc3 <- dmp_pc2_pc3 %>% arrange(desc(delta_beta))
-dmp_pc2 <- dmp_pc2 %>% arrange(desc(delta_beta))
-dmp_pc3 <- dmp_pc3 %>% arrange(desc(delta_beta))
+# 1. Get addresses for both types
+ctrls_i <- getControlAddress(rg_set, controlType = "BISULFITE CONVERSION I")
+ctrls_ii <- getControlAddress(rg_set, controlType = "BISULFITE CONVERSION II")
 
-write_csv(dmp_pc1_pc3, file.path("/Volumes/Elements/GSE111629_temp/", "dmp_pc1_pc3_filtered_deltaBeta.csv"))
-write_csv(dmp_pc1_3, file.path("/Volumes/Elements/GSE111629_temp/", "dmp_pc1_3_filtered_deltaBeta.csv"))
-write_csv(dmp_pc1_2, file.path("/Volumes/Elements/GSE111629_temp/", "dmp_pc1_2_filtered_deltaBeta.csv"))
-write_csv(dmp_pc1, file.path("/Volumes/Elements/GSE111629_temp/", "dmp_pc1_filtered_deltaBeta.csv"))
-write_csv(dmp_pc2_pc3, file.path("/Volumes/Elements/GSE111629_temp/", "dmp_pc2_pc3_filtered_deltaBeta.csv"))
-write_csv(dmp_pc2, file.path("/Volumes/Elements/GSE111629_temp/", "dmp_pc2_filtered_deltaBeta.csv"))
-write_csv(dmp_pc3, file.path("/Volumes/Elements/GSE111629_temp/", "dmp_pc3_filtered_deltaBeta.csv"))
+# 2. Calculate average intensities
+# BC I usually uses Green for the 'Converted' signal
+bc1_scores <- colMeans(getGreen(rg_set)[ctrls_i, ])
+
+# BC II usually uses Red for the 'Converted' signal
+bc2_scores <- colMeans(getRed(rg_set)[ctrls_ii, ])
+
+# 3. Identify failures (using your 2 SD logic)
+fail_i <- names(bc1_scores[bc1_scores < (mean(bc1_scores) - 2 * sd(bc1_scores))])
+fail_ii <- names(bc2_scores[bc2_scores < (mean(bc2_scores) - 2 * sd(bc2_scores))])
+
+# 4. Combine into a unique list of problematic samples
+all_failed_samples <- unique(c(fail_i, fail_ii))
+
+print(all_failed_samples)

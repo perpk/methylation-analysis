@@ -164,7 +164,7 @@ wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc | \
 print_status "Adding CRAN repository for Ubuntu $UBUNTU_CODENAME..."
 sudo add-apt-repository -y "deb https://cloud.r-project.org/bin/linux/ubuntu $CRAN_REPO/"
 
-# Update package list
+# Update again after adding repositories
 sudo apt-get update
 
 # Step 4: Install R 4.5 and system dependencies
@@ -188,10 +188,14 @@ fi
 # Step 5: Install system dependencies for Bioconductor packages
 print_status "Step 5: Installing system dependencies for R packages..."
 
+# Step 5: Install system dependencies for Bioconductor packages
+print_status "Step 5: Installing system dependencies for R packages..."
+
 # First install essential build tools and libraries
 sudo apt-get install -y \
     build-essential \
     gfortran \
+    libcurl4-openssl-dev \
     libcurl4-openssl-dev \
     libssl-dev \
     libxml2-dev \
@@ -258,6 +262,8 @@ fi
 
 # Step 6: Verify R installation
 print_status "Step 6: Verifying R installation..."
+# Step 6: Verify R installation
+print_status "Step 6: Verifying R installation..."
 R --version
 
 if [ $? -ne 0 ]; then
@@ -265,6 +271,8 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# Step 7: Set up renv and install Bioconductor packages
+print_status "Step 7: Setting up fresh renv and installing Bioconductor packages..."
 # Step 7: Set up renv and install Bioconductor packages
 print_status "Step 7: Setting up fresh renv and installing Bioconductor packages..."
 
@@ -280,8 +288,16 @@ cat("R version:", R.version.string, "\n")
 
 # Install renv
 cat("\nInstalling renv...\n")
+# Print R version
+cat("R version:", R.version.string, "\n")
+
+# Install renv
+cat("\nInstalling renv...\n")
 install.packages("renv", quiet = FALSE)
 
+# Initialize renv (fresh)
+cat("\nInitializing fresh renv...\n")
+renv::init(bare = TRUE, settings = list(snapshot.type = "all"))
 # Initialize renv (fresh)
 cat("\nInitializing fresh renv...\n")
 renv::init(bare = TRUE, settings = list(snapshot.type = "all"))
@@ -296,6 +312,7 @@ cat("\nInstalling pak...\n")
 install.packages("pak", quiet = FALSE)
 
 # Install BiocManager
+cat("\nInstalling BiocManager...\n")
 cat("\nInstalling BiocManager...\n")
 install.packages("BiocManager", quiet = FALSE)
 
@@ -319,6 +336,13 @@ packages <- c(
     "BSgenome.Hsapiens.UCSC.hg19"
 )
 
+# Install pak for better dependency resolution
+install.packages("pak", quiet = FALSE)
+
+install.packages("rlist")
+
+pak::pkg_install("markgene/maxprobes")
+
 # Install packages
 for (pkg in packages) {
     cat("\n========================================\n")
@@ -329,6 +353,15 @@ for (pkg in packages) {
         BiocManager::install(pkg, update = FALSE, ask = FALSE)
         cat("✓ Successfully installed:", pkg, "\n")
     }, error = function(e) {
+        # Try with pak if BiocManager fails
+        cat("Retrying with pak...\n")
+        tryCatch({
+            pak::pkg_install(pkg)
+            cat("✓ Successfully installed with pak:", pkg, "\n")
+        }, error = function(e2) {
+            cat("✗ Failed to install:", pkg, "\n")
+            cat("Error message:", e2$message, "\n")
+        })
         # Try with pak if BiocManager fails
         cat("Retrying with pak...\n")
         tryCatch({
@@ -353,7 +386,7 @@ installed_pkgs <- installed.packages()
 cat("Total packages installed:", nrow(installed_pkgs), "\n")
 
 # Check critical packages
-critical_packages <- c("minfi", "GEOquery")
+critical_packages <- c("minfi", "ChAMP", "GEOquery")
 for (pkg in critical_packages) {
     if (pkg %in% rownames(installed_pkgs)) {
         cat("✓", pkg, "- version:", installed_pkgs[pkg, "Version"], "\n")
@@ -372,6 +405,8 @@ if [ $? -ne 0 ]; then
     print_warning "Some packages failed to install, but continuing..."
 fi
 
+# Step 8: Verify installation
+print_status "Step 8: Verifying package installation..."
 # Step 8: Verify installation
 print_status "Step 8: Verifying package installation..."
 
@@ -393,6 +428,8 @@ check_package <- function(pkg) {
 critical_packages <- c(
     "minfi",
     "GEOquery",
+    "IlluminaHumanMethylation450kanno.ilmn12.hg19",
+    "methylumi"
     "IlluminaHumanMethylation450kanno.ilmn12.hg19",
     "methylumi"
 )
@@ -424,10 +461,22 @@ if (require("minfi", quietly = TRUE)) {
     }
 }
 
+# Check minfi version
+if (require("minfi", quietly = TRUE)) {
+    minfi_version <- packageVersion("minfi")
+    cat("\nminfi version:", as.character(minfi_version), "\n")
+    if (minfi_version >= "1.56.0") {
+        cat("✓ minfi version 1.56.0 or higher detected\n")
+    } else {
+        cat("⚠ WARNING: minfi version is older than 1.56.0\n")
+    }
+}
+
 EOF
 
 R --vanilla < verify_packages.R
 
+# Step 9: Final setup instructions
 # Step 9: Final setup instructions
 print_status "Setup complete!"
 
@@ -440,22 +489,30 @@ Setup Summary
 ✓ R installed: $(R --version | head -1)
 ✓ System dependencies installed
 ✓ Fresh renv initialized
+✓ Fresh renv initialized
 ✓ Bioconductor packages installed
 
 Next steps:
 1. Activate renv (if not already active):
    source renv/activate
    or in R: renv::activate()
+1. Activate renv (if not already active):
+   source renv/activate
+   or in R: renv::activate()
 
+2. Run your main analysis:
 2. Run your main analysis:
    Rscript --vanilla GSE145361.R
 
+3. To see installed packages:
+   R --vanilla -e "renv::dependencies()"
 3. To see installed packages:
    R --vanilla -e "renv::dependencies()"
 
 Troubleshooting:
 - If you encounter memory issues, try: export R_MAX_VSIZE=16Gb
 - To update packages: R --vanilla -e "renv::update()"
+- To restore renv from lockfile: R --vanilla -e "renv::restore()"
 - To restore renv from lockfile: R --vanilla -e "renv::restore()"
 
 ========================================
@@ -466,6 +523,7 @@ cat > run_analysis.sh << 'EOF'
 #!/bin/bash
 # Convenience script to run the methylation analysis
 
+echo "Running methylation analysis..."
 echo "Running methylation analysis..."
 Rscript --vanilla GSE145361.R
 

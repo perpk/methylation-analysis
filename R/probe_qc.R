@@ -2,19 +2,19 @@ library(minfi)
 
 probe_qc <- function(
   context = NULL,
-  rg_set_filename = "rg_set_clean.rds",
-  methyl_set_filename = "methyl_set_clean.rds",
+  rg_set_filename = "rg_set_norm.rds",
+  methyl_set_filename = "methyl_set_norm.rds",
   det_p_threshold = 0.01,
   max_failed_samples = 0.05
 ) {
   tryCatch({
     prog <- .create_progress_manager(8)
 
-    rg_set_filepath <- file.path(context$paths$qc, rg_set_filename)
+    rg_set_filepath <- file.path(context$paths$processed, rg_set_filename)
     prog$update(1, paste("Reading cleaned RG set from", rg_set_filepath))
     rg_set <- readRDS(rg_set_filepath)
 
-    methyl_set_filepath <- file.path(context$paths$qc, methyl_set_filename)
+    methyl_set_filepath <- file.path(context$paths$processed, methyl_set_filename)
     prog$update(2, paste("Reading cleaned methyl set from", methyl_set_filepath))
     methyl_set <- readRDS(methyl_set_filepath)
 
