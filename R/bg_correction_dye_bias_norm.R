@@ -1,9 +1,9 @@
-bg_correction_dye_bias_norm <- function(context = NULL, rg_set_filename = "rg_set.rds") {
+bg_correction_dye_bias_norm <- function(context = NULL, rg_set_filename = "rg_set_clean.rds") {
   prog <- .create_progress_manager(3)
 
   print("Background correction and dye bias normalization")
 
-  rg_set_filepath <- file.path(context$paths$raw_data, rg_set_filename) # Note: raw_data, not processed
+  rg_set_filepath <- file.path(context$paths$qc, rg_set_filename) # Note: raw_data, not processed
   prog$update(1, paste("Reading raw rg_set from", rg_set_filepath))
   rg_set <- readRDS(rg_set_filepath)
 

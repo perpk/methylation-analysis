@@ -2,17 +2,17 @@ library(minfiData)
 
 qc <- function(context = NULL,
                targets = NULL,
-               rg_set_filename = "rg_set.rds",
-               methyl_set_filename = "methyl_set.rds",
+               rg_set_filename = "rg_set_norm.rds",
+               methyl_set_filename = "methyl_set_norm.rds",
                qc_threshold = 10.5,
                bisulfite_sd_multiplier = 2,
                bisulfite_absolute_min = NULL) {
   prog <- .create_progress_manager(8) # Increased to 8 steps
 
-  methyl_set_filepath <- file.path(context$paths$raw_data, methyl_set_filename)
+  methyl_set_filepath <- file.path(context$paths$processed, methyl_set_filename)
   prog$update(1, paste("Reading methyl set from ", methyl_set_filepath))
   methyl_set <- readRDS(methyl_set_filepath)
-  rg_set_filepath <- file.path(context$paths$raw_data, rg_set_filename)
+  rg_set_filepath <- file.path(context$paths$processed, rg_set_filename)
   rg_set <- readRDS(rg_set_filepath)
 
   prog$update(2, "Performing QC")
@@ -257,12 +257,12 @@ qc <- function(context = NULL,
   if (is.character(qc_threshold) && qc_threshold == "auto") {
     cat("Auto-detecting QC threshold...\n")
 
-    # Simple auto-detection: Use median - 2*MAD
+    # Simple auto-detection: Use median - 2*MAD TODO consinder Hampel to change factor to 3.
     m_threshold <- median(qc$mMed) - 2 * mad(qc$mMed)
     u_threshold <- median(qc$uMed) - 2 * mad(qc$uMed)
 
     threshold <- min(m_threshold, u_threshold)
-    threshold <- max(threshold, 8) # Don't go below reasonable minimum
+    threshold <- max(threshold, 10.5) # Don't go below reasonable minimum
 
     cat(sprintf("Auto-detected threshold: %.2f", threshold))
 
