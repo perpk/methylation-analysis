@@ -78,7 +78,7 @@ cohorts <- list(
 project_to_load <- "ppmi_20260401_141117"
 source("./pre_process_eda.R")
 pre_process_eda(
-  project_to_load = project_name,
+  project_name = project_name,
   targets = targets,
   data_folder = data_folder,
   project_location = "/root/workspace/methyl-pipe-out",
