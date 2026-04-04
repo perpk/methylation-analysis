@@ -2,7 +2,7 @@ library(IlluminaHumanMethylation450kanno.ilmn12.hg19)
 library(IlluminaHumanMethylationEPICanno.ilm10b4.hg19)
 
 apply_BMIQ <- function(context = NULL,
-                       beta_matrix_file = "beta_matrix_noob.rds",
+                       beta_matrix_file = "beta_matrix.rds",
                        plot = FALSE) {
   platform <- NULL
   if (context$platform == "450k") {
