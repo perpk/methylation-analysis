@@ -84,6 +84,12 @@ apply_BMIQ <- function(context = NULL,
   gc(full = TRUE)
 }
 
+plot_BMIQ <- function(platform) {
+  beta_before <- readRDS(file.path(context$paths$results, "beta_matrix.rds"))
+  beta_after <- readRDS(file.path(context$paths$results, "beta_matrix_bmiq.rds"))
+  .plot_BMIQ_comparison(beta_before, beta_after, platform)
+}
+
 .plot_BMIQ_comparison <- function(beta_before, beta_after, platform) {
   library(ggplot2)
   library(patchwork)
