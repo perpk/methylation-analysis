@@ -1,4 +1,5 @@
 install.packages("progress", "tidyverse", "BiocManager")
+# You need that for the BMIQ plot.
 install.packages("patchwork")
 install.packages("rlist")
 install.packages("devtools")

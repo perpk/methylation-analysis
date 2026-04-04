@@ -84,7 +84,15 @@ apply_BMIQ <- function(context = NULL,
   gc(full = TRUE)
 }
 
-plot_BMIQ <- function(platform, context = NULL) {
+plot_BMIQ <- function(context = NULL) {
+  platform <- NULL
+  if (context$platform == "450k") {
+    platform <- IlluminaHumanMethylation450kanno.ilmn12.hg19
+  } else if (context$platform == "EPIC") {
+    platform <- IlluminaHumanMethylationEPICanno.ilm10b4.hg19
+  } else {
+    stop("Unsupported platform. Please specify '450k' or 'EPIC'.")
+  }
   beta_before <- readRDS(file.path(context$paths$results, "beta_matrix.rds"))
   beta_after <- readRDS(file.path(context$paths$results, "beta_matrix_bmiq.rds"))
   .plot_BMIQ_comparison(beta_before, beta_after, platform)
