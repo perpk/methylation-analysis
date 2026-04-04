@@ -90,7 +90,7 @@ pre_process_eda <- function(
   # apply_BMIQ(context = project_context, plot = TRUE)
 
   source("R/apply_BMIQ.R")
-  plot_BMIQ(project_context$platform, project_context)
+  plot_BMIQ(project_context)
 
   ### Principal Component Analysis
   source("R/principal_component_analysis.R")
