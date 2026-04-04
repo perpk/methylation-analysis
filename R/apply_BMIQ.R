@@ -84,7 +84,7 @@ apply_BMIQ <- function(context = NULL,
   gc(full = TRUE)
 }
 
-plot_BMIQ <- function(platform) {
+plot_BMIQ <- function(platform, context = NULL) {
   beta_before <- readRDS(file.path(context$paths$results, "beta_matrix.rds"))
   beta_after <- readRDS(file.path(context$paths$results, "beta_matrix_bmiq.rds"))
   .plot_BMIQ_comparison(beta_before, beta_after, platform)
