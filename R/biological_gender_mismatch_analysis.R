@@ -1,6 +1,6 @@
 biological_gender_mismatch_analysis <- function(context = NULL,
-                                                methyl_set_filename = "methyl_set_probe_qc.rds",
-                                                rg_set_filename = "rg_set_probe_qc.rds",
+                                                methyl_set_filename = "methyl_set_norm.rds",
+                                                rg_set_filename = "rg_set_norm.rds",
                                                 targets_filename = "targets_clean.rds",
                                                 targets_sample_col = "Sample_Name",
                                                 recorded_sex_col = NULL) {
@@ -8,8 +8,8 @@ biological_gender_mismatch_analysis <- function(context = NULL,
 
   print("biological gender mismatch analysis - redo")
 
-  methyl_set_file <- file.path(context$paths$qc, methyl_set_filename)
-  rg_set_file <- file.path(context$paths$qc, rg_set_filename)
+  methyl_set_file <- file.path(context$paths$processed, methyl_set_filename)
+  rg_set_file <- file.path(context$paths$processed, rg_set_filename)
   prog$update(1, paste("Reading Methylset from filesystem", methyl_set_file))
   methyl_set <- readRDS(methyl_set_file)
   rg_set <- readRDS(rg_set_file)
