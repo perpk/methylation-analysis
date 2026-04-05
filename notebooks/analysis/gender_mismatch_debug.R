@@ -5,6 +5,16 @@ library(minfi)
 
 path <- "/Volumes/Elements/vastai/ppmi/ppmi_20260403_164555"
 rg_set <- readRDS(file.path(path, "raw_data", "rg_set.rds"))
+
+library(wateRmelon)
+bc <- beadcount(rg_set)
+bead_fail_probes <- bc < 3
+sample_failure_rate <- colMeans(bead_fail_probes, na.rm = TRUE)
+bad_samples <- names(sample_failure_rate[sample_failure_rate > 0.05])
+bad_samples
+
+
+
 methyl_set_norm <- preprocessNoob(rg_set)
 
 methyl_set_genomic <- mapToGenome(methyl_set_norm)
@@ -21,5 +31,3 @@ sex_check <- sex_check %>% mutate(
 )
 mismatches <- sex_check[sex_check$Recorded_Sex != sex_check$Predicted_Sex, ]
 print(mismatches)
-
-sex_check
