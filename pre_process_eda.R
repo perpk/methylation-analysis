@@ -33,8 +33,8 @@ pre_process_eda <- function(
   }
 
   ### Read raw data and write to disk
-  source("R/extract_methyl_set.R")
-  extract_methyl_set(context = project_context, targets = targets)
+  # source("R/extract_methyl_set.R")
+  # extract_methyl_set(context = project_context, targets = targets)
 
   ### Sample QC - Outlier detection and removal: Here samples are removed based on the median methylated and unmethylated signal intensities. Samples with a median methylated or unmethylated signal intensity below the specified threshold (default: 10.5) are flagged as outliers and removed from the dataset.
   #### It is crucial to do this step alongside cleaning up the data from problematic samples in order to not have outliers skewing the normalization and thus the downstream analyses. It is also important to do this step before the biological

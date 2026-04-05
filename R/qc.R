@@ -259,11 +259,11 @@ qc <- function(context = NULL,
     cat("Auto-detecting QC threshold...\n")
 
     # Simple auto-detection: Use median - 2*MAD TODO consinder Hampel to change factor to 3.
-    m_threshold <- median(qc$mMed) - 2 * mad(qc$mMed)
-    u_threshold <- median(qc$uMed) - 2 * mad(qc$uMed)
+    m_threshold <- median(qc$mMed) - 3 * mad(qc$mMed)
+    u_threshold <- median(qc$uMed) - 3 * mad(qc$uMed)
 
     threshold <- min(m_threshold, u_threshold)
-    threshold <- max(threshold, 10.5) # Don't go below reasonable minimum
+    threshold <- max(threshold, 9) # Don't go below reasonable minimum
 
     cat(sprintf("Auto-detected threshold: %.2f", threshold))
 
@@ -374,41 +374,6 @@ qc <- function(context = NULL,
     removed_samples = if (nrow(qc_log) > 0) qc_log$Sample_Name else "None",
     qc_method = "Median intensity and bisulfite conversion filtering (BC I and BC II)"
   )
-}
-
-.determine_qc_threshold <- function(qc, qc_threshold, context, prog) {
-  if (is.character(qc_threshold) && qc_threshold == "auto") {
-    cat("Auto-detecting QC threshold...\n")
-
-    # Simple auto-detection: Use median - 2*MAD
-    m_threshold <- median(qc$mMed) - 2 * mad(qc$mMed)
-    u_threshold <- median(qc$uMed) - 2 * mad(qc$uMed)
-
-    threshold <- min(m_threshold, u_threshold)
-    threshold <- max(threshold, 10.5) # Don't go below reasonable minimum
-
-    cat(sprintf("Auto-detected threshold: %.2f", threshold))
-
-    auto_info <- list(
-      method = "median_minus_2MAD",
-      m_median = median(qc$mMed),
-      m_mad = mad(qc$mMed),
-      u_median = median(qc$uMed),
-      u_mad = mad(qc$uMed),
-      threshold = threshold,
-      date = Sys.time()
-    )
-
-    saveRDS(
-      auto_info,
-      file.path(context$paths$logs, "qc_auto_threshold.rds")
-    )
-  } else {
-    threshold <- as.numeric(qc_threshold)
-    cat(sprintf("Using specified threshold: %.2f", threshold))
-  }
-
-  return(threshold)
 }
 
 .identify_failed_samples <- function(qc, threshold, prog) {
