@@ -1,11 +1,12 @@
 rm(list = ls())
 gc(full = TRUE)
 
-path <- "/Volumes/Elements/vastai/ppmi/ppmi_20260403_164555"
-methyl_set_norm <- readRDS(file.path(paste0(path, "/processed"), "methyl_set_norm.rds"))
-targets <- readRDS(file.path(paste0(path, "/qc"), "targets_clean.rds"))
-
 library(minfi)
+
+path <- "/Volumes/Elements/vastai/ppmi/ppmi_20260403_164555"
+rg_set <- readRDS(file.path(path, "raw_data", "rg_set.rds"))
+methyl_set_norm <- preprocessNoob(rg_set)
+
 methyl_set_genomic <- mapToGenome(methyl_set_norm)
 predicted_sex <- getSex(methyl_set_genomic, cutoff = -2)
 sex_check <- data.frame(
