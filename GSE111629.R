@@ -36,7 +36,7 @@ cohorts <- list(
 
 source("./pre_process_eda.R")
 pre_process_eda(
-  project_to_load = project_to_load,
+  project_name = project_name,
   targets = targets,
   data_folder = data_folder,
   project_location = "/root/workspace/methyl-pipe-out",
@@ -46,18 +46,18 @@ pre_process_eda(
 )
 
 ### Differential Methylation Analysis
-#project_to_load <- "GSE111629_20251226_102044"
-#cohorts <- list(
+# project_to_load <- "GSE111629_20251226_102044"
+# cohorts <- list(
 #  PD_vs_Control = c("PD", "Control")
-#)
+# )
 
-#design_formula <- "0 + Sample_Group + PC3"
+# design_formula <- "0 + Sample_Group + PC3"
 
-#source("./differential_analysis.R")
-#differential_analysis(
+# source("./differential_analysis.R")
+# differential_analysis(
 #  project_to_load = project_to_load,
 #  project_location = "/Volumes/Elements/methyl-pipe-out",
 #  platform = "450k",
 #  cohorts = cohorts,
 #  design_formula = design_formula
-#)
+# )

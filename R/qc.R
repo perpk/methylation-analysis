@@ -1,5 +1,6 @@
 library(minfi)
 library(minfiData)
+library(wateRmelon)
 
 qc <- function(context = NULL,
                targets = NULL,
@@ -39,9 +40,20 @@ qc <- function(context = NULL,
   # Get intensity-based failures
   intensity_bad_samples <- .identify_failed_samples(qc, intensity_threshold, prog)
 
+  bc <- beadcount(rg_set)
+  bead_fail_probes <- bc < 3
+  sample_failure_rate <- colMeans(bead_fail_probes, na.rm = TRUE)
+  bad_samples <- names(sample_failure_rate[sample_failure_rate > 0.05])
+  bad_samples_indices <- which(colnames(rg_set) %in% bad_samples)
+
+  print(paste(
+    "Bead count QC: Removing", length(bad_samples),
+    "sample(s) with >5% failed probes due to low bead count."
+  ))
+
   # Combine with bisulfite failures
-  all_bad_indices <- unique(c(intensity_bad_samples$indices, bisulfite_failed_samples$indices))
-  all_bad_names <- unique(c(intensity_bad_samples$names, bisulfite_failed_samples$names))
+  all_bad_indices <- unique(c(intensity_bad_samples$indices, bisulfite_failed_samples$indices, bad_samples_indices))
+  all_bad_names <- unique(c(intensity_bad_samples$names, bisulfite_failed_samples$names, bad_samples))
 
   # Create combined bad_samples structure
   bad_samples <- list(
