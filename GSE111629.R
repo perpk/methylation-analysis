@@ -6,7 +6,7 @@ rm(list = ls())
 gc(full = TRUE)
 
 project_name <- "GSE111629"
-project_to_load <- "GSE111629_20260330_142503"
+project_to_load <- "GSE111629_20260406_185759"
 data_folder <- paste0(project_name, "_RAW")
 
 targets <- read.metharray.sheet(data_folder, pattern = "GPL13534_HumanMethylation450_15017482_v.1.1.csv.gz")
@@ -36,7 +36,7 @@ cohorts <- list(
 
 source("./pre_process_eda.R")
 pre_process_eda(
-  project_name = project_name,
+  project_to_load = project_to_load,
   targets = targets,
   data_folder = data_folder,
   project_location = "/root/workspace/methyl-pipe-out",
