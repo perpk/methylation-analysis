@@ -1,6 +1,6 @@
 cell_cnt_estimate <- function(context = NULL, rg_set_filename = "rg_set.rds", targets_filename = "targets.rds") {
-  rg_set_path <- file.path(context$paths$processed, rg_set_filename)
-  targets_path <- file.path(context$paths$processed, targets_filename)
+  rg_set_path <- file.path(context$paths$raw_data, rg_set_filename)
+  targets_path <- file.path(context$paths$raw_data, targets_filename)
 
   print("Estimating cell counts")
 
