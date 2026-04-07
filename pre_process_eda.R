@@ -32,8 +32,6 @@ pre_process_eda <- function(
     project_context <- .load_methylation_project(project_location, project_to_load, platform = platform, cohorts = cohorts)
   }
 
-  saveRDS(targets, file.path(project_context$paths$raw_data, "targets.rds"))
-
   # ### Read raw data and write to disk
   # source("R/extract_methyl_set.R")
   # extract_methyl_set(context = project_context, targets = targets)
