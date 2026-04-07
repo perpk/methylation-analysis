@@ -62,7 +62,7 @@ data_folder <- "ppmi"
 # rm(list = setdiff(ls(), c("data_folder")))
 # gc(full = TRUE)
 
-# project_name <- "ppmi"
+project_name <- "ppmi"
 # data_folder <- "ppmi"
 
 # targets <- read.metharray.sheet(data_folder, pattern = "sample_sheet")
