@@ -128,26 +128,26 @@ pre_process_eda <- function(
   # # metrics <- readRDS(file.path(project_context$paths$qc, "metrics_pca_outlier_assessment.rds"))
 
   # ### Calculate Delta-Beta values
-  # print("Calculate Delta-Beta values")
-  # beta_matrix <- readRDS(file.path(project_context$paths$results, "beta_matrix_bmiq.rds"))
-  # targets <- readRDS(file.path(project_context$paths$processed, "targets_remove_mismatch.rds"))
-  # rownames(targets) <- targets$Basename %>% str_remove(paste0(data_folder, "/"))
+  print("Calculate Delta-Beta values")
+  beta_matrix <- readRDS(file.path(project_context$paths$results, "beta_matrix_bmiq.rds"))
+  targets <- readRDS(file.path(project_context$paths$processed, "targets_remove_mismatch.rds"))
+  rownames(targets) <- targets$Basename %>% str_remove(paste0(data_folder, "/"))
 
-  # pd_samples <- rownames(targets[targets$Sample_Group == "PD", ])
-  # hc_samples <- rownames(targets[targets$Sample_Group == "Control", ])
+  pd_samples <- rownames(targets[targets$Sample_Group == "PD", ])
+  hc_samples <- rownames(targets[targets$Sample_Group == "Control", ])
 
-  # colnames_pd <- which(colnames(beta_matrix) %in% pd_samples)
-  # colnames_hc <- which(colnames(beta_matrix) %in% hc_samples)
+  colnames_pd <- which(colnames(beta_matrix) %in% pd_samples)
+  colnames_hc <- which(colnames(beta_matrix) %in% hc_samples)
 
-  # mean_beta_pd <- rowMeans(beta_matrix[, colnames_pd], na.rm = TRUE)
-  # mean_beta_hc <- rowMeans(beta_matrix[, colnames_hc], na.rm = TRUE)
-  # delta_beta <- mean_beta_pd - mean_beta_hc
+  mean_beta_pd <- rowMeans(beta_matrix[, colnames_pd], na.rm = TRUE)
+  mean_beta_hc <- rowMeans(beta_matrix[, colnames_hc], na.rm = TRUE)
+  delta_beta <- mean_beta_pd - mean_beta_hc
 
-  # beta_means <- data.frame(
-  #   mean_beta_pd,
-  #   mean_beta_hc,
-  #   delta_beta
-  # )
+  beta_means <- data.frame(
+    mean_beta_pd,
+    mean_beta_hc,
+    delta_beta
+  )
 
   # write.csv(beta_means, file.path(project_context$paths$results, "beta_means.csv"))
 
@@ -156,10 +156,10 @@ pre_process_eda <- function(
   # gc(full = TRUE)
 
   # Cell Count Estimation
-  source("R/cell_cnt_estimate.R")
-  cell_cnt_estimate(context = project_context)
+  # source("R/cell_cnt_estimate.R")
+  # cell_cnt_estimate(context = project_context)
 
   # Plot Cell proportion per cohort and write results to files for each cell type
-  source("R/plot_cell_proportions.R")
-  plot_cell_proportions(context = project_context)
+  # source("R/plot_cell_proportions.R")
+  # plot_cell_proportions(context = project_context)
 }
