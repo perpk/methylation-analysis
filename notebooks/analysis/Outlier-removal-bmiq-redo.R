@@ -103,3 +103,7 @@ m_bmiq[is.infinite(m_bmiq)] <- NA
 
 saveRDS(beta_bmiq, file.path(rootDir, "beta_matrix_bmiq_no_outliers.rds"))
 saveRDS(m_bmiq, file.path(rootDir, "m_matrix_bmiq_no_outliers.rds"))
+
+
+write.csv(beta_bmiq, file.path(rootDir, "beta_matrix_bmiq_no_outliers.csv"))
+write.csv(m_bmiq, file.path(rootDir, "m_matrix_bmiq_no_outliers.csv"))
