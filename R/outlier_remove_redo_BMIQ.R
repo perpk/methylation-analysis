@@ -1,9 +1,6 @@
 source("R/apply_BMIQ.R")
 
 outlier_remove_redo_BMIQ <- function(context = NULL) {
-    rm(list = ls())
-    gc(full = TRUE)
-
     pca_filename <- "pca_df_with_outliers.rds"
     targets_filename <- "targets_remove_mismatch.rds"
     beta_matrix_filename <- "beta_matrix.rds"
