@@ -87,8 +87,8 @@ pre_process_eda <- function(
   # filter_rg_set(context = project_context)
 
   ### Beta-Mixture Quantile (BMIQ) Normalization
-  source("R/apply_BMIQ.R")
-  apply_BMIQ(context = project_context, plot = FALSE)
+  # source("R/apply_BMIQ.R")
+  # apply_BMIQ(context = project_context, plot = FALSE)
 
   ### Principal Component Analysis
   source("R/principal_component_analysis.R")
@@ -100,20 +100,20 @@ pre_process_eda <- function(
   principal_component_analysis(project_context, col_maps = col_map, keys = keys, npc = 5)
   # #
   # # #### Plot PCA
-  source("R/plot_PCA.R")
-  pca_vars <- c("Sample_Group" = "By Diagnosis", "Gender" = "By Biological Gender", "Age" = "By Age")
-  convert_f <- function(df) {
-    (transform(df, Age = as.numeric(Age)))
-  }
-  plot_PCA(
-    context = project_context,
-    pca_results_rds_filename = "pca_df.rds",
-    pca_vars = pca_vars,
-    convert_fun = convert_f,
-    continuously_scaled = c("Age"),
-    "pca_plot_",
-    pairplot_color_by = "Age"
-  )
+  # source("R/plot_PCA.R")
+  # pca_vars <- c("Sample_Group" = "By Diagnosis", "Gender" = "By Biological Gender", "Age" = "By Age")
+  # convert_f <- function(df) {
+  #   (transform(df, Age = as.numeric(Age)))
+  # }
+  # plot_PCA(
+  #   context = project_context,
+  #   pca_results_rds_filename = "pca_df.rds",
+  #   pca_vars = pca_vars,
+  #   convert_fun = convert_f,
+  #   continuously_scaled = c("Age"),
+  #   "pca_plot_",
+  #   pairplot_color_by = "Age"
+  # )
 
   #### Outlier detection from PCA
   source("R/outlier_analysis.R")

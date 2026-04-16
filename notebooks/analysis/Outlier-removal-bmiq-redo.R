@@ -55,6 +55,7 @@ outlier_cases_logfile <- file.path(rootDir, "outlier_log.csv")
 outlier_cases <- pca_df[pca_df$Is_Outlier, ]
 write.csv(outlier_cases, file = outlier_cases_logfile)
 
+
 beta_matrix <- beta_matrix[, -outliers]
 saveRDS(beta_matrix, file.path(rootDir, "beta_matrix_no_outliers.rds"))
 
