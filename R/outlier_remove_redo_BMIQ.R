@@ -1,6 +1,6 @@
 source("R/apply_BMIQ.R")
 
-outlier_remove_redo_BMIQ <- function(context) {
+outlier_remove_redo_BMIQ <- function(context = NULL) {
     rm(list = ls())
     gc(full = TRUE)
 

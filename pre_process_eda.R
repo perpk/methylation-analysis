@@ -91,13 +91,13 @@ pre_process_eda <- function(
   # apply_BMIQ(context = project_context, plot = FALSE)
 
   ### Principal Component Analysis
-  source("R/principal_component_analysis.R")
-  col_map <- list()
-  col_map[["Sample_Group"]] <- "Sample_Group"
-  col_map[["Gender"]] <- var_mapping$gender_var
-  col_map[["Age"]] <- var_mapping$age_var
-  keys <- c("Sample_Group", "Gender", "Age")
-  principal_component_analysis(project_context, col_maps = col_map, keys = keys, npc = 5)
+  # source("R/principal_component_analysis.R")
+  # col_map <- list()
+  # col_map[["Sample_Group"]] <- "Sample_Group"
+  # col_map[["Gender"]] <- var_mapping$gender_var
+  # col_map[["Age"]] <- var_mapping$age_var
+  # keys <- c("Sample_Group", "Gender", "Age")
+  # principal_component_analysis(project_context, col_maps = col_map, keys = keys, npc = 5)
   # #
   # # #### Plot PCA
   # source("R/plot_PCA.R")
@@ -116,8 +116,8 @@ pre_process_eda <- function(
   # )
 
   #### Outlier detection from PCA
-  source("R/outlier_analysis.R")
-  outlier_analysis(context = project_context, sample_metadata = c("Sample_Group", var_mapping$gender_var, var_mapping$age_var))
+  # source("R/outlier_analysis.R")
+  # outlier_analysis(context = project_context, sample_metadata = c("Sample_Group", var_mapping$gender_var, var_mapping$age_var))
 
   source("R/outlier_remove_redo_BMIQ.R")
   outlier_remove_redo_BMIQ(context = project_context)
