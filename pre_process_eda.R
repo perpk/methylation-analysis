@@ -75,12 +75,12 @@ pre_process_eda <- function(
   # remove_cross_reactive_probes(context = project_context)
 
   # ### The filtering of the dataset is complete and beta & m-values are now extracted from the methyl_set and written to disk as "beta_matrix.rds" and "m_matrix.rds" respectively.
-  methyl_set_cross_reactive_clean_path <- file.path(project_context$paths$processed, "methyl_set_removed_cross_reactive.rds")
-  methyl_set <- readRDS(methyl_set_cross_reactive_clean_path)
-  beta_matrix <- getBeta(methyl_set)
-  m_matrix <- getM(methyl_set)
-  saveRDS(beta_matrix, file.path(project_context$paths$results, "beta_matrix.rds"))
-  saveRDS(m_matrix, file.path(project_context$paths$results, "m_matrix.rds"))
+  # methyl_set_cross_reactive_clean_path <- file.path(project_context$paths$processed, "methyl_set_removed_cross_reactive.rds")
+  # methyl_set <- readRDS(methyl_set_cross_reactive_clean_path)
+  # beta_matrix <- getBeta(methyl_set)
+  # m_matrix <- getM(methyl_set)
+  # saveRDS(beta_matrix, file.path(project_context$paths$results, "beta_matrix.rds"))
+  # saveRDS(m_matrix, file.path(project_context$paths$results, "m_matrix.rds"))
 
   # ### Filter rg_set according to the remaining methyl_set probes after it has been cleared off from SNPs, X/Y-Chromosome- and cross-reactive probes.
   # source("R/filter_rg_set.R")
