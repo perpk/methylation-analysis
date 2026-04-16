@@ -116,8 +116,8 @@ pre_process_eda <- function(
   # )
 
   #### Outlier detection from PCA
-  # source("R/outlier_analysis.R")
-  # outlier_analysis(context = project_context, sample_metadata = c("Sample_Group", var_mapping$gender_var, var_mapping$age_var))
+  source("R/outlier_analysis.R")
+  outlier_analysis(context = project_context, sample_metadata = c("Sample_Group", var_mapping$gender_var, var_mapping$age_var))
 
   source("R/outlier_remove_redo_BMIQ.R")
   outlier_remove_redo_BMIQ(context = project_context)

@@ -1,5 +1,4 @@
-outlier_analysis <- function(context=NULL, pca_filename = "pca_df.rds", targets_filename="targets_remove_mismatch.rds", sample_metadata=NULL) {
-
+outlier_analysis <- function(context = NULL, pca_filename = "pca_df.rds", targets_filename = "targets_remove_mismatch.rds", sample_metadata = NULL) {
   pca <- readRDS(file.path(context$paths$results, pca_filename))
 
   prog <- .create_progress_manager(4)
@@ -47,18 +46,21 @@ outlier_analysis <- function(context=NULL, pca_filename = "pca_df.rds", targets_
 
   filename <- file.path(context$paths$plots, "pca_outliers.png")
 
-  ggsave(filename = filename,
-         plot = plot_outliers,
-         width = 8,
-         height = 6,
-         dpi = 300)
+  ggsave(
+    filename = filename,
+    plot = plot_outliers,
+    width = 8,
+    height = 6,
+    dpi = 300
+  )
   print(paste("Saved:", filename))
 
   prog$update(4, "Creating Outlier Log")
   outlier_cases_logfile <- file.path(context$paths$results, "outlier_log.csv")
   outlier_cases <- pca[pca$Is_Outlier, ]
-  write.csv(outlier_cases, file=outlier_cases_logfile)
+  write.csv(outlier_cases, file = outlier_cases_logfile)
   prog$complete()
+  saveRDS(pca, file.path(context$paths$results, "pca_df_with_outliers.rds"))
 
   rm(list = ls())
   gc(full = T)
