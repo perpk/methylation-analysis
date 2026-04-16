@@ -23,7 +23,7 @@ principal_component_analysis <- function(context = NULL, beta_matrix_filename = 
   }
 
   for (k in keys) {
-    if (col_maps[[k]] != NULL) {
+    if (!is.null(col_maps[[k]])) {
       pca_df[[k]] <- targets[[col_maps[[k]]]]
     }
   }
