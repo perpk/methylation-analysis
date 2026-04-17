@@ -75,7 +75,7 @@ cohorts <- list(
   PD_vs_Control = c("PD", "Control"),
   SWEDD_vs_Control = c("SWEDD", "Control")
 )
-project_to_load <- "ppmi_20260415_170143"
+project_to_load <- "ppmi"
 source("./pre_process_eda.R")
 pre_process_eda(
   project_to_load = project_to_load,
