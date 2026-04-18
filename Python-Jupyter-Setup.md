@@ -13,6 +13,10 @@ chmod +x Miniconda3-latest-Linux-x86_64.sh
 ```
 conda create -n rapids-26.04 -c rapidsai -c conda-forge rapids=26.04 python=3.13 'cuda-version>=13.0,<=13.1'
 ```
+- Activate the environment
+```
+conda activate rapids-26.04
+```
 - Install Jupyter 
 ```
 conda install conda-forge::jupyter
