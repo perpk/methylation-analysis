@@ -3,6 +3,7 @@ GSE165081_RAW
 GSE145361_RAW
 /ppmi
 renv
+conda_env
 .DS_Store
 .Rproj.user
 .Rhistory
