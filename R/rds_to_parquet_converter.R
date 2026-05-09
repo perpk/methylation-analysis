@@ -12,7 +12,7 @@ projects <- list(
 files <- list(
     list(m_values = "m_values_bmiq.rds", meta = "targets_remove_mismatch.rds")
 )
-m <- readRDS(file.path(rootDir, projects[[1]]$path, files[[1]]$meta))
+m <- readRDS(file.path(rootDir, projects[[1]]$path, files[[1]]$m_values))
 meta <- harmonize_meta_m_values_gse(m_vals, m)
 rownames(m)
 head(gsub(m$Basename, pattern = "GSE111629_RAW/", replacement = ""))
@@ -42,7 +42,7 @@ for (project in projects) {
 
         if (all(rownames(meta) == colnames(m_vals))) {
             combined <- cbind(meta, t(m_vals))
-            write_parquet(combined, file.path(rootDir, project$path, "data.parquet"))
+            write_parquet(combined, write_statistics=FALSE, use_dictionary=FALSE, file.path(rootDir, project$path, "data.parquet"))
         } else {
             stop("Row names of meta do not match column names of m_values.")
         }

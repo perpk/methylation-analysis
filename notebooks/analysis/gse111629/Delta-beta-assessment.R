@@ -1,6 +1,6 @@
-rootDir <- "/Volumes/Elements/vastai/gse111629"
+rootDir <- "/Volumes/Elements/vastai/gse111629/GSE111629_20260416_183131"
 
-beta_means <- read.csv(file.path(rootDir, "results/beta_means.csv"))
+beta_means <- read.csv(file.path(rootDir, "beta_means.csv"))
 
 head(beta_means)
 
@@ -16,7 +16,7 @@ df_annotated <- merge(beta_means, ann[, c("Name", "chr", "pos", "UCSC_RefGene_Na
 
 beta_means_filtered <- as.data.frame(df_annotated[abs(df_annotated$delta_beta) > 0.07, ])
 
-write.csv(beta_means_filtered, file.path(rootDir, "results/beta_means_annotated_filtered.csv"), row.names = FALSE)
+write.csv(beta_means_filtered, file.path(rootDir, "beta_means_annotated_filtered.csv"), row.names = FALSE)
 
 View(beta_means_filtered)
 
