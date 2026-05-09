@@ -44,8 +44,21 @@ ppmi_meth_120_meta <- merge(
   y = ppmi_meth_120_txt,
   by.x = "PATNO",
   by.y = "PATNO",
-  all.x = FALSE
+  all.x = TRUE
 )
+dim(ppmi_meth_120_meta)
+dim(ppmi_meth_120_meta[ppmi_meth_120_meta$ENRLSRDC > 0, ])
+dim(ppmi_meth_120_meta[ppmi_meth_120_meta$ENRLPINK1 > 0, ])
+dim(ppmi_meth_120_meta[ppmi_meth_120_meta$ENRLSNCA > 0, ])
+dim(ppmi_meth_120_meta[ppmi_meth_120_meta$ENRLPRKN > 0, ])
+dim(ppmi_meth_120_meta[ppmi_meth_120_meta$ENRLGBA > 0, ])
+
+ppmi_meth_120_meta[ppmi_meth_120_meta$ENRLPRKN > 0, ]
+View(ppmi_meth_120_meta)
+View(patient_meta[(patient_meta["ENRLPRKN"] > 0 & patient_meta["ENRLPINK1"] > 0), ])
+
+participant_status[participant_status$ENRLPINK1 == 1 & participant_status$ENRLPRKN == 1, ]
+head(participant_status)
 
 ppmi_meth_120_meta$Basename <- paste0(ppmi_meth_120_meta$Sentrix.ID, "_", ppmi_meth_120_meta$Sentrix.Position)
 ppmi_meth_120_meta$Sample_Name <- paste0(ppmi_meth_120_meta$PATNO, "_", ppmi_meth_120_meta$Sentrix.ID, "_", ppmi_meth_120_meta$Sentrix.Position)
