@@ -11,7 +11,7 @@ chmod +x Miniconda3-latest-Linux-x86_64.sh
 ```
 - Create a conda environment with rapids and python 3.13
 ```
-conda create -n rapids-26.04 -c rapidsai -c conda-forge rapids=26.04 python=3.13 'cuda-version>=13.0,<=13.1'
+conda create -n rapids-26.04 -c rapidsai -c conda-forge rapids=26.04 python=3.13 'cuda-version>=12.0,<=12.2'
 
 ```
 - Activate the environment
@@ -22,6 +22,12 @@ conda activate rapids-26.04
 ```
 conda install conda-forge::jupyter
 ```
+
+- Change/Set the password
+```
+jupyter notebook password
+```
+
 - Bootstrap a server listening on port 8080 (Needs port forwarding via an ssh-session)
 ```
 jupyter notebook --ip=0.0.0.0 --port=8080 --allow-root --no-browser

@@ -15,50 +15,41 @@ patient_meta <- merge(
   y = participant_status[, c("ENROLL_STATUS", "PATNO", "COHORT", "ENROLL_AGE", "ENRLPINK1", "ENRLPRKN", "ENRLSRDC", "ENRLNORM", "ENRLOTHGV", "ENRLHPSM", "ENRLLRRK2", "ENRLRBD", "ENRLSNCA", "ENRLGBA")],
   by.x = "PATNO",
   by.y = "PATNO",
-  all.x = FALSE
-)
-
-family_history <- read.csv("./ppmi/condition/Family_History_24Nov2025.csv")
-multi_patno <- family_history %>% group_by(PATNO) %>% summarise(count = n()) %>% filter(count > 1)
-single_patno <- family_history %>% group_by(PATNO) %>% summarise(count = n()) %>% filter(count == 1)
-
-trans_rows <- family_history[family_history$PATNO %in% multi_patno$PATNO, ] %>% filter(EVENT_ID == "TRANS")
-single_rows <- family_history[family_history$PATNO %in% single_patno$PATNO, ]
-
-clean_fam_hist <- rbind(trans_rows, single_rows)
-
-patient_meta <- merge(
-  x = patient_meta,
-  y = clean_fam_hist[, c("PATNO", "ANYFAMPD")],
-  by.x = "PATNO",
-  by.y = "PATNO",
   all.x = TRUE
 )
 
-patient_meta <- patient_meta %>% filter(!PATNO %in% c("141081","140041"))
+# family_history <- read.csv("./ppmi/condition/Family_History_24Nov2025.csv")
+# multi_patno <- family_history %>% group_by(PATNO) %>% summarise(count = n()) %>% filter(count > 1)
+# single_patno <- family_history %>% group_by(PATNO) %>% summarise(count = n()) %>% filter(count == 1)
+
+# trans_rows <- family_history[family_history$PATNO %in% multi_patno$PATNO, ] %>% filter(EVENT_ID == "TRANS")
+# single_rows <- family_history[family_history$PATNO %in% single_patno$PATNO, ]
+
+# clean_fam_hist <- rbind(trans_rows, single_rows)
+
+# patient_meta <- merge(
+#   x = patient_meta,
+#   y = clean_fam_hist[, c("PATNO", "ANYFAMPD")],
+#   by.x = "PATNO",
+#   by.y = "PATNO",
+#   all.x = TRUE
+# )
+
+# patient_meta <- patient_meta %>% filter(!PATNO %in% c("141081","140041"))
 
 ppmi_meth_120_txt <- read.delim("./ppmi/Project120_IDATS_n524final_toLONI_030718/PPMI_Meth_n524_for_LONI030718.txt", header = T, sep = "\t")
-
+View(ppmi_meth_120_txt)
 ppmi_meth_120_meta <- merge(
   x = patient_meta,
   y = ppmi_meth_120_txt,
   by.x = "PATNO",
   by.y = "PATNO",
-  all.x = TRUE
+  all.x = FALSE
 )
-dim(ppmi_meth_120_meta)
-dim(ppmi_meth_120_meta[ppmi_meth_120_meta$ENRLSRDC > 0, ])
-dim(ppmi_meth_120_meta[ppmi_meth_120_meta$ENRLPINK1 > 0, ])
-dim(ppmi_meth_120_meta[ppmi_meth_120_meta$ENRLSNCA > 0, ])
-dim(ppmi_meth_120_meta[ppmi_meth_120_meta$ENRLPRKN > 0, ])
-dim(ppmi_meth_120_meta[ppmi_meth_120_meta$ENRLGBA > 0, ])
 
-ppmi_meth_120_meta[ppmi_meth_120_meta$ENRLPRKN > 0, ]
+colnames(ppmi_meth_120_meta)
 View(ppmi_meth_120_meta)
-View(patient_meta[(patient_meta["ENRLPRKN"] > 0 & patient_meta["ENRLPINK1"] > 0), ])
 
-participant_status[participant_status$ENRLPINK1 == 1 & participant_status$ENRLPRKN == 1, ]
-head(participant_status)
 
 ppmi_meth_120_meta$Basename <- paste0(ppmi_meth_120_meta$Sentrix.ID, "_", ppmi_meth_120_meta$Sentrix.Position)
 ppmi_meth_120_meta$Sample_Name <- paste0(ppmi_meth_120_meta$PATNO, "_", ppmi_meth_120_meta$Sentrix.ID, "_", ppmi_meth_120_meta$Sentrix.Position)
@@ -126,3 +117,55 @@ pre_process_eda(
   qc_threshold = "auto",
   cohorts = cohorts
 )
+
+rootDir <- "/Users/kpax/Documents/study/temp"
+library(dplyr)
+
+beta_matrix <- readRDS(file.path(rootDir, "beta_matrix_bmiq.rds"))
+targets <- readRDS(file.path(rootDir, "targets_remove_mismatch.rds"))
+rownames(targets) <- targets$Basename %>% str_remove(paste0(data_folder, "/"))
+
+pd_samples <- rownames(targets[targets$Sample_Group == "PD", ])
+hc_samples <- rownames(targets[targets$Sample_Group == "Control", ])
+
+colnames_pd <- which(colnames(beta_matrix) %in% pd_samples)
+colnames_hc <- which(colnames(beta_matrix) %in% hc_samples)
+
+mean_beta_pd <- rowMeans(beta_matrix[, colnames_pd], na.rm = TRUE)
+mean_beta_hc <- rowMeans(beta_matrix[, colnames_hc], na.rm = TRUE)
+delta_beta <- mean_beta_pd - mean_beta_hc
+
+beta_means <- data.frame(
+  mean_beta_pd,
+  mean_beta_hc,
+  delta_beta
+)
+
+write.csv(beta_means, file.path(rootDir, "beta_means.csv"))
+
+
+###
+
+library(limma)
+
+idat_file <- "./ppmi/Project120_IDATS_n524final_toLONI_030718/200973410121_R01C01_Grn.idat"
+manifest_file <- "./ppmi/Project120_IDATS_n524final_toLONI_030718/infinium-methylationepic-v-1-0-b5-manifest-file.csv"
+idat <- read.idat(c(idat_file), bgxfile = manifest_file, dateinfo=TRUE, skip=7)
+
+rgset <- readRDS("/Volumes/Elements/vastai/ppmi/ppmi_20260415_170143/rg_set_ppmi.rds")
+annotation_data <- pData(rgset)
+View(annotation_data)
+
+library(illuminaio)
+data <- readIDAT(idat_file)
+print(data$RunInfo)
+
+
+run_metadata <- data$RunInfo
+scan_row <- which(run_metadata[, "BlockType"] == "Scan")[1]
+scan_date_string <- run_metadata[scan_row, "RunTime"]
+scan_date <- as.POSIXct(scan_date_string, format="%m/%d/%Y")
+print(scan_date)
+data$Unknowns$MostlyA
+scan_date <- run_metadata[run_metadata[, "BlockType"] == "Scan", "RunTime"][1]
+scan_date

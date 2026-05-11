@@ -1,0 +1,25 @@
+idat_dir = "./ppmi/Project120_IDATS_n524final_toLONI_030718/"
+
+all_idat_files <- list.files(idat_dir, pattern = "\\.idat$", full.names = TRUE)
+
+results_df = data.frame(
+    SentrixID = character(),
+    ScanDate = character()
+)
+
+library(illuminaio)
+for (idat_file in all_idat_files) {
+    idat_data <- readIDAT(idat_file)
+    run_metadata <- idat_data$RunInfo
+    scan_row <- which(run_metadata[, "BlockType"] == "Scan")[1]
+    scan_date_string <- run_metadata[scan_row, "RunTime"]
+    scan_date <- as.POSIXct(scan_date_string, format="%m/%d/%Y")
+    
+    sentrix_id <- paste0(idat_data$Barcode, "_", idat_data$Unknowns$MostlyA)
+
+    results_df <- rbind(results_df, data.frame(SentrixID = sentrix_id, ScanDate = scan_date))
+}
+
+print(results_df)
+
+write.csv(results_df, "./ppmi/ppmi_scan_dates.csv", row.names = FALSE)
