@@ -137,58 +137,58 @@ ggplot(pca_df_with_dates, aes(x = PC1, y = PC3, color = ScanDate)) +
 head(targets_harm)
 
 library(stringr)
+library(patchwork)
 
 pca_df_with_dates$ScanDate <- pca_df_with_dates$ScanDate %>% str_extract("^(\\d{4}-\\d{2})")
 
 color_by <- "ScanDate"
-n_pcs <- 6
-pc_columns <- grep("^PC\\d+$", colnames(pca_df_with_dates), value = TRUE)
-pc_columns <- pc_columns[1:min(n_pcs, length(pc_columns))]
-combos <- expand.grid(x = pc_columns, y = pc_columns)
-plots <- list()
-plot_idx <- 1
+pca_pairplot <- function(pca_df_with_dates, color_by = NULL) {
+  n_pcs <- 6
+  pc_columns <- grep("^PC\\d+$", colnames(pca_df_with_dates), value = TRUE)
+  pc_columns <- pc_columns[1:min(n_pcs, length(pc_columns))]
+  combos <- expand.grid(x = pc_columns, y = pc_columns)
+  plots <- list()
+  plot_idx <- 1
 
-for (i in 1:nrow(combos)) {
-    x_var <- as.character(combos$x[i])
-    y_var <- as.character(combos$y[i])
+  for (i in 1:nrow(combos)) {
+      x_var <- as.character(combos$x[i])
+      y_var <- as.character(combos$y[i])
 
-    if (x_var == y_var) {
-      # Diagonal: Density plot
-      p <- ggplot(pca_df_with_dates, aes(x = .data[[x_var]])) +
-        geom_density(fill = "steelblue", alpha = 0.5) +
-        labs(x = x_var, y = "Density") +
-        theme_minimal() +
-        theme(axis.text = element_text(size = 6))
-    } else {
-      # Off-diagonal: Scatter plot
-      if (!is.null(color_by) && color_by %in% colnames(pca_df_with_dates)) {
-        p <- ggplot(pca_df_with_dates, aes(
-          x = .data[[x_var]], y = .data[[y_var]],
-          color = as.factor(.data[[color_by]])
-        )) +
-          geom_point(size = 0.5, alpha = 0.5) +
-          scale_color_viridis_d(name = color_by)
+      if (x_var == y_var) {
+        # Diagonal: Density plot
+        p <- ggplot(pca_df_with_dates, aes(x = .data[[x_var]])) +
+          geom_density(fill = "steelblue", alpha = 0.5) +
+          labs(x = x_var, y = "Density") +
+          theme_minimal() +
+          theme(axis.text = element_text(size = 6))
       } else {
-        p <- ggplot(pca_df_with_dates, aes(x = .data[[x_var]], y = .data[[y_var]])) +
-          geom_point(size = 0.5, alpha = 0.5, color = "steelblue")
+        # Off-diagonal: Scatter plot
+        if (!is.null(color_by) && color_by %in% colnames(pca_df_with_dates)) {
+          p <- ggplot(pca_df_with_dates, aes(
+            x = .data[[x_var]], y = .data[[y_var]],
+            color = as.factor(.data[[color_by]])
+          )) +
+            geom_point(size = 0.5, alpha = 0.5) +
+            scale_color_viridis_d(name = color_by)
+        } else {
+          p <- ggplot(pca_df_with_dates, aes(x = .data[[x_var]], y = .data[[y_var]])) +
+            geom_point(size = 0.5, alpha = 0.5, color = "steelblue")
+        }
+        p <- p +
+          labs(x = x_var, y = y_var) +
+          theme_minimal() +
+          theme(
+            axis.text = element_text(size = 6),
+            legend.position = "right"
+          )
       }
-      p <- p +
-        labs(x = x_var, y = y_var) +
-        theme_minimal() +
-        theme(
-          axis.text = element_text(size = 6),
-          legend.position = "right"
-        )
-    }
 
-    plots[[plot_idx]] <- p
-    plot_idx <- plot_idx + 1
-}
+      plots[[plot_idx]] <- p
+      plot_idx <- plot_idx + 1
+  }
 
-library(patchwork)
+  pplot <- wrap_plots(plots, ncol = length(pc_columns)) +
+      plot_annotation(title = paste("PCA Pairplot - First", length(pc_columns), "PCs"))
 
-pplot <- wrap_plots(plots, ncol = length(pc_columns)) +
-    plot_annotation(title = paste("PCA Pairplot - First", length(pc_columns), "PCs"))
-
-ggsave("./ppmi/ppmi_scan_date_pca_pairplot.png", pplot, width = 3 * length(pc_columns), height = 3 * length(pc_columns), dpi = 300)
+  ggsave(paste0("./ppmi/ppmi_scan_date_pca_pairplot_", color_by, ".png"), pplot, width = 3 * length(pc_columns), height = 3 * length(pc_columns), dpi = 300)
 

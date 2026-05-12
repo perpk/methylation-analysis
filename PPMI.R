@@ -161,6 +161,7 @@ data <- readIDAT(idat_file)
 print(data$RunInfo)
 
 
+
 run_metadata <- data$RunInfo
 scan_row <- which(run_metadata[, "BlockType"] == "Scan")[1]
 scan_date_string <- run_metadata[scan_row, "RunTime"]

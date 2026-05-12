@@ -132,7 +132,7 @@ pre_process_eda <- function(
 
   # ### Calculate Delta-Beta values
   print("Calculate Delta-Beta values")
-  beta_matrix <- readRDS(file.path(project_context$paths$results, "beta_matrix_bmiq.rds"))
+  beta_matrix <- readRDS(file.path(project_context$paths$results, "beta_matrix_bmiq_no_outliers.rds"))
   targets <- readRDS(file.path(project_context$paths$processed, "targets_remove_mismatch.rds"))
   rownames(targets) <- targets$Basename %>% str_remove(paste0(data_folder, "/"))
 

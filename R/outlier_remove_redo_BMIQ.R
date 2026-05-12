@@ -20,4 +20,6 @@ outlier_remove_redo_BMIQ <- function(context = NULL) {
 
     prog$update(4, "Re-running BMIQ normalization without outliers")
     beta_matrix_no_outliers <- apply_BMIQ(context, "beta_matrix_no_outliers.rds")
+
+    saveRDS(beta_matrix_no_outliers, file.path(context$paths$results, "beta_matrix_bmiq_no_outliers.rds"))
 }

@@ -23,3 +23,18 @@ for (idat_file in all_idat_files) {
 print(results_df)
 
 write.csv(results_df, "./ppmi/ppmi_scan_dates.csv", row.names = FALSE)
+
+head(ppmi_meth_120_meta)
+
+ppmi_meth_120_dates <- merge(
+  x = ppmi_meth_120_meta,
+  y = results_df,
+  by.x = "Basename",
+  by.y = "SentrixID",
+  all.x = FALSE
+)
+
+dim(ppmi_meth_120_meta)
+dim(ppmi_meth_120_dates)
+View(ppmi_meth_120_dates)
+View(ppmi_meth_120_meta)
