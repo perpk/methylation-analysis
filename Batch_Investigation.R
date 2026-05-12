@@ -100,6 +100,7 @@ targets_harm <- merge(
   all = FALSE
 )
 dim(targets_harm)
+dim(targets)
 
 head(targets_harm)
 
@@ -122,6 +123,9 @@ pca_df_with_dates <- merge(
   all = FALSE
 )
 
+saveRDS(pca_df_with_dates, "/Volumes/Elements/vastai/ppmi/ppmi_20260415_170143/local/pca_df_with_dates.rds")
+saveRDS(targets_harm, "/Volumes/Elements/vastai/ppmi/ppmi_20260415_170143/local/targets_harm.rds")
+
 head(pca_df_with_dates)
 
 ggplot(pca_df_with_dates, aes(x = PC1, y = PC2, color = ScanDate)) +
@@ -138,12 +142,12 @@ head(targets_harm)
 
 library(stringr)
 library(patchwork)
+library(dplyr)
 
 pca_df_with_dates$ScanDate <- pca_df_with_dates$ScanDate %>% str_extract("^(\\d{4}-\\d{2})")
 
 color_by <- "ScanDate"
-pca_pairplot <- function(pca_df_with_dates, color_by = NULL) {
-  n_pcs <- 6
+pca_pairplot <- function(pca_df_with_dates, color_by = NULL, size_factor = 3, n_pcs = 6) {
   pc_columns <- grep("^PC\\d+$", colnames(pca_df_with_dates), value = TRUE)
   pc_columns <- pc_columns[1:min(n_pcs, length(pc_columns))]
   combos <- expand.grid(x = pc_columns, y = pc_columns)
@@ -179,10 +183,9 @@ pca_pairplot <- function(pca_df_with_dates, color_by = NULL) {
           theme_minimal() +
           theme(
             axis.text = element_text(size = 6),
-            legend.position = "right"
+            legend.position = "right",
           )
       }
-
       plots[[plot_idx]] <- p
       plot_idx <- plot_idx + 1
   }
@@ -190,5 +193,21 @@ pca_pairplot <- function(pca_df_with_dates, color_by = NULL) {
   pplot <- wrap_plots(plots, ncol = length(pc_columns)) +
       plot_annotation(title = paste("PCA Pairplot - First", length(pc_columns), "PCs"))
 
-  ggsave(paste0("./ppmi/ppmi_scan_date_pca_pairplot_", color_by, ".png"), pplot, width = 3 * length(pc_columns), height = 3 * length(pc_columns), dpi = 300)
+  ggsave(paste0("./ppmi/ppmi_pca_pairplot_", color_by, ".png"), 
+    pplot, 
+    width = size_factor * length(pc_columns), 
+    height = size_factor * length(pc_columns), 
+    dpi = 300, 
+    limitsize = FALSE)
+}
+
+pca_pairplot(pca_df_with_dates, color_by = "ScanDate")
+pca_pairplot(pca_df_with_dates, color_by = "Slide", size_factor = 10, n_pcs = 3)
+pca_pairplot(pca_df_with_dates, color_by = "Array")
+pca_pairplot(pca_df_with_dates, color_by = "SEX")
+pca_pairplot(pca_df_with_dates, color_by = "Age_Group")
+pca_pairplot(pca_df_with_dates, color_by = "Sample_Group")
+
+head(pca_df_with_dates)
+
 

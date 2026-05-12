@@ -38,7 +38,7 @@ patient_meta <- merge(
 # patient_meta <- patient_meta %>% filter(!PATNO %in% c("141081","140041"))
 
 ppmi_meth_120_txt <- read.delim("./ppmi/Project120_IDATS_n524final_toLONI_030718/PPMI_Meth_n524_for_LONI030718.txt", header = T, sep = "\t")
-View(ppmi_meth_120_txt)
+
 ppmi_meth_120_meta <- merge(
   x = patient_meta,
   y = ppmi_meth_120_txt,
@@ -48,8 +48,6 @@ ppmi_meth_120_meta <- merge(
 )
 
 colnames(ppmi_meth_120_meta)
-View(ppmi_meth_120_meta)
-
 
 ppmi_meth_120_meta$Basename <- paste0(ppmi_meth_120_meta$Sentrix.ID, "_", ppmi_meth_120_meta$Sentrix.Position)
 ppmi_meth_120_meta$Sample_Name <- paste0(ppmi_meth_120_meta$PATNO, "_", ppmi_meth_120_meta$Sentrix.ID, "_", ppmi_meth_120_meta$Sentrix.Position)
