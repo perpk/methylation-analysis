@@ -102,13 +102,9 @@ project_to_load <- "ppmi"
 
 head(targets)
 
-targets_pd_lrrk2 <- targets %>% filter(Sample_Group == "PD" & ENRLLRRK2 == 1)
-
-nrow(targets[targets$ANYFAMPD == 1, ])
-
 source("./pre_process_eda.R")
 pre_process_eda(
-  project_to_load = project_to_load,
+  project_name = project_name,
   targets = targets,
   data_folder = data_folder,
   project_location = "/root/workspace/methyl-pipe-out",
@@ -117,56 +113,3 @@ pre_process_eda(
   qc_threshold = "auto",
   cohorts = cohorts
 )
-
-rootDir <- "/Users/kpax/Documents/study/temp"
-library(dplyr)
-
-beta_matrix <- readRDS(file.path(rootDir, "beta_matrix_bmiq.rds"))
-targets <- readRDS(file.path(rootDir, "targets_remove_mismatch.rds"))
-rownames(targets) <- targets$Basename %>% str_remove(paste0(data_folder, "/"))
-
-pd_samples <- rownames(targets[targets$Sample_Group == "PD", ])
-hc_samples <- rownames(targets[targets$Sample_Group == "Control", ])
-
-colnames_pd <- which(colnames(beta_matrix) %in% pd_samples)
-colnames_hc <- which(colnames(beta_matrix) %in% hc_samples)
-
-mean_beta_pd <- rowMeans(beta_matrix[, colnames_pd], na.rm = TRUE)
-mean_beta_hc <- rowMeans(beta_matrix[, colnames_hc], na.rm = TRUE)
-delta_beta <- mean_beta_pd - mean_beta_hc
-
-beta_means <- data.frame(
-  mean_beta_pd,
-  mean_beta_hc,
-  delta_beta
-)
-
-write.csv(beta_means, file.path(rootDir, "beta_means.csv"))
-
-
-###
-
-library(limma)
-
-idat_file <- "./ppmi/Project120_IDATS_n524final_toLONI_030718/200973410121_R01C01_Grn.idat"
-manifest_file <- "./ppmi/Project120_IDATS_n524final_toLONI_030718/infinium-methylationepic-v-1-0-b5-manifest-file.csv"
-idat <- read.idat(c(idat_file), bgxfile = manifest_file, dateinfo=TRUE, skip=7)
-
-rgset <- readRDS("/Volumes/Elements/vastai/ppmi/ppmi_20260415_170143/rg_set_ppmi.rds")
-annotation_data <- pData(rgset)
-View(annotation_data)
-
-library(illuminaio)
-data <- readIDAT(idat_file)
-print(data$RunInfo)
-
-
-
-run_metadata <- data$RunInfo
-scan_row <- which(run_metadata[, "BlockType"] == "Scan")[1]
-scan_date_string <- run_metadata[scan_row, "RunTime"]
-scan_date <- as.POSIXct(scan_date_string, format="%m/%d/%Y")
-print(scan_date)
-data$Unknowns$MostlyA
-scan_date <- run_metadata[run_metadata[, "BlockType"] == "Scan", "RunTime"][1]
-scan_date
