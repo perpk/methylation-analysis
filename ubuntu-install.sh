@@ -153,7 +153,8 @@ sudo apt-get install -y --no-install-recommends \
     software-properties-common \
     dirmngr \
     wget \
-    gnupg
+    gnupg \
+    libuv1-dev
 
 # Add CRAN repository key
 print_status "Adding CRAN repository key..."
@@ -333,7 +334,9 @@ packages <- c(
     "reshape2",
     "ggpubr",
     "GenomicRanges",
-    "BSgenome.Hsapiens.UCSC.hg19"
+    "BSgenome.Hsapiens.UCSC.hg19",
+    "FlowSorted.Blood.450k",
+    "FlowSorted.Blood.EPIC"
 )
 
 # Install pak for better dependency resolution
@@ -428,8 +431,6 @@ check_package <- function(pkg) {
 critical_packages <- c(
     "minfi",
     "GEOquery",
-    "IlluminaHumanMethylation450kanno.ilmn12.hg19",
-    "methylumi"
     "IlluminaHumanMethylation450kanno.ilmn12.hg19",
     "methylumi"
 )

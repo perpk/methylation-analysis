@@ -2,26 +2,21 @@ library(minfi)
 
 probe_qc <- function(
   context = NULL,
-  rg_set_filename = "rg_set_norm.rds",
-  methyl_set_filename = "methyl_set_norm.rds",
+  rg_set_filename = "rg_set.rds",
   det_p_threshold = 0.01,
   max_failed_samples = 0.05
 ) {
   tryCatch({
-    prog <- .create_progress_manager(8)
+    prog <- .create_progress_manager(5)
 
     rg_set_filepath <- file.path(context$paths$processed, rg_set_filename)
     prog$update(1, paste("Reading cleaned RG set from", rg_set_filepath))
     rg_set <- readRDS(rg_set_filepath)
 
-    methyl_set_filepath <- file.path(context$paths$processed, methyl_set_filename)
-    prog$update(2, paste("Reading cleaned methyl set from", methyl_set_filepath))
-    methyl_set <- readRDS(methyl_set_filepath)
-
-    prog$update(3, "Calculating detection p-values")
+    prog$update(2, "Calculating detection p-values")
     det_p <- detectionP(rg_set)
 
-    prog$update(4, "Identifying failed probes")
+    prog$update(3, "Identifying failed probes")
     failed <- det_p > det_p_threshold
     prop_failed <- rowMeans(failed, na.rm = TRUE)
 
@@ -56,27 +51,9 @@ probe_qc <- function(
       stringsAsFactors = FALSE
     )
 
-    prog$update(6, "Filtering probes from RG set")
-    rg_set_filtered <- rg_set[keep_probes, ]
-
-    prog$update(7, "Filtering probes from methyl set")
-    methyl_set_filtered <- methyl_set[keep_probes, ]
-
-    prog$update(8, "Saving all results")
-
     saveRDS(
       removed_df,
       file.path(context$paths$qc, "removed_probes_detection_p.rds")
-    )
-
-    saveRDS(
-      rg_set_filtered,
-      file.path(context$paths$qc, "rg_set_probe_qc.rds")
-    )
-
-    saveRDS(
-      methyl_set_filtered,
-      file.path(context$paths$qc, "methyl_set_probe_qc.rds")
     )
 
     qc_summary <- list(

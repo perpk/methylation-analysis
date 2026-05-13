@@ -33,8 +33,15 @@ pre_process_eda <- function(
   }
 
   # ### Read raw data and write to disk
-  source("R/extract_methyl_set.R")
-  extract_methyl_set(context = project_context, targets = targets)
+  # source("R/extract_methyl_set.R")
+  # extract_methyl_set(context = project_context, targets = targets)
+
+  # Probe QC - Detection p-value based probe filtering
+  # This is performed on the rg_set and is done after normalization since the probes are necessary to provide an unbiased normalization
+  # Respectively the probes are removed from methyl_set as well and a new, filtered version gets persisted to the filesystem.
+  # The new filename for the filtered methyl_set is "methyl_set_probe_qc.rds"
+  source("R/probe_qc.R")
+  probe_qc(context = project_context)
 
   # ### Sample QC - Outlier detection and removal: Here samples are removed based on the median methylated and unmethylated signal intensities. Samples with a median methylated or unmethylated signal intensity below the specified threshold (default: 10.5) are flagged as outliers and removed from the dataset.
   # #### It is crucial to do this step alongside cleaning up the data from problematic samples in order to not have outliers skewing the normalization and thus the downstream analyses. It is also important to do this step before the biological
@@ -51,13 +58,15 @@ pre_process_eda <- function(
   source("R/biological_gender_mismatch_analysis.R")
   biological_gender_mismatch_analysis(context = project_context, recorded_sex_col = var_mapping$gender_var)
 
+  removed_pdp <- readRDS(file.path(project_context$paths$qc, "removed_probes_detection_p.rds"))
+  rg_set <- readRDS(file.path(project_context$paths$qc, "rg_set_remove_mismatch.rds"))
+  m_set <- readRDS(file.path(project_context$paths$qc, "methyl_set_remove_mismatch.rds"))
 
-  # Probe QC - Detection p-value based probe filtering
-  # This is performed on the rg_set and is done after normalization since the probes are necessary to provide an unbiased normalization
-  # Respectively the probes are removed from methyl_set as well and a new, filtered version gets persisted to the filesystem.
-  # The new filename for the filtered methyl_set is "methyl_set_probe_qc.rds"
-  source("R/probe_qc.R")
-  probe_qc(context = project_context) # TODO do not remove anything and wait after normalization to do so
+  rg_set <- rg_set[!rownames(rg_set) %in% removed_pdp, ]
+  m_set <- m_set[!rownames(m_set) %in% removed_pdp, ]
+  
+  saveRDS(rg_set, file.path(project_context$paths$qc, "rg_set_remove_mismatch.rds"))
+  saveRDS(m_set, file.path(project_context$paths$qc, "methyl_set_remove_mismatch.rds"))
 
   ## Remove cross-reactive probes, sex-chromosome related probes and single nucleotide polymorphisms (SNPs)
   ## Order matters, firstly SNPs must be removed then probes on XY chromosomes and thus keeping only those on autosomal and finally filtering of cross-reactive probes.

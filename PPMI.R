@@ -1,6 +1,5 @@
 library(dplyr)
 library(minfi)
-library(dplyr)
 
 data_folder <- "ppmi"
 
@@ -102,7 +101,7 @@ head(targets)
 
 source("./pre_process_eda.R")
 pre_process_eda(
-  project_name = project_name,
+  project_to_load = "ppmi_20260513_110353",
   targets = targets,
   data_folder = data_folder,
   project_location = "/root/workspace/methyl-pipe-out",
