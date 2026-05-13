@@ -2,7 +2,7 @@
 
 # Methylation Analysis Environment Setup Script
 # This script checks for existing R installations, removes them if present,
-# installs R 4.5 from CRAN, and sets up renv for the project
+# installs R 4.6 from CRAN, and sets up renv for the project
 
 set -e  # Exit on error
 set -o pipefail  # Exit if any command in a pipe fails
@@ -84,8 +84,8 @@ if command -v R &> /dev/null; then
     else
         print_status "Keeping existing R installation"
         # Check if we need to proceed with installation
-        if [[ "$CURRENT_R_VERSION" != "4.5"* ]]; then
-            print_error "Existing R version $CURRENT_R_VERSION is not 4.5.x"
+        if [[ "$CURRENT_R_VERSION" != "4.6"* ]]; then
+            print_error "Existing R version $CURRENT_R_VERSION is not 4.6.x"
             print_error "Please remove it manually or run this script with removal option"
             exit 1
         else
@@ -125,7 +125,7 @@ if [ -d "renv" ] || [ -f "renv.lock" ]; then
 fi
 
 # Step 3: Detect Ubuntu version and set up CRAN repository
-print_status "Step 3: Setting up CRAN repository for R 4.5..."
+print_status "Step 3: Setting up CRAN repository for R 4.6..."
 
 detect_ubuntu_version
 
@@ -167,10 +167,10 @@ sudo add-apt-repository -y "deb https://cloud.r-project.org/bin/linux/ubuntu $CR
 # Update again after adding repositories
 sudo apt-get update
 
-# Step 4: Install R 4.5 and system dependencies
-print_status "Step 4: Installing R 4.5 and system dependencies..."
+# Step 4: Install R 4.6 and system dependencies
+print_status "Step 4: Installing R 4.6 and system dependencies..."
 
-# Install R 4.5
+# Install R 4.6
 sudo apt-get install -y \
     r-base \
     r-base-dev \
@@ -180,8 +180,8 @@ sudo apt-get install -y \
 R_VERSION=$(R --version | head -1 | awk '{print $3}')
 print_status "Installed R version: $R_VERSION"
 
-if [[ "$R_VERSION" != "4.5"* ]]; then
-    print_error "Failed to install R 4.5. Got version $R_VERSION instead"
+if [[ "$R_VERSION" != "4.6"* ]]; then
+    print_error "Failed to install R 4.6. Got version $R_VERSION instead"
     exit 1
 fi
 

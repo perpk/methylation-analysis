@@ -88,8 +88,11 @@ targets <- readRDS("/Volumes/Elements/vastai/ppmi/ppmi_20260415_170143/targets_r
 
 pca <- prcomp(t(beta_matrix))
 
-head(targets)
+head(ppmi_scan_dates_harm)
 targets$Sentrix_ID <- paste0(targets$Slide,"_", targets$Array)
+
+library(stringr)
+ppmi_scan_dates_harm$ScanDate_Month <- ppmi_scan_dates_harm %>% pull(ScanDate) %>% as.character() %>% str_extract("^(\\d{4}-\\d{2})")
 
 dim(targets)
 targets_harm <- merge(
@@ -101,8 +104,9 @@ targets_harm <- merge(
 )
 dim(targets_harm)
 dim(targets)
-
 head(targets_harm)
+
+head(ppmi_scan_dates_harm)
 
 pca_df <- data.frame(matrix(NA, nrow = ncol(beta_matrix), ncol = 10))
 rownames(pca_df) <- colnames(beta_matrix)
@@ -143,8 +147,6 @@ head(targets_harm)
 library(stringr)
 library(patchwork)
 library(dplyr)
-
-pca_df_with_dates$ScanDate <- pca_df_with_dates$ScanDate %>% str_extract("^(\\d{4}-\\d{2})")
 
 color_by <- "ScanDate"
 pca_pairplot <- function(pca_df_with_dates, color_by = NULL, size_factor = 3, n_pcs = 6) {
@@ -210,4 +212,18 @@ pca_pairplot(pca_df_with_dates, color_by = "Sample_Group")
 
 head(pca_df_with_dates)
 
+sum(pca_df_with_dates["ENRLHPSM"] == 1)
 
+head(targets)
+
+library(sva)
+
+batch <- as.factor(pca_df_with_dates$ScanDate_Month)
+
+mod_matrix <- model.matrix(~ as.factor(Sample_Group), data=pca_df_with_dates)
+combat_beta <- ComBat(dat=beta_matrix, batch=batch, mod=mod_matrix, par.prior=TRUE, prior.plots=FALSE)
+
+dim(beta_matrix)
+dim(pca_df_with_dates)
+
+table(pca_df_with_dates$ScanDate_Month, pca_df_with_dates$Sample_Group)
