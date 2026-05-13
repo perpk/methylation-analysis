@@ -9,7 +9,7 @@ probe_qc <- function(
   tryCatch({
     prog <- .create_progress_manager(5)
 
-    rg_set_filepath <- file.path(context$paths$processed, rg_set_filename)
+    rg_set_filepath <- file.path(context$paths$raw, rg_set_filename)
     prog$update(1, paste("Reading cleaned RG set from", rg_set_filepath))
     rg_set <- readRDS(rg_set_filepath)
 
