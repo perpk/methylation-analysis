@@ -72,41 +72,41 @@ pre_process_eda <- function(
   ## Order matters, firstly SNPs must be removed then probes on XY chromosomes and thus keeping only those on autosomal and finally filtering of cross-reactive probes.
   ## All of the following, enumerated operations are performed on the methyl_set.
   ### 1. Single Nucleotide Polymorphisms
-  source("R/remove_snp.R")
-  remove_snp(context = project_context)
+  # source("R/remove_snp.R")
+  # remove_snp(context = project_context)
 
   # ### 2. Sex-Chromosome Probe filtering
-  source("R/remove_sex_chromosome_probes.R")
-  remove_sex_chromosome_probes(context = project_context)
+  # source("R/remove_sex_chromosome_probes.R")
+  # remove_sex_chromosome_probes(context = project_context)
 
   # # #### 3. Cross Reactive Probes
-  source("R/remove_cross_reactive_probes.R")
-  remove_cross_reactive_probes(context = project_context)
+  # source("R/remove_cross_reactive_probes.R")
+  # remove_cross_reactive_probes(context = project_context)
 
   # ### The filtering of the dataset is complete and beta & m-values are now extracted from the methyl_set and written to disk as "beta_matrix.rds" and "m_matrix.rds" respectively.
-  methyl_set_cross_reactive_clean_path <- file.path(project_context$paths$processed, "methyl_set_removed_cross_reactive.rds")
-  methyl_set <- readRDS(methyl_set_cross_reactive_clean_path)
-  beta_matrix <- getBeta(methyl_set)
-  m_matrix <- getM(methyl_set)
-  saveRDS(beta_matrix, file.path(project_context$paths$results, "beta_matrix.rds"))
-  saveRDS(m_matrix, file.path(project_context$paths$results, "m_matrix.rds"))
+  # methyl_set_cross_reactive_clean_path <- file.path(project_context$paths$processed, "methyl_set_removed_cross_reactive.rds")
+  # methyl_set <- readRDS(methyl_set_cross_reactive_clean_path)
+  # beta_matrix <- getBeta(methyl_set)
+  # m_matrix <- getM(methyl_set)
+  # saveRDS(beta_matrix, file.path(project_context$paths$results, "beta_matrix.rds"))
+  # saveRDS(m_matrix, file.path(project_context$paths$results, "m_matrix.rds"))
 
   # ### Filter rg_set according to the remaining methyl_set probes after it has been cleared off from SNPs, X/Y-Chromosome- and cross-reactive probes.
   # source("R/filter_rg_set.R")
   # filter_rg_set(context = project_context)
 
   ## Beta-Mixture Quantile (BMIQ) Normalization
-  source("R/apply_BMIQ.R")
-  apply_BMIQ(context = project_context, plot = FALSE)
+  # source("R/apply_BMIQ.R")
+  # apply_BMIQ(context = project_context, plot = FALSE)
 
   # ## Principal Component Analysis
-  source("R/principal_component_analysis.R")
-  col_map <- list()
-  col_map[["Sample_Group"]] <- "Sample_Group"
-  col_map[["Gender"]] <- var_mapping$gender_var
-  col_map[["Age"]] <- var_mapping$age_var
-  keys <- c("Sample_Group", "Gender", "Age")
-  principal_component_analysis(project_context, col_maps = col_map, keys = keys, npc = 5)
+  # source("R/principal_component_analysis.R")
+  # col_map <- list()
+  # col_map[["Sample_Group"]] <- "Sample_Group"
+  # col_map[["Gender"]] <- var_mapping$gender_var
+  # col_map[["Age"]] <- var_mapping$age_var
+  # keys <- c("Sample_Group", "Gender", "Age")
+  # principal_component_analysis(project_context, col_maps = col_map, keys = keys, npc = 5)
   # #
   # # #### Plot PCA
   # source("R/plot_PCA.R")
@@ -125,14 +125,14 @@ pre_process_eda <- function(
   # )
 
   #### Outlier detection from PCA
-  source("R/outlier_analysis.R")
-  outlier_analysis(context = project_context, sample_metadata = c("Sample_Group", var_mapping$gender_var, var_mapping$age_var))
+  # source("R/outlier_analysis.R")
+  # outlier_analysis(context = project_context, sample_metadata = c("Sample_Group", var_mapping$gender_var, var_mapping$age_var))
 
-  source("R/outlier_remove_redo_BMIQ.R")
-  outlier_remove_redo_BMIQ(context = project_context)
+  # source("R/outlier_remove_redo_BMIQ.R")
+  # outlier_remove_redo_BMIQ(context = project_context)
 
-  source("R/apply_BMIQ.R")
-  plot_BMIQ(project_context)
+  # source("R/apply_BMIQ.R")
+  # plot_BMIQ(project_context)
 
   # #### PCA Outlier assessment (TODO Doesn't really work out)
   # # source("R/pca_outlier_assessment.R")
@@ -141,7 +141,7 @@ pre_process_eda <- function(
 
   # ### Calculate Delta-Beta values
   print("Calculate Delta-Beta values")
-  beta_matrix <- readRDS(file.path(project_context$paths$results, "beta_matrix_bmiq_no_outliers.rds"))
+  beta_matrix <- readRDS(file.path(project_context$paths$results, "beta_matrix_bmiq.rds"))
   targets <- readRDS(file.path(project_context$paths$processed, "targets_remove_mismatch.rds"))
   rownames(targets) <- targets$Basename %>% str_remove(paste0(data_folder, "/"))
 
@@ -163,15 +163,15 @@ pre_process_eda <- function(
 
   write.csv(beta_means, file.path(project_context$paths$results, "beta_means.csv"))
 
-  rm(beta_matrix)
-  rm(targets)
-  gc(full = TRUE)
+  # rm(beta_matrix)
+  # rm(targets)
+  # gc(full = TRUE)
 
   # Cell Count Estimation
-  source("R/cell_cnt_estimate.R")
-  cell_cnt_estimate(context = project_context)
+  # source("R/cell_cnt_estimate.R")
+  # cell_cnt_estimate(context = project_context)
 
   # Plot Cell proportion per cohort and write results to files for each cell type
-  source("R/plot_cell_proportions.R")
-  plot_cell_proportions(context = project_context)
+  # source("R/plot_cell_proportions.R")
+  # plot_cell_proportions(context = project_context)
 }
