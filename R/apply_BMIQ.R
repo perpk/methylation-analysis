@@ -51,6 +51,7 @@ apply_BMIQ <- function(context = NULL,
           plots = FALSE,
           pri = TRUE
         )
+        print(bmiq_result$nbeta[1:10])
 
         # Store the normalized values
         beta_bmiq[, i] <- bmiq_result$nbeta

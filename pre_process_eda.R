@@ -58,38 +58,38 @@ pre_process_eda <- function(
   # source("R/biological_gender_mismatch_analysis.R")
   # biological_gender_mismatch_analysis(context = project_context, recorded_sex_col = var_mapping$gender_var)
 
-  removed_pdp <- readRDS(file.path(project_context$paths$qc, "removed_probes_detection_p.rds"))
-  rg_set <- readRDS(file.path(project_context$paths$processed, "rg_set_remove_mismatch.rds"))
-  m_set <- readRDS(file.path(project_context$paths$processed, "methyl_set_remove_mismatch.rds"))
+  # removed_pdp <- readRDS(file.path(project_context$paths$qc, "removed_probes_detection_p.rds"))
+  # rg_set <- readRDS(file.path(project_context$paths$processed, "rg_set_remove_mismatch.rds"))
+  # m_set <- readRDS(file.path(project_context$paths$processed, "methyl_set_remove_mismatch.rds"))
 
-  rg_set <- rg_set[!rownames(rg_set) %in% removed_pdp[["probe_id"]], ]
-  m_set <- m_set[!rownames(m_set) %in% removed_pdp[["probe_id"]], ]
+  # rg_set <- rg_set[!rownames(rg_set) %in% removed_pdp[["probe_id"]], ]
+  # m_set <- m_set[!rownames(m_set) %in% removed_pdp[["probe_id"]], ]
   
-  saveRDS(rg_set, file.path(project_context$paths$processed, "rg_set_remove_probe_qc.rds"))
-  saveRDS(m_set, file.path(project_context$paths$processed, "methyl_set_remove_probe_qc.rds"))
+  # saveRDS(rg_set, file.path(project_context$paths$processed, "rg_set_remove_probe_qc.rds"))
+  # saveRDS(m_set, file.path(project_context$paths$processed, "methyl_set_remove_probe_qc.rds"))
 
   ## Remove cross-reactive probes, sex-chromosome related probes and single nucleotide polymorphisms (SNPs)
   ## Order matters, firstly SNPs must be removed then probes on XY chromosomes and thus keeping only those on autosomal and finally filtering of cross-reactive probes.
   ## All of the following, enumerated operations are performed on the methyl_set.
   ### 1. Single Nucleotide Polymorphisms
-  source("R/remove_snp.R")
-  remove_snp(context = project_context)
+  # source("R/remove_snp.R")
+  # remove_snp(context = project_context)
 
   # ### 2. Sex-Chromosome Probe filtering
-  source("R/remove_sex_chromosome_probes.R")
-  remove_sex_chromosome_probes(context = project_context)
+  # source("R/remove_sex_chromosome_probes.R")
+  # remove_sex_chromosome_probes(context = project_context)
 
   # # #### 3. Cross Reactive Probes
-  source("R/remove_cross_reactive_probes.R")
-  remove_cross_reactive_probes(context = project_context)
+  # source("R/remove_cross_reactive_probes.R")
+  # remove_cross_reactive_probes(context = project_context)
 
   # ### The filtering of the dataset is complete and beta & m-values are now extracted from the methyl_set and written to disk as "beta_matrix.rds" and "m_matrix.rds" respectively.
-  methyl_set_cross_reactive_clean_path <- file.path(project_context$paths$processed, "methyl_set_removed_cross_reactive.rds")
-  methyl_set <- readRDS(methyl_set_cross_reactive_clean_path)
-  beta_matrix <- getBeta(methyl_set)
-  m_matrix <- getM(methyl_set)
-  saveRDS(beta_matrix, file.path(project_context$paths$results, "beta_matrix.rds"))
-  saveRDS(m_matrix, file.path(project_context$paths$results, "m_matrix.rds"))
+  # methyl_set_cross_reactive_clean_path <- file.path(project_context$paths$processed, "methyl_set_removed_cross_reactive.rds")
+  # methyl_set <- readRDS(methyl_set_cross_reactive_clean_path)
+  # beta_matrix <- getBeta(methyl_set)
+  # m_matrix <- getM(methyl_set)
+  # saveRDS(beta_matrix, file.path(project_context$paths$results, "beta_matrix.rds"))
+  # saveRDS(m_matrix, file.path(project_context$paths$results, "m_matrix.rds"))
 
   # ### Filter rg_set according to the remaining methyl_set probes after it has been cleared off from SNPs, X/Y-Chromosome- and cross-reactive probes.
   # source("R/filter_rg_set.R")
