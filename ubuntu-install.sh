@@ -336,7 +336,8 @@ packages <- c(
     "GenomicRanges",
     "BSgenome.Hsapiens.UCSC.hg19",
     "FlowSorted.Blood.450k",
-    "FlowSorted.Blood.EPIC"
+    "FlowSorted.Blood.EPIC",
+    "RPMM"
 )
 
 # Install pak for better dependency resolution
