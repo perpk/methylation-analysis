@@ -1,4 +1,4 @@
-remove_snp <- function(context = NULL, methyl_set_file = "methyl_set_remove_mismatch.rds") {
+remove_snp <- function(context = NULL, methyl_set_file = "methyl_set_remove_probe_qc.rds") {
   prog <- .create_progress_manager(5)
   print("remove single nucleotide polymorphisms")
   ann <- NULL

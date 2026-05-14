@@ -62,11 +62,11 @@ pre_process_eda <- function(
   rg_set <- readRDS(file.path(project_context$paths$processed, "rg_set_remove_mismatch.rds"))
   m_set <- readRDS(file.path(project_context$paths$processed, "methyl_set_remove_mismatch.rds"))
 
-  rg_set <- rg_set[!rownames(rg_set) %in% removed_pdp, ]
-  m_set <- m_set[!rownames(m_set) %in% removed_pdp, ]
+  rg_set <- rg_set[!rownames(rg_set) %in% removed_pdp[["probe_id"]], ]
+  m_set <- m_set[!rownames(m_set) %in% removed_pdp[["probe_id"]], ]
   
-  saveRDS(rg_set, file.path(project_context$paths$processed, "rg_set_remove_mismatch.rds"))
-  saveRDS(m_set, file.path(project_context$paths$processed, "methyl_set_remove_mismatch.rds"))
+  saveRDS(rg_set, file.path(project_context$paths$processed, "rg_set_remove_probe_qc.rds"))
+  saveRDS(m_set, file.path(project_context$paths$processed, "methyl_set_remove_probe_qc.rds"))
 
   ## Remove cross-reactive probes, sex-chromosome related probes and single nucleotide polymorphisms (SNPs)
   ## Order matters, firstly SNPs must be removed then probes on XY chromosomes and thus keeping only those on autosomal and finally filtering of cross-reactive probes.
