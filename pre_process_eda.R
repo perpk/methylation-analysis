@@ -40,8 +40,8 @@ pre_process_eda <- function(
   # This is performed on the rg_set and is done after normalization since the probes are necessary to provide an unbiased normalization
   # Respectively the probes are removed from methyl_set as well and a new, filtered version gets persisted to the filesystem.
   # The new filename for the filtered methyl_set is "methyl_set_probe_qc.rds"
-  source("R/probe_qc.R")
-  probe_qc(context = project_context)
+  # source("R/probe_qc.R")
+  # probe_qc(context = project_context)
 
   # ### Sample QC - Outlier detection and removal: Here samples are removed based on the median methylated and unmethylated signal intensities. Samples with a median methylated or unmethylated signal intensity below the specified threshold (default: 10.5) are flagged as outliers and removed from the dataset.
   # #### It is crucial to do this step alongside cleaning up the data from problematic samples in order to not have outliers skewing the normalization and thus the downstream analyses. It is also important to do this step before the biological

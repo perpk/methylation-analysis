@@ -61,7 +61,6 @@ probe_qc <- function(
       det_p_threshold = det_p_threshold,
       max_failed_samples = max_failed_samples,
       total_probes_initial = nrow(rg_set),
-      total_probes_after = nrow(rg_set_filtered),
       probes_removed = sum(!keep_probes),
       removal_rate = round(mean(!keep_probes) * 100, 2),
       median_failure_rate_all = median(prop_failed * 100, na.rm = TRUE),
