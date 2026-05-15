@@ -14,9 +14,12 @@ library(illuminaio)
 
 idat <- readIDAT(all_idat_files[1])
 
-idat_gse <- readIDAT(gzfile(all_gse_idat_files[1]))
-all_gse_idat_files[1]
+library(R.utils)
 
+idat_gse <- readIDAT("/Volumes/Elements/methylation-analysis/GSE111629_RAW/GSM3035402_3999979001_R01C02_Grn.idat")
+str(idat_gse)
+
+gunzip("/Volumes/Elements/methylation-analysis/GSE111629_RAW/GSM3035402_3999979001_R01C02_Grn.idat.gz")
 
 str(idat)
 
@@ -34,6 +37,7 @@ for (idat_file in all_idat_files) {
 
     results_df <- rbind(results_df, data.frame(SentrixID = sentrix_id, ScanDate = scan_date))
 }
+??str_extract
 
 print(results_df)
 
