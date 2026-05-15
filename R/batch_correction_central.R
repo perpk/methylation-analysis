@@ -31,21 +31,23 @@ m_values <- readRDS(paste0(root_dir, m_values_loc))
 print(paste("M-values loaded with dimensions:", dim(m_values)[1], "rows and", dim(m_values)[2], "columns"))
 
 source("R/extract_scandate_from_idat.R")
-print(paste("Extracting scan dates from IDAT files in:", paste0(root_dir, idat_folder_loc)))
+print(paste("Extracting scan dates from IDAT files in:", idat_folder_loc))
 scan_dates <- extract_scandate_from_idat(
-    file_path=paste0(root_dir, idat_folder_loc)
+    file_path=idat_folder_loc
 )
 print(paste("Scan dates extracted with dimensions:", dim(scan_dates)[1], "rows and", dim(scan_dates)[2], "columns"))
+head(scan_dates)
 
 source("R/enrich_meta_with_batch.R")
 print("Enriching target DataFrame with scan date information...")
-enriched_target_df <- enricht_meta_with_batch(
+enriched_target_df <- enrich_meta_with_batch(
     meta_df = target_df, 
     batch_df = scan_dates, 
     x_colname = "Sentrix_ID", 
     y_colname = "SentrixID"
 )
 print(paste("Enriched target DataFrame dimensions:", dim(enriched_target_df)[1], "rows and", dim(enriched_target_df)[2], "columns"))
+head(enriched_target_df)
 
 source("R/run_combat.R")
 print("Running ComBat for batch correction...")
@@ -53,7 +55,7 @@ combat_m_values <- run_combat(
     m_values = m_values,
     meta_df = enriched_target_df,
     batch_colname = "ScanDate",
-    mod_colnames = c("Sample_Group")
+    mod_colnames = "Sample_Group"
 )
 print("ComBat batch correction completed.")
 

@@ -7,6 +7,7 @@ extract_scandate_from_idat <- function(file_path=NULL, idat_ptn="^.+\\.idat(\\.g
         ScanDate = character()
     )  
     all_idat_files <- list.files(file_path, pattern = idat_ptn, full.names = TRUE)
+    print(paste("Found", length(all_idat_files), "IDAT files in the specified directory."))
     for (idat_file in all_idat_files) {
         idat_data <- readIDAT(idat_file)
         run_metadata <- idat_data$RunInfo
