@@ -5,16 +5,23 @@ root_dir <- args[2]
 target_df_loc <- args[3]
 m_values_loc <- args[4]
 idat_folder_loc <- args[5]
+extract_sentrix_id_from_basename <- as.logical(args[6])
 
 print(paste("Project Name:", project_name))
 print(paste("Root Directory:", root_dir))
 print(paste("Target DataFrame Location:", target_df_loc))
 print(paste("M-values Location:", m_values_loc))
 print(paste("IDAT Folder Location:", idat_folder_loc))
-
+print(paste("Extract Sentrix ID from IDAT:", extract_sentrix_id_from_idat))
 print(paste("Loading target DataFrame from:", paste0(root_dir, target_df_loc)))
 target_df <- readRDS(paste0(root_dir, target_df_loc))
 print(paste("Target DataFrame loaded with dimensions:", dim(target_df)[1], "rows and", dim(target_df)[2], "columns"))
+
+if (extract_sentrix_id_from_basename) {
+    target_df$Sentrix_ID <- sapply(target_df$Basename, function(x) {
+        basename(x) %>% str_extract("\\d{10}_R\\d{2}C\\d{2}")
+    })
+}
 
 print(paste("Loading M-values from:", paste0(root_dir, m_values_loc)))
 m_values <- readRDS(paste0(root_dir, m_values_loc))

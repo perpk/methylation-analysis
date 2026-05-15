@@ -7,6 +7,7 @@ extract_scandate_from_idat <- function(file_path=NULL, idat_ptn="^.+\\.idat(\\.g
         ScanDate = character()
     )  
     all_idat_files <- list.files(file_path, pattern = idat_ptn, full.names = TRUE)
+    all_idat_files <- all_idat_files[1:5]
     for (idat_file in all_idat_files) {
         idat_data <- readIDAT(idat_file)
         run_metadata <- idat_data$RunInfo
@@ -19,9 +20,9 @@ extract_scandate_from_idat <- function(file_path=NULL, idat_ptn="^.+\\.idat(\\.g
     return (results_df)
 }
 
-# root_data_folder <- "/Volumes/Elements/methylation-analysis/"
+root_data_folder <- "/Volumes/Elements/methylation-analysis/"
 # scan_dates_ppmi <- extract_scandate_from_idat(file_path=paste0(root_data_folder, "ppmi/Project120_IDATS_n524final_toLONI_030718/"))
-# scan_dates_gse <- extract_scandate_from_idat(file_path=paste0(root_data_folder, "GSE111629_RAW/"))
+scan_dates_gse <- extract_scandate_from_idat(file_path=paste0(root_data_folder, "GSE111629_RAW/"))
 # scan_dates_gse2 <- extract_scandate_from_idat(file_path=paste0(root_data_folder, "GSE145361_RAW/"))
 
 
