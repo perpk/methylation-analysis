@@ -338,7 +338,8 @@ packages <- c(
     "BSgenome.Hsapiens.UCSC.hg19",
     "FlowSorted.Blood.450k",
     "FlowSorted.Blood.EPIC",
-    "RPMM"
+    "RPMM",
+    "sva"
 )
 
 # Install pak for better dependency resolution
