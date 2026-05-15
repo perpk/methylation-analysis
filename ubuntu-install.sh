@@ -295,6 +295,7 @@ cat("R version:", R.version.string, "\n")
 # Install renv
 cat("\nInstalling renv...\n")
 install.packages("renv", quiet = FALSE)
+install.packages("patchwork")
 
 # Initialize renv (fresh)
 cat("\nInitializing fresh renv...\n")
