@@ -55,7 +55,12 @@ combat_m_values <- run_combat(
 print("ComBat batch correction completed.")
 
 print(paste("Saving ComBat-corrected M-values to:", paste0(root_dir, paste0(project_name, "_combat_m_values.rds"))))
-saveRDS(combat_m_values, paste0(root_dir, paste0(project_name, "_combat_m_values.rds")))
+saveRDS(
+    combat_m_values, 
+    paste0(root_dir, 
+        paste0(project_name, "_combat_m_values.rds")
+    )
+)
 print("All done!")
 
 
