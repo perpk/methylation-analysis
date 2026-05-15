@@ -17,6 +17,9 @@ print(paste("Loading target DataFrame from:", paste0(root_dir, target_df_loc)))
 target_df <- readRDS(paste0(root_dir, target_df_loc))
 print(paste("Target DataFrame loaded with dimensions:", dim(target_df)[1], "rows and", dim(target_df)[2], "columns"))
 
+library(dplyr)
+library(stringr)
+
 if (extract_sentrix_id_from_basename) {
     target_df$Sentrix_ID <- sapply(target_df$Basename, function(x) {
         basename(x) %>% str_extract("\\d{10}_R\\d{2}C\\d{2}")
