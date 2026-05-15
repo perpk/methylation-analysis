@@ -6,6 +6,7 @@ target_df_loc <- args[3]
 m_values_loc <- args[4]
 idat_folder_loc <- args[5]
 extract_sentrix_id_from_basename <- as.logical(args[6])
+harmonize_targets <- as.logical(args[7])
 
 print(paste("Project Name:", project_name))
 print(paste("Root Directory:", root_dir))
@@ -29,6 +30,13 @@ if (extract_sentrix_id_from_basename) {
 print(paste("Loading M-values from:", paste0(root_dir, m_values_loc)))
 m_values <- readRDS(paste0(root_dir, m_values_loc))
 print(paste("M-values loaded with dimensions:", dim(m_values)[1], "rows and", dim(m_values)[2], "columns"))
+
+if (harmonize_targets) {
+    print("Harmonizing target DataFrame...")
+    target_df$Sample_Name <- target_df$Basename %>% str_extract("GSM\\d+_\\d{10}_R\\d{2}C\\d{2}")
+    target_df <- target_df %>% filter(Sample_Name %in% colnames(m_values))
+}
+ 
 
 source("R/extract_scandate_from_idat.R")
 print(paste("Extracting scan dates from IDAT files in:", idat_folder_loc))
