@@ -23,5 +23,5 @@ extract_scandate_from_idat <- function(file_path=NULL, idat_ptn="^.+\\.idat(\\.g
 # scan_dates_ppmi <- extract_scandate_from_idat(file_path=paste0(root_data_folder, "ppmi/Project120_IDATS_n524final_toLONI_030718/"))
 # scan_dates_gse <- extract_scandate_from_idat(file_path=paste0(root_data_folder, "GSE111629_RAW/"))
 # scan_dates_gse2 <- extract_scandate_from_idat(file_path=paste0(root_data_folder, "GSE145361_RAW/"))
-head(scan_dates_gse)
+# head(scan_dates_gse)
 
