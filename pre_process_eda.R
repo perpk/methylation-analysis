@@ -109,30 +109,30 @@ pre_process_eda <- function(
   # principal_component_analysis(project_context, col_maps = col_map, keys = keys, npc = 5)
   #
   # # #### Plot PCA
-  source("R/plot_PCA.R")
-  pca_vars <- c("Sample_Group" = "By Diagnosis", "Gender" = "By Biological Gender", "Age" = "By Age")
-  convert_f <- function(df) {
-    (transform(df, Age = as.numeric(Age)))
-  }
-  plot_PCA(
-    context = project_context,
-    pca_results_rds_filename = "pca_df.rds",
-    pca_vars = pca_vars,
-    convert_fun = convert_f,
-    continuously_scaled = c("Age"),
-    "pca_plot_",
-    pairplot_color_by = "Age"
-  )
+  # source("R/plot_PCA.R")
+  # pca_vars <- c("Sample_Group" = "By Diagnosis", "Gender" = "By Biological Gender", "Age" = "By Age")
+  # convert_f <- function(df) {
+  #   (transform(df, Age = as.numeric(Age)))
+  # }
+  # plot_PCA(
+  #   context = project_context,
+  #   pca_results_rds_filename = "pca_df.rds",
+  #   pca_vars = pca_vars,
+  #   convert_fun = convert_f,
+  #   continuously_scaled = c("Age"),
+  #   "pca_plot_",
+  #   pairplot_color_by = "Age"
+  # )
 
   #### Outlier detection from PCA
-  source("R/outlier_analysis.R")
-  outlier_analysis(context = project_context, sample_metadata = c("Sample_Group", var_mapping$gender_var, var_mapping$age_var))
+  # source("R/outlier_analysis.R")
+  # outlier_analysis(context = project_context, sample_metadata = c("Sample_Group", var_mapping$gender_var, var_mapping$age_var))
 
-  source("R/outlier_remove_redo_BMIQ.R")
-  outlier_remove_redo_BMIQ(context = project_context)
+  # source("R/outlier_remove_redo_BMIQ.R")
+  # outlier_remove_redo_BMIQ(context = project_context)
 
-  source("R/apply_BMIQ.R")
-  plot_BMIQ(project_context)
+  # source("R/apply_BMIQ.R")
+  # plot_BMIQ(project_context)
 
   # #### PCA Outlier assessment (TODO Doesn't really work out)
   # # source("R/pca_outlier_assessment.R")
