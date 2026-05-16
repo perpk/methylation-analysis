@@ -31,20 +31,12 @@ print(paste("Loading M-values from:", paste0(root_dir, m_values_loc)))
 m_values <- readRDS(paste0(root_dir, m_values_loc))
 print(paste("M-values loaded with dimensions:", dim(m_values)[1], "rows and", dim(m_values)[2], "columns"))
 
-if (harmonize_targets) {
-    print("Harmonizing target DataFrame...")
-    target_df$Sample_Name <- target_df$Basename %>% str_extract("GSM\\d+_\\d{10}_R\\d{2}C\\d{2}")
-    target_df <- target_df %>% filter(Sample_Name %in% colnames(m_values))
-}
- 
-
 source("R/extract_scandate_from_idat.R")
 print(paste("Extracting scan dates from IDAT files in:", idat_folder_loc))
 scan_dates <- extract_scandate_from_idat(
     file_path=idat_folder_loc
 )
 print(paste("Scan dates extracted with dimensions:", dim(scan_dates)[1], "rows and", dim(scan_dates)[2], "columns"))
-head(scan_dates)
 
 source("R/enrich_meta_with_batch.R")
 print("Enriching target DataFrame with scan date information...")
@@ -55,7 +47,13 @@ enriched_target_df <- enrich_meta_with_batch(
     y_colname = "SentrixID"
 )
 print(paste("Enriched target DataFrame dimensions:", dim(enriched_target_df)[1], "rows and", dim(enriched_target_df)[2], "columns"))
-head(enriched_target_df)
+
+if (harmonize_targets) {
+    print("Harmonizing target DataFrame...")
+    enriched_target_df$Sample_Name <- enriched_target_df$Basename %>% str_extract("GSM\\d+_\\d{10}_R\\d{2}C\\d{2}")
+    enriched_target_df <- enriched_target_df %>% filter(Sample_Name %in% colnames(m_values))
+    print(paste("Target DataFrame after harmonization has dimensions:", dim(enriched_target_df)[1], "rows and", dim(enriched_target_df)[2], "columns"))
+}
 
 source("R/run_combat.R")
 print("Running ComBat for batch correction...")
