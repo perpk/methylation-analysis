@@ -36,6 +36,7 @@ print(paste("Extracting scan dates from IDAT files in:", idat_folder_loc))
 scan_dates <- extract_scandate_from_idat(
     file_path=idat_folder_loc
 )
+scan_dates <- scan_dates[!duplicated(scan_dates[c("SentrixID", "ScanDate")]), ]
 print(paste("Scan dates extracted with dimensions:", dim(scan_dates)[1], "rows and", dim(scan_dates)[2], "columns"))
 
 source("R/enrich_meta_with_batch.R")
@@ -51,9 +52,9 @@ print(paste("Enriched target DataFrame dimensions:", dim(enriched_target_df)[1],
 if (harmonize_targets) {
     print("Harmonizing target DataFrame...")
     enriched_target_df$Sample_Name <- enriched_target_df$Basename %>% str_extract("GSM\\d+_\\d{10}_R\\d{2}C\\d{2}")
-    head(enriched_target_df$Sample_Name)
-    enriched_target_df <- enriched_target_df[enriched_target_df$Sample_Name %in% colnames(m_values), ]
-    print(paste("Target DataFrame after harmonization has dimensions:", dim(enriched_target_df)[1], "rows and", dim(enriched_target_df)[2], "columns"))
+    common_samples <- intersect(colnames(m_values), enriched_target_df$Sample_Name)
+    enriched_target_df <- enriched_target_df[enriched_target_df$Sample_Name %in% common_samples, ]
+    print(paste("Harmonized target DataFrame dimensions:", dim(enriched_target_df)[1], "rows and", dim(enriched_target_df)[2], "columns"))
 }
 
 source("R/run_combat.R")
