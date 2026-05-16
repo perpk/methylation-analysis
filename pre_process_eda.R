@@ -95,9 +95,9 @@ pre_process_eda <- function(
   # # source("R/filter_rg_set.R")
   # # filter_rg_set(context = project_context)
 
-  # ## Beta-Mixture Quantile (BMIQ) Normalization
-  # source("R/apply_BMIQ.R")
-  # apply_BMIQ(context = project_context, plot = FALSE)
+  ## Beta-Mixture Quantile (BMIQ) Normalization
+  source("R/apply_BMIQ.R")
+  apply_BMIQ(context = project_context, plot = FALSE)
 
   # ## Principal Component Analysis
   source("R/principal_component_analysis.R")
