@@ -11,7 +11,7 @@ harmonize_targets <- as.logical(args[5])
 pattern_harm <- args[6]
 
 harmonize_meta <- function(m_values, meta, pattern) {
-    rownames(meta) <- gsub(meta$Sample_Name, pattern = pattern, replacement = "")
+    rownames(meta) <- gsub(meta$Basename, pattern = pattern, replacement = "")
     common_samples <- intersect(colnames(m_values), rownames(meta))
     meta <- meta[rownames(meta) %in% common_samples, ]
     return(meta)
@@ -25,7 +25,7 @@ if (harmonize_targets) {
     
 if (all(rownames(target_df) == colnames(m_values))) {
     combined <- cbind(target_df, t(m_values))
-    write_parquet(combined, write_statistics=FALSE, use_dictionary=FALSE, file.path(rootDir, paste0(project_name, "_data.parquet")))
+    write_parquet(combined, write_statistics=FALSE, use_dictionary=FALSE, file.path(root_dir, paste0(project_name, "_data.parquet")))
 } else {
     stop("Row names of meta do not match column names of m_values.")
 }
