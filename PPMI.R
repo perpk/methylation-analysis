@@ -87,7 +87,7 @@ data_folder <- "ppmi"
 
 # targets <- read.metharray.sheet(data_folder, pattern = "sample_sheet")
 # saveRDS(targets, file = file.path(data_folder, "targets.rds"))
-targets <- readRDS(file.path(data_folder, "targets.rds"))
+# targets <- readRDS(file.path(data_folder, "targets.rds"))
 # saveRDS(targets, file.path(data_folder, "targets.rds"))
 source("./meta_vars_mapping.R")
 var_mappings <- meta_vars_mapping(dataset = project_name)
@@ -97,8 +97,6 @@ cohorts <- list(
   SWEDD_vs_Control = c("SWEDD", "Control")
 )
 project_to_load <- "ppmi"
-
-head(targets)
 
 source("./pre_process_eda.R")
 pre_process_eda(
