@@ -12,7 +12,8 @@ pattern_harm <- args[6]
 
 harmonize_meta <- function(m_values, meta, pattern) {
     rownames(meta) <- gsub(meta$Sample_Name, pattern = pattern, replacement = "")
-    meta <- meta[match(colnames(m_values), rownames(meta)), ]
+    common_samples <- intersect(colnames(m_values), rownames(meta))
+    meta <- meta[rownames(meta) %in% common_samples, ]
     return(meta)
 }
 target_df <- readRDS(paste0(root_dir, target_df_loc))
