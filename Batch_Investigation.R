@@ -1,61 +1,230 @@
-extract_scandate_from_idat <- function(file_path=NULL, idat_ptn="^.+\\.idat(\\.gz)?$") {
-    library(illuminaio)
-    library(stringr)
-    library(dplyr)
-    results_df = data.frame(
-        SentrixID = character(),
-        ScanDate = character()
-    )  
-    all_idat_files <- list.files(file_path, pattern = idat_ptn, full.names = TRUE)
-    print(paste("Found", length(all_idat_files), "IDAT files in the specified directory."))
-    for (idat_file in all_idat_files) {
-        idat_data <- readIDAT(idat_file)
-        run_metadata <- idat_data$RunInfo
-        scan_row <- which(run_metadata[, "BlockType"] == "Scan")[1]
-        scan_date_string <- run_metadata[scan_row, "RunTime"]
-        scan_date <- as.POSIXct(scan_date_string, format="%m/%d/%Y") %>% as.character() %>% str_extract("^(\\d{4}-\\d{2})")
-        sentrix_id <- paste0(idat_data$Barcode, "_", idat_data$Unknowns$MostlyA)
-        results_df <- rbind(results_df, data.frame(SentrixID = sentrix_id, ScanDate = scan_date))
-    }
-    return (results_df)
-}
-root_data_folder <- "/Volumes/Elements/methylation-analysis/"
-root_dir <- "/Volumes/Elements/vastai/gse111629/GSE111629_20260515_083253"
-m_values_loc <- "/results/m_values_bmiq.rds"
-target_df_loc <- "/processed/targets_remove_mismatch.rds"
+demographics <- read.csv("./ppmi/Demographics_24Nov2025.csv")
 
-scan_dates_gse <- extract_scandate_from_idat(file_path=paste0(root_data_folder, "GSE111629_RAW/"))
+participant_status <- read.csv("./ppmi/Participant_Status_24Nov2025.csv")
 
-m_values <- readRDS(paste0(root_dir, m_values_loc))
+participant_status <- participant_status %>% filter(!ENROLL_STATUS %in% c("Screen failed", "Withdrew", "Withdrew Deceased", "Baseline Withdraw", "Excluded", "Declined", "Withdraw Deceased"))
+dim(participant_status)
 
-target_df <- readRDS(paste0(root_dir, target_df_loc))
-
-target_df$Sample_Name <- target_df$Basename %>% str_extract("GSM\\d+_\\d{10}_R\\d{2}C\\d{2}")
-head(target_df$Sample_Name)
-
-target_df <- target_df[target_df$Sample_Name %in% colnames(m_values), ]
-dim(target_df)
-
-enriched_meta <- merge(
-  x = target_df,
-  y = scan_dates_gse,
-  by.x = "Sentrix_ID",
-  by.y = "SentrixID",
+patient_meta <- merge(
+  x = demographics[, c("PATNO", "SEX")],
+  y = participant_status[, c("ENROLL_STATUS", "PATNO", "COHORT", "ENROLL_AGE", "ENRLPINK1", "ENRLPRKN", "ENRLSRDC", "ENRLNORM", "ENRLOTHGV", "ENRLHPSM", "ENRLLRRK2", "ENRLRBD", "ENRLSNCA", "ENRLGBA")],
+  by.x = "PATNO",
+  by.y = "PATNO",
   all.x = FALSE
 )
 
-head(enriched_meta)
-dim(enriched_meta)
+View(patient_meta)
+dim(patient_meta)
 
-enriched_meta$Sample_Name <- enriched_meta$Basename %>% str_extract("GSM\\d+_\\d{10}_R\\d{2}C\\d{2}")
-head(enriched_meta$Sample_Name)
-head(colnames(m_values))
+ppmi_meth_120_txt <- read.delim("./ppmi/Project120_IDATS_n524final_toLONI_030718/PPMI_Meth_n524_for_LONI030718.txt", header = T, sep = "\t")
+dim(ppmi_meth_120_txt)
 
-head(enriched_meta$Sample_Name)
+ppmi_meth_120_meta <- merge(
+  x = patient_meta,
+  y = ppmi_meth_120_txt,
+  by.x = "PATNO",
+  by.y = "PATNO",
+  all.x = FALSE
+)
+View(ppmi_meth_120_meta)
 
-common_samples <- intersect(colnames(m_values), enriched_meta$Sample_Name)
-length(common_samples)
-head(common_samples)
+ppmi_meth_120_meta$Basename <- paste0(ppmi_meth_120_meta$Sentrix.ID, "_", ppmi_meth_120_meta$Sentrix.Position)
+ppmi_meth_120_meta$Sample_Name <- paste0(ppmi_meth_120_meta$PATNO, "_", ppmi_meth_120_meta$Sentrix.ID, "_", ppmi_meth_120_meta$Sentrix.Position)
+ppmi_meth_120_meta$Sample_Group <- ppmi_meth_120_meta$COHORT
+ppmi_meth_120_meta <- ppmi_meth_120_meta %>% dplyr::rename(Sentrix_Position = Sentrix.Position, Sentrix_ID = Sentrix.ID)
 
-enriched_meta_filtered <- enriched_meta[enriched_meta$Sample_Name %in% common_samples, ]
-dim(enriched_meta_filtered)
+View(ppmi_meth_120_meta)
+dim(ppmi_meth_120_meta)
+
+# 0 -> F; 1 -> M
+ppmi_meth_120_meta$SEX <- ifelse(ppmi_meth_120_meta$SEX == 0, "Female", "Male")
+
+# 1 -> PD; 2 -> Control; 3 -> SWEDD; 4 -> Prodromal
+ppmi_meth_120_meta <- ppmi_meth_120_meta %>%
+  mutate(Sample_Group = case_when(
+    Sample_Group == 1 ~ "PD",
+    Sample_Group == 2 ~ "Control",
+    Sample_Group == 3 ~ "SWEDD",
+    Sample_Group == 4 ~ "Prodromal"
+  ))
+
+ppmi_meth_120_meta <- ppmi_meth_120_meta %>%
+  mutate(
+    Age_Group =
+      case_when(
+        ENROLL_AGE >= 30 & ENROLL_AGE < 50 ~ "30-49",
+        ENROLL_AGE >= 50 & ENROLL_AGE < 60 ~ "50-59",
+        ENROLL_AGE >= 60 & ENROLL_AGE < 70 ~ "60-69",
+        ENROLL_AGE >= 70 & ENROLL_AGE < 80 ~ "70-79",
+        ENROLL_AGE >= 80 ~ "80+",
+      )
+  )
+dim(ppmi_meth_120_meta)
+
+ppmi_scan_dates <- read.csv("./ppmi/ppmi_scan_dates.csv", header = TRUE)
+
+dim(ppmi_scan_dates)
+View(ppmi_scan_dates)
+
+summary(duplicated(ppmi_scan_dates[c("SentrixID","ScanDate")]))
+ppmi_scan_dates[c("SentrixID","ScanDate")]
+
+duplicate_indices <- duplicated(ppmi_scan_dates[c("SentrixID","ScanDate")])
+
+ppmi_scan_dates_harm <- ppmi_scan_dates[!duplicate_indices, ]
+
+ppmi_meth_120_meta_scandates <- merge(
+  x = ppmi_meth_120_meta,
+  y = ppmi_scan_dates_harm,
+  by.x = "Basename",
+  by.y = "SentrixID",
+  all = FALSE
+)
+dim(ppmi_meth_120_meta_scandates)
+View(ppmi_meth_120_meta_scandates)
+
+m_values <- readRDS("/Volumes/Elements/vastai/ppmi/ppmi_20260415_170143/m_values_bmiq.rds")
+targets <- readRDS("/Volumes/Elements/vastai/ppmi/ppmi_20260415_170143/targets_remove_mismatch.rds")
+
+pca <- prcomp(t(m_values))
+
+head(ppmi_scan_dates_harm)
+targets$Sentrix_ID <- paste0(targets$Slide,"_", targets$Array)
+
+library(stringr)
+ppmi_scan_dates_harm$ScanDate_Month <- ppmi_scan_dates_harm %>% pull(ScanDate) %>% as.character() %>% str_extract("^(\\d{4}-\\d{2})")
+head(ppmi_scan_dates_harm)
+dim(targets)
+targets_harm <- merge(
+  x = targets,
+  y = ppmi_scan_dates_harm,
+  by.x = "Sentrix_ID",
+  by.y = "SentrixID",
+  all = FALSE
+)
+dim(targets_harm)
+dim(targets)
+head(targets_harm)
+
+head(ppmi_scan_dates_harm)
+
+pca_df <- data.frame(matrix(NA, nrow = ncol(m_values), ncol = 10))
+rownames(pca_df) <- colnames(m_values)
+colnames(pca_df) <- sapply(1:10, function(i) paste0("PC", i))
+for (index in 1:10) {
+    pca_df[[paste0("PC", index)]] <- pca$x[, index]
+}
+
+library(ggplot2)
+
+targets_harm$Sentrix_ID <- paste0(targets_harm$Slide,"_", targets_harm$Array)
+
+pca_df_with_dates <- merge(
+  x = pca_df,
+  y = targets_harm,
+  by.x = "row.names",
+  by.y = "Sentrix_ID",
+  all = FALSE
+)
+
+saveRDS(pca_df_with_dates, "/Volumes/Elements/vastai/ppmi/ppmi_20260415_170143/local/pca_df_with_dates.rds")
+saveRDS(targets_harm, "/Volumes/Elements/vastai/ppmi/ppmi_20260415_170143/local/targets_harm.rds")
+
+head(pca_df_with_dates)
+
+library(ggplot2)
+ggplot(pca_df_with_dates, aes(x = PC1, y = PC2, color = ScanDate_Month)) +
+  geom_point() +
+  labs(title = "PCA of Methylation Data Colored by Scan Date") +
+  theme_minimal()
+
+ggplot(pca_df_with_dates, aes(x = PC1, y = PC3, color = ScanDate)) +
+  geom_point() +
+  labs(title = "PCA of Methylation Data Colored by Scan Date") +
+  theme_minimal()
+
+head(targets_harm)
+
+library(stringr)
+library(patchwork)
+library(dplyr)
+
+color_by <- "ScanDate"
+pca_pairplot <- function(pca_df_with_dates, color_by = NULL, size_factor = 3, n_pcs = 6) {
+  pc_columns <- grep("^PC\\d+$", colnames(pca_df_with_dates), value = TRUE)
+  pc_columns <- pc_columns[1:min(n_pcs, length(pc_columns))]
+  combos <- expand.grid(x = pc_columns, y = pc_columns)
+  plots <- list()
+  plot_idx <- 1
+
+  for (i in 1:nrow(combos)) {
+      x_var <- as.character(combos$x[i])
+      y_var <- as.character(combos$y[i])
+
+      if (x_var == y_var) {
+        # Diagonal: Density plot
+        p <- ggplot(pca_df_with_dates, aes(x = .data[[x_var]])) +
+          geom_density(fill = "steelblue", alpha = 0.5) +
+          labs(x = x_var, y = "Density") +
+          theme_minimal() +
+          theme(axis.text = element_text(size = 6))
+      } else {
+        # Off-diagonal: Scatter plot
+        if (!is.null(color_by) && color_by %in% colnames(pca_df_with_dates)) {
+          p <- ggplot(pca_df_with_dates, aes(
+            x = .data[[x_var]], y = .data[[y_var]],
+            color = as.factor(.data[[color_by]])
+          )) +
+            geom_point(size = 0.5, alpha = 0.5) +
+            scale_color_viridis_d(name = color_by)
+        } else {
+          p <- ggplot(pca_df_with_dates, aes(x = .data[[x_var]], y = .data[[y_var]])) +
+            geom_point(size = 0.5, alpha = 0.5, color = "steelblue")
+        }
+        p <- p +
+          labs(x = x_var, y = y_var) +
+          theme_minimal() +
+          theme(
+            axis.text = element_text(size = 6),
+            legend.position = "right",
+          )
+      }
+      plots[[plot_idx]] <- p
+      plot_idx <- plot_idx + 1
+  }
+
+  pplot <- wrap_plots(plots, ncol = length(pc_columns)) +
+      plot_annotation(title = paste("PCA Pairplot - First", length(pc_columns), "PCs"))
+
+  ggsave(paste0("./ppmi/ppmi_pca_pairplot_", color_by, ".png"), 
+    pplot, 
+    width = size_factor * length(pc_columns), 
+    height = size_factor * length(pc_columns), 
+    dpi = 300, 
+    limitsize = FALSE)
+}
+library(patchwork)
+pca_pairplot(pca_df_with_dates, color_by = "ScanDate_Month", n_pcs = 3)
+pca_pairplot(pca_df_with_dates, color_by = "Slide", size_factor = 10, n_pcs = 3)
+pca_pairplot(pca_df_with_dates, color_by = "Array")
+pca_pairplot(pca_df_with_dates, color_by = "SEX")
+pca_pairplot(pca_df_with_dates, color_by = "Age_Group")
+pca_pairplot(pca_df_with_dates, color_by = "Sample_Group")
+
+head(pca_df_with_dates)
+
+sum(pca_df_with_dates["ENRLHPSM"] == 1)
+
+head(targets)
+
+library(sva)
+
+batch <- as.factor(pca_df_with_dates$ScanDate_Month)
+
+mod_matrix <- model.matrix(~ as.factor(Sample_Group), data=pca_df_with_dates)
+combat_m <- ComBat(dat=m_values, batch=batch, mod=mod_matrix, par.prior=TRUE, prior.plots=FALSE)
+
+dim(beta_matrix)
+dim(pca_df_with_dates)
+
+table(pca_df_with_dates$ScanDate_Month, pca_df_with_dates$Sample_Group)

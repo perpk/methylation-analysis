@@ -346,6 +346,7 @@ packages <- c(
 install.packages("pak", quiet = FALSE)
 
 install.packages("rlist")
+install.packages("arrow")
 
 pak::pkg_install("markgene/maxprobes")
 
