@@ -1,6 +1,8 @@
 library(arrow)
 library(dplyr)
 
+args <- commandArgs(trailingOnly = TRUE)
+
 project_name <- args[1]
 root_dir <- args[2]
 target_df_loc <- args[3]
