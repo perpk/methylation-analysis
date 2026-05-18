@@ -96,17 +96,17 @@ pre_process_eda <- function(
   # # filter_rg_set(context = project_context)
 
   ## Beta-Mixture Quantile (BMIQ) Normalization
-  source("R/apply_BMIQ.R")
-  apply_BMIQ(context = project_context, plot = FALSE)
+  # source("R/apply_BMIQ.R")
+  # apply_BMIQ(context = project_context, plot = FALSE)
 
   # ## Principal Component Analysis
-  source("R/principal_component_analysis.R")
-  col_map <- list()
-  col_map[["Sample_Group"]] <- "Sample_Group"
-  col_map[["Gender"]] <- var_mapping$gender_var
-  col_map[["Age"]] <- var_mapping$age_var
-  keys <- c("Sample_Group", "Gender", "Age")
-  principal_component_analysis(project_context, col_maps = col_map, keys = keys, npc = 5)
+  # source("R/principal_component_analysis.R")
+  # col_map <- list()
+  # col_map[["Sample_Group"]] <- "Sample_Group"
+  # col_map[["Gender"]] <- var_mapping$gender_var
+  # col_map[["Age"]] <- var_mapping$age_var
+  # keys <- c("Sample_Group", "Gender", "Age")
+  # principal_component_analysis(project_context, col_maps = col_map, keys = keys, npc = 5)
   
   # #### Plot PCA
   source("R/plot_PCA.R")
