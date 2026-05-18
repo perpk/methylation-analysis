@@ -1,10 +1,10 @@
 #!/bin/bash
 
-PROJECT_NAME="GSE111629"
-ROOT_DIR="/root/workspace/methyl-pipe-out/GSE111629_20260515_083253/"
+PROJECT_NAME="PPMI"
+ROOT_DIR="/root/workspace/methyl-pipe-out//ppmi_20260513_110353/"
 TARGET_DF_LOC="processed/targets_remove_mismatch.rds"
 M_VALUES_LOC="results/m_values_bmiq.rds"
-IDAT_FOLDER_LOC="/root/methylation-analysis/GSE111629_RAW"
+IDAT_FOLDER_LOC="/root/methylation-analysis/ppmi/Project120_IDATS_n524final_toLONI_030718"
 EXTRACT_SENTRIX_ID_FROM_BASENAME="TRUE"
 HARMONIZE_TARGETS="TRUE"
 # "GSM\\d+_\\d{10}_R\\d{2}C\\d{2}"
