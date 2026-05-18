@@ -24,7 +24,7 @@ library(stringr)
 
 if (extract_sentrix_id_from_basename) {
     target_df$Sentrix_ID <- sapply(target_df$Basename, function(x) {
-        basename(x) %>% str_extract("\\d{10}_R\\d{2}C\\d{2}")
+        basename(x) %>% str_extract(base_extraction_pattern)
     })
 }
 
@@ -56,6 +56,7 @@ if (harmonize_targets) {
     common_samples <- intersect(colnames(m_values), enriched_target_df$Sample_Name)
     enriched_target_df <- enriched_target_df[enriched_target_df$Sample_Name %in% common_samples, ]
     print(paste("Harmonized target DataFrame dimensions:", dim(enriched_target_df)[1], "rows and", dim(enriched_target_df)[2], "columns"))
+    enriched_target_df <- enriched_target_df[enriched_target_df$Sample_Group %in% c("PD", "Control"), ]
 }
 
 source("R/run_combat.R")
