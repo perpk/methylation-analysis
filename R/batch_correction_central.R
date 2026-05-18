@@ -7,6 +7,7 @@ m_values_loc <- args[4]
 idat_folder_loc <- args[5]
 extract_sentrix_id_from_basename <- as.logical(args[6])
 harmonize_targets <- as.logical(args[7])
+base_extraction_pattern <- args[8]
 
 print(paste("Project Name:", project_name))
 print(paste("Root Directory:", root_dir))
@@ -51,7 +52,7 @@ print(paste("Enriched target DataFrame dimensions:", dim(enriched_target_df)[1],
 
 if (harmonize_targets) {
     print("Harmonizing target DataFrame...")
-    enriched_target_df$Sample_Name <- enriched_target_df$Basename %>% str_extract("GSM\\d+_\\d{10}_R\\d{2}C\\d{2}")
+    enriched_target_df$Sample_Name <- enriched_target_df$Basename %>% str_extract(base_extraction_pattern)
     common_samples <- intersect(colnames(m_values), enriched_target_df$Sample_Name)
     enriched_target_df <- enriched_target_df[enriched_target_df$Sample_Name %in% common_samples, ]
     print(paste("Harmonized target DataFrame dimensions:", dim(enriched_target_df)[1], "rows and", dim(enriched_target_df)[2], "columns"))

@@ -7,6 +7,8 @@ M_VALUES_LOC="results/m_values_bmiq.rds"
 IDAT_FOLDER_LOC="/root/methylation-analysis/GSE111629_RAW"
 EXTRACT_SENTRIX_ID_FROM_BASENAME="TRUE"
 HARMONIZE_TARGETS="TRUE"
+# "GSM\\d+_\\d{10}_R\\d{2}C\\d{2}"
+PREFIX_PTN="\d+_\\d{10}_R\\d{2}C\\d{2}"
 
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 FILENAME="${PROJECT_NAME}_${TIMESTAMP}"
