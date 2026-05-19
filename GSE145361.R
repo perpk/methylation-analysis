@@ -38,7 +38,7 @@ pre_process_eda(
     project_name = project_name,
     targets = targets,
     data_folder = data_folder,
-    project_location = "/Volumes/Elements/methyl-pipe-out",
+    project_location = "/root/workspace/methyl-pipe-out",
     var_mapping = var_mappings,
     cohorts = cohorts,
     platform = "450k"
