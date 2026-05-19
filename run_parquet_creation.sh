@@ -5,9 +5,9 @@ ROOT_DIR="/root/workspace/methyl-pipe-out/ppmi_20260513_110353/"
 TARGET_DF_LOC="processed/targets_remove_mismatch.rds"
 M_VALUES_LOC="PPMI_combat_m_values.rds"
 HARMONIZE_TARGETS="TRUE"
-# for ppmi change to ^\\d{4}_
+# for ppmi change to "ppmi/Project120_IDATS_n524final_toLONI_030718/200973410159_R03C01"
 # for GEO-datasets set to e.g. GSE111629_RAW/
-PATTERN_HARM="^\\d{4}_"
+PATTERN_HARM="ppmi/Project120_IDATS_n524final_toLONI_030718/200973410159_R03C01"
 
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 FILENAME="${PROJECT_NAME}_${TIMESTAMP}"
