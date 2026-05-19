@@ -1,12 +1,13 @@
 #!/bin/bash
 
-PROJECT_NAME="GSE111629"
-ROOT_DIR="/root/workspace/methyl-pipe-out/GSE111629_20260515_083253/"
+PROJECT_NAME="PPMI"
+ROOT_DIR="/root/workspace/methyl-pipe-out/ppmi_20260513_110353/"
 TARGET_DF_LOC="processed/targets_remove_mismatch.rds"
-M_VALUES_LOC="results/m_values_bmiq.rds"
+M_VALUES_LOC="results/PPMI_combat_m_values.rds"
 HARMONIZE_TARGETS="TRUE"
 # for ppmi change to ^\\d{4}_
-PATTERN_HARM="GSE111629_RAW/"
+# for GEO-datasets set to e.g. GSE111629_RAW/
+PATTERN_HARM="^\\d{4}_"
 
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 FILENAME="${PROJECT_NAME}_${TIMESTAMP}"
