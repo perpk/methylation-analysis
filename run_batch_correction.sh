@@ -8,7 +8,7 @@ IDAT_FOLDER_LOC="/root/methylation-analysis/ppmi/Project120_IDATS_n524final_toLO
 EXTRACT_SENTRIX_ID_FROM_BASENAME="TRUE"
 HARMONIZE_TARGETS="TRUE"
 # "GSM\\d+_\\d{10}_R\\d{2}C\\d{2}"
-PREFIX_PTN="\d+_\\d{12}_R\\d{2}C\\d{2}"
+PREFIX_PTN="\\d{12}_R\\d{2}C\\d{2}"
 
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 FILENAME="${PROJECT_NAME}_${TIMESTAMP}"

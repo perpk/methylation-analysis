@@ -52,11 +52,12 @@ print(paste("Enriched target DataFrame dimensions:", dim(enriched_target_df)[1],
 
 if (harmonize_targets) {
     print("Harmonizing target DataFrame...")
-    enriched_target_df$Sample_Name <- enriched_target_df$Basename %>% str_extract(base_extraction_pattern)
-    common_samples <- intersect(colnames(m_values), enriched_target_df$Sample_Name)
-    enriched_target_df <- enriched_target_df[enriched_target_df$Sample_Name %in% common_samples, ]
-    print(paste("Harmonized target DataFrame dimensions:", dim(enriched_target_df)[1], "rows and", dim(enriched_target_df)[2], "columns"))
     enriched_target_df <- enriched_target_df[enriched_target_df$Sample_Group %in% c("PD", "Control"), ]
+    enriched_target_df$Sample_Name <- enriched_target_df$Basename %>% str_extract(base_extraction_pattern)
+    common_samples <- intersect(enriched_target_df$Sample_Name, colnames(m_values))
+    enriched_target_df <- enriched_target_df[enriched_target_df$Sample_Name %in% common_samples, ]
+    m_values_reduced <- m_values[,enriched_target_df$Sample_Name]
+    print(paste("Harmonized target DataFrame dimensions:", dim(enriched_target_df)[1], "rows and", dim(enriched_target_df)[2], "columns"))
 }
 
 source("R/run_combat.R")
