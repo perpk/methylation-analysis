@@ -3,7 +3,7 @@
 PROJECT_NAME="PPMI"
 ROOT_DIR="/root/workspace/methyl-pipe-out/ppmi_20260513_110353/"
 TARGET_DF_LOC="processed/targets_remove_mismatch.rds"
-M_VALUES_LOC="results/PPMI_combat_m_values.rds"
+M_VALUES_LOC="PPMI_combat_m_values.rds"
 HARMONIZE_TARGETS="TRUE"
 # for ppmi change to ^\\d{4}_
 # for GEO-datasets set to e.g. GSE111629_RAW/
