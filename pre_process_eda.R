@@ -168,8 +168,8 @@ pre_process_eda <- function(
   # gc(full = TRUE)
 
   # Cell Count Estimation
-  source("R/cell_cnt_estimate.R")
-  cell_cnt_estimate(context = project_context)
+  # source("R/cell_cnt_estimate.R")
+  # cell_cnt_estimate(context = project_context)
 
   # Plot Cell proportion per cohort and write results to files for each cell type
   source("R/plot_cell_proportions.R")
