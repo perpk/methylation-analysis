@@ -1,14 +1,15 @@
 #!/bin/bash
 
-PROJECT_NAME="PPMI"
-ROOT_DIR="/root/workspace/methyl-pipe-out//ppmi_20260513_110353/"
+PROJECT_NAME="GSE145361"
+ROOT_DIR="/root/workspace/methyl-pipe-out/GSE145361_20260522_110341/"
 TARGET_DF_LOC="processed/targets_remove_mismatch.rds"
 M_VALUES_LOC="results/m_values_bmiq.rds"
 IDAT_FOLDER_LOC="/root/methylation-analysis/ppmi/Project120_IDATS_n524final_toLONI_030718"
 EXTRACT_SENTRIX_ID_FROM_BASENAME="TRUE"
 HARMONIZE_TARGETS="TRUE"
 # "GSM\\d+_\\d{10}_R\\d{2}C\\d{2}"
-PREFIX_PTN="\\d{12}_R\\d{2}C\\d{2}"
+# "\\d{12}_R\\d{2}C\\d{2}"
+PREFIX_PTN="GSM\\d+_\\d{10}_R\\d{2}C\\d{2}"
 
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 FILENAME="${PROJECT_NAME}_${TIMESTAMP}"
