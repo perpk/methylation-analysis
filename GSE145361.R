@@ -5,8 +5,8 @@ library(tidyverse)
 rm(list = ls())
 gc(full = TRUE)
 
-# project_name <- "GSE145361"
-# data_folder <- paste0(project_name, "_RAW")
+project_name <- "GSE145361"
+data_folder <- paste0(project_name, "_RAW")
 
 # targets <- read.metharray.sheet(data_folder, pattern = "GPL13534_HumanMethylation450_15017482_v.1.1.csv.gz")
 # gse <- getGEO(project_name, GSEMatrix = TRUE, getGPL = FALSE)
