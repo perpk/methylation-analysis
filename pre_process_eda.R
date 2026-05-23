@@ -33,96 +33,96 @@ pre_process_eda <- function(
   }
 
   ### Read raw data and write to disk
-  source("R/extract_methyl_set.R")
-  extract_methyl_set(context = project_context, targets = targets)
+  # source("R/extract_methyl_set.R")
+  # extract_methyl_set(context = project_context, targets = targets)
 
   # Probe QC - Detection p-value based probe filtering
   # This is performed on the rg_set and is done after normalization since the probes are necessary to provide an unbiased normalization
   # Respectively the probes are removed from methyl_set as well and a new, filtered version gets persisted to the filesystem.
   # The new filename for the filtered methyl_set is "methyl_set_probe_qc.rds"
-  source("R/probe_qc.R")
-  probe_qc(context = project_context)
+  # source("R/probe_qc.R")
+  # probe_qc(context = project_context)
 
   # ### Sample QC - Outlier detection and removal: Here samples are removed based on the median methylated and unmethylated signal intensities. Samples with a median methylated or unmethylated signal intensity below the specified threshold (default: 10.5) are flagged as outliers and removed from the dataset.
   # #### It is crucial to do this step alongside cleaning up the data from problematic samples in order to not have outliers skewing the normalization and thus the downstream analyses. It is also important to do this step before the biological
-  source("R/qc.R")
-  qc(context = project_context, targets = targets, qc_threshold = qc_threshold)
+  # source("R/qc.R")
+  # qc(context = project_context, targets = targets, qc_threshold = qc_threshold)
 
   # ### Perform background correction and dye-bias normalization on rg_set and extract new methyl_set & beta-matrix based on the filtered rg_set from previous step
   # ### Here, preprocessNoob is used and by doing so on the rgset, the methyl_set emerges.
-  source("R/bg_correction_dye_bias_norm.R")
-  bg_correction_dye_bias_norm(context = project_context)
+  # source("R/bg_correction_dye_bias_norm.R")
+  # bg_correction_dye_bias_norm(context = project_context)
 
   # # ### Remove sex-mismatched samples
   # # ### This operation is performed on the methyl_set. Also, the mismatched probes are removed from the rgset as well.
-  source("R/biological_gender_mismatch_analysis.R")
-  biological_gender_mismatch_analysis(context = project_context, recorded_sex_col = var_mapping$gender_var)
+  # source("R/biological_gender_mismatch_analysis.R")
+  # biological_gender_mismatch_analysis(context = project_context, recorded_sex_col = var_mapping$gender_var)
 
-  removed_pdp <- readRDS(file.path(project_context$paths$qc, "removed_probes_detection_p.rds"))
-  rg_set <- readRDS(file.path(project_context$paths$processed, "rg_set_remove_mismatch.rds"))
-  m_set <- readRDS(file.path(project_context$paths$processed, "methyl_set_remove_mismatch.rds"))
+  # removed_pdp <- readRDS(file.path(project_context$paths$qc, "removed_probes_detection_p.rds"))
+  # rg_set <- readRDS(file.path(project_context$paths$processed, "rg_set_remove_mismatch.rds"))
+  # m_set <- readRDS(file.path(project_context$paths$processed, "methyl_set_remove_mismatch.rds"))
 
-  rg_set <- rg_set[!rownames(rg_set) %in% removed_pdp[["probe_id"]], ]
-  m_set <- m_set[!rownames(m_set) %in% rownames(removed_pdp), ]
+  # rg_set <- rg_set[!rownames(rg_set) %in% removed_pdp[["probe_id"]], ]
+  # m_set <- m_set[!rownames(m_set) %in% rownames(removed_pdp), ]
   
-  saveRDS(rg_set, file.path(project_context$paths$processed, "rg_set_remove_probe_qc.rds"))
-  saveRDS(m_set, file.path(project_context$paths$processed, "methyl_set_remove_probe_qc.rds"))
+  # saveRDS(rg_set, file.path(project_context$paths$processed, "rg_set_remove_probe_qc.rds"))
+  # saveRDS(m_set, file.path(project_context$paths$processed, "methyl_set_remove_probe_qc.rds"))
 
   ## Remove cross-reactive probes, sex-chromosome related probes and single nucleotide polymorphisms (SNPs)
   ## Order matters, firstly SNPs must be removed then probes on XY chromosomes and thus keeping only those on autosomal and finally filtering of cross-reactive probes.
   ## All of the following, enumerated operations are performed on the methyl_set.
   ### 1. Single Nucleotide Polymorphisms
-  source("R/remove_snp.R")
-  remove_snp(context = project_context)
+  # source("R/remove_snp.R")
+  # remove_snp(context = project_context)
 
   # ### 2. Sex-Chromosome Probe filtering
-  source("R/remove_sex_chromosome_probes.R")
-  remove_sex_chromosome_probes(context = project_context)
+  # source("R/remove_sex_chromosome_probes.R")
+  # remove_sex_chromosome_probes(context = project_context)
 
   # # #### 3. Cross Reactive Probes
-  source("R/remove_cross_reactive_probes.R")
-  remove_cross_reactive_probes(context = project_context)
+  # source("R/remove_cross_reactive_probes.R")
+  # remove_cross_reactive_probes(context = project_context)
 
   # ### The filtering of the dataset is complete and beta & m-values are now extracted from the methyl_set and written to disk as "beta_matrix.rds" and "m_matrix.rds" respectively.
-  methyl_set_cross_reactive_clean_path <- file.path(project_context$paths$processed, "methyl_set_removed_cross_reactive.rds")
-  methyl_set <- readRDS(methyl_set_cross_reactive_clean_path)
-  beta_matrix <- getBeta(methyl_set)
-  m_matrix <- getM(methyl_set)
-  saveRDS(beta_matrix, file.path(project_context$paths$results, "beta_matrix.rds"))
-  saveRDS(m_matrix, file.path(project_context$paths$results, "m_matrix.rds"))
+  # methyl_set_cross_reactive_clean_path <- file.path(project_context$paths$processed, "methyl_set_removed_cross_reactive.rds")
+  # methyl_set <- readRDS(methyl_set_cross_reactive_clean_path)
+  # beta_matrix <- getBeta(methyl_set)
+  # m_matrix <- getM(methyl_set)
+  # saveRDS(beta_matrix, file.path(project_context$paths$results, "beta_matrix.rds"))
+  # saveRDS(m_matrix, file.path(project_context$paths$results, "m_matrix.rds"))
 
   # ### Filter rg_set according to the remaining methyl_set probes after it has been cleared off from SNPs, X/Y-Chromosome- and cross-reactive probes.
   # source("R/filter_rg_set.R")
   # filter_rg_set(context = project_context)
 
   # Beta-Mixture Quantile (BMIQ) Normalization
-  source("R/apply_BMIQ.R")
-  apply_BMIQ(context = project_context, plot = FALSE)
+  # source("R/apply_BMIQ.R")
+  # apply_BMIQ(context = project_context, plot = FALSE)
 
   ## Principal Component Analysis
-  source("R/principal_component_analysis.R")
-  col_map <- list()
-  col_map[["Sample_Group"]] <- "Sample_Group"
-  col_map[["Gender"]] <- var_mapping$gender_var
-  col_map[["Age"]] <- var_mapping$age_var
-  keys <- c("Sample_Group", "Gender", "Age")
-  principal_component_analysis(project_context, col_maps = col_map, keys = keys, npc = 5)
+  # source("R/principal_component_analysis.R")
+  # col_map <- list()
+  # col_map[["Sample_Group"]] <- "Sample_Group"
+  # col_map[["Gender"]] <- var_mapping$gender_var
+  # col_map[["Age"]] <- var_mapping$age_var
+  # keys <- c("Sample_Group", "Gender", "Age")
+  # principal_component_analysis(project_context, col_maps = col_map, keys = keys, npc = 5)
   
   # #### Plot PCA
-  source("R/plot_PCA.R")
-  pca_vars <- c("Sample_Group" = "By Diagnosis", "Gender" = "By Biological Gender", "Age" = "By Age")
-  convert_f <- function(df) {
-    (transform(df, Age = as.numeric(Age)))
-  }
-  plot_PCA(
-    context = project_context,
-    pca_results_rds_filename = "pca_df.rds",
-    pca_vars = pca_vars,
-    convert_fun = convert_f,
-    continuously_scaled = c("Age"),
-    "pca_plot_",
-    pairplot_color_by = "Age"
-  )
+  # source("R/plot_PCA.R")
+  # pca_vars <- c("Sample_Group" = "By Diagnosis", "Gender" = "By Biological Gender", "Age" = "By Age")
+  # convert_f <- function(df) {
+  #   (transform(df, Age = as.numeric(Age)))
+  # }
+  # plot_PCA(
+  #   context = project_context,
+  #   pca_results_rds_filename = "pca_df.rds",
+  #   pca_vars = pca_vars,
+  #   convert_fun = convert_f,
+  #   continuously_scaled = c("Age"),
+  #   "pca_plot_",
+  #   pairplot_color_by = "Age"
+  # )
 
   ### Outlier detection from PCA
   source("R/outlier_analysis.R")
