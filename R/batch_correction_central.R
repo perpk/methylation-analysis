@@ -25,7 +25,8 @@ for (project_name in project_list) {
     print(paste("Loading target DataFrame from:", paste0(rootDir, targets_loc)))
     target_df <- readRDS(paste0(rootDir, targets_loc))
     print(paste("Target DataFrame loaded with dimensions:", dim(target_df)[1], "rows and", dim(target_df)[2], "columns"))
-
+    m_values <- readRDS(paste0(rootDir, m_values_loc))
+    print(paste("M-values loaded with dimensions:", dim(m_values)[1], "rows and", dim(m_values)[2], "columns"))
     print(paste("Running ComBat batch correction for project:", project_name))
     combat_m_values <- run_combat(
         m_values = m_values,
