@@ -14,8 +14,10 @@ library(dplyr)
 library(stringr)
 
 targets_cells %>% rownames() %>% str_detect("\\d{12}_R\\d{2}C\\d{2}") %>% sum() - dim(targets_cells)[1]
+dim(targets_cells)
 
 targets %>% pull(Sample_Name) %>% str_detect("\\d{4}_\\d{12}_R\\d{2}C\\d{2}") %>% sum() - dim(targets)[1]
+dim(targets)
 
 rownames(targets) <- targets %>% pull(Sample_Name) %>% str_extract("\\d{12}_R\\d{2}C\\d{2}")
 head(rownames(targets))
@@ -71,10 +73,20 @@ str(m_values_samples)
 
 rownames(enriched_targets) <-  enriched_targets$Sentrix_ID
 
-harmonized_targets <- enriched_targets[rownames(enriched_targets) %in% m_values_samples, ]
+common <- intersect(rownames(enriched_targets), m_values_samples)
 
+harmonized_targets <- enriched_targets[rownames(enriched_targets) %in% common,  ]
+dim(harmonized_targets)
+
+harmonized_m_values <- m_values[, colnames(m_values) %in% common]
+dim(harmonized_m_values)
 
 saveRDS(
     harmonized_targets, 
     "/Volumes/Elements/vastai/ppmi/ppmi_20260513_110353/processed/PPMI_harmonized_targets_local.rds"
+)
+
+saveRDS(
+    harmonized_m_values, 
+    "/Volumes/Elements/vastai/ppmi/ppmi_20260513_110353/processed/PPMI_harmonized_m_values_local.rds"
 )
