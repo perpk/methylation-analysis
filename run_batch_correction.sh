@@ -4,7 +4,7 @@ PROJECTS="GSE145361,GSE111629,PPMI"
 ROOT_DIR="/root/workspace/"
 
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-FILENAME="${PROJECT_NAME}_${TIMESTAMP}"
+FILENAME="BATCH_CORRECTION_${TIMESTAMP}"
 PID_FILE="${FILENAME}.pid"
 nohup Rscript ./R/batch_correction_central.R "$PROJECTS" "$ROOT_DIR" "$@" > "${FILENAME}.log" 2>&1 &
 
