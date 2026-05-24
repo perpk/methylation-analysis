@@ -29,7 +29,7 @@ for (project_name in project_list) {
     print(paste("Running ComBat batch correction for project:", project_name))
     combat_m_values <- run_combat(
         m_values = m_values,
-        meta_df = enriched_target_df,
+        meta_df = target_df,
         batch_colname = "ScanDate",
         mod_colnames = "Sample_Group")
     print(paste("ComBat batch correction completed for project:", project_name))
