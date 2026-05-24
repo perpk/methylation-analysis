@@ -1,20 +1,12 @@
 #!/bin/bash
 
-PROJECT_NAME="GSE145361"
-ROOT_DIR="/root/workspace/methyl-pipe-out/GSE145361_20260522_110341/"
-TARGET_DF_LOC="processed/targets_remove_mismatch.rds"
-M_VALUES_LOC="results/m_values_bmiq.rds"
-IDAT_FOLDER_LOC="/root/methylation-analysis/GSE145361_RAW"
-EXTRACT_SENTRIX_ID_FROM_BASENAME="TRUE"
-HARMONIZE_TARGETS="TRUE"
-# "GSM\\d+_\\d{10}_R\\d{2}C\\d{2}"
-# "\\d{12}_R\\d{2}C\\d{2}"
-PREFIX_PTN="\\d{12}_R\\d{2}C\\d{2}"
+PROJECTS="GSE145361,GSE111629,PPMI"
+ROOT_DIR="/root/workspace/"
 
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 FILENAME="${PROJECT_NAME}_${TIMESTAMP}"
 PID_FILE="${FILENAME}.pid"
-nohup Rscript ./R/batch_correction_central.R "$PROJECT_NAME" "$ROOT_DIR" "$TARGET_DF_LOC" "$M_VALUES_LOC" "$IDAT_FOLDER_LOC" "$EXTRACT_SENTRIX_ID_FROM_BASENAME" "$HARMONIZE_TARGETS" "$PREFIX_PTN" "$@" > "${FILENAME}.log" 2>&1 &
+nohup Rscript ./R/batch_correction_central.R "$PROJECTS" "$ROOT_DIR" "$@" > "${FILENAME}.log" 2>&1 &
 
 R_PID=$!
 
