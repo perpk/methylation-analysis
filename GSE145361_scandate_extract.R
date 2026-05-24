@@ -49,9 +49,14 @@ source("R/extract_scandate_from_idat.R")
 scan_dates <- extract_scandate_from_idat(
     file_path=idat_folder_loc
 )
+
+scan_dates$ScanDate %>% is.na() %>% sum()
+scan_dates$SentrixID %>% is.na() %>% sum()
+
 scan_dates <- scan_dates[!duplicated(scan_dates[c("SentrixID", "ScanDate")]), ]
 dim(scan_dates)
 dim(merged)
+head(scan_dates)
 enriched_targets <- merge(
     x = merged,
     y = scan_dates,
@@ -103,3 +108,4 @@ saveRDS(
     harmonized_m_values,
     "/Volumes/Elements/vastai/gse145361/GSE145361_20260522_110341/processed/GSE145361_harmonized_m_values.rds"
 )
+
