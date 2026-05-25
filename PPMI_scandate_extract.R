@@ -1,3 +1,6 @@
+rm(list = ls())
+gc(full = TRUE)
+
 targets <- readRDS("/Volumes/Elements/vastai/ppmi/ppmi_20260513_110353/processed/targets_remove_mismatch.rds")
 targets_cells <- readRDS("/Volumes/Elements/vastai/ppmi/ppmi_20260415_170143/targets_s_mismatch_cells.rds")
 
@@ -15,6 +18,7 @@ library(stringr)
 
 targets_cells %>% rownames() %>% str_detect("\\d{12}_R\\d{2}C\\d{2}") %>% sum() - dim(targets_cells)[1]
 dim(targets_cells)
+rownames(targets_cells) %>% head()
 
 targets %>% pull(Sample_Name) %>% str_detect("\\d{4}_\\d{12}_R\\d{2}C\\d{2}") %>% sum() - dim(targets)[1]
 dim(targets)
@@ -90,3 +94,9 @@ saveRDS(
     harmonized_m_values, 
     "/Volumes/Elements/vastai/ppmi/ppmi_20260513_110353/processed/PPMI_harmonized_m_values_local.rds"
 )
+
+### ____________________
+
+library(illuminaio)
+
+idat <- readIDAT("/Volumes/Elements/methylation-analysis/ppmi/Project120_IDATS_n524final_toLONI_030718/200973410143_R06C01_Red.idat")
