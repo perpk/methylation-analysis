@@ -1,9 +1,13 @@
+rm(list = ls())
+gc(full = TRUE)
+
 library(arrow)
 library(dplyr)
 
-rootDir <- "/Volumes/Elements/vastai"
-gse111629_data <- read_parquet(file.path(rootDir, "gse111629/GSE111629_20260515_083253/results", "GSE111629_data.parquet"))
-ppmi_data <- read_parquet(file.path(rootDir, "ppmi/PPMI_20260513_110353/results", "PPMI_data.parquet"))
+rootDir <- "/Volumes/Elements/vastai/combat"
+gse111629_data <- read_parquet(file.path(rootDir, "GSE111629_data.parquet"))
+ppmi_data <- read_parquet(file.path(rootDir, "PPMI_data.parquet"))
+gse145361_data <- read_parquet(file.path(rootDir, "GSE145361_data.parquet"))
 
 dim(ppmi_data[, startsWith(colnames(ppmi_data), "cg")])
 
@@ -40,18 +44,40 @@ common_probes <- intersect(ppmi_probes, gse111629_probes)
 ppmi_data_common <- ppmi_data_n[, c(common_probes, "Sample_Group", "SEX", "Age_Group", "Sample_Name", "Cohort")]
 gse111629_data_common <- gse111629_data_n[, c(common_probes, "Sample_Group", "SEX", "Age_Group", "Sample_Name", "Cohort")]
 
+gse145361_data %>% dim()
+
+gse145361_data %>% colnames() %>% head(50)
+gse145361_data$hyb_protocol %>% table()
+
+gse145361_data_n <- gse145361_data[, startsWith(colnames(gse145361_data), "cg")]
+gse145361_data_n$Sample_Group <- gse145361_data$Sample_Group
+gse145361_data_n$SEX <- gse145361_data$`gender:ch1`
+gse145361_data_n$Age_Group <- NA
+gse145361_data_n$Sample_Name <- gse145361_data$Sample_Name
+gse145361_data_n$Cohort <- "GSE145361"
+
 dim(ppmi_data_common)
 dim(gse111629_data_common)
 
-merged_data <- bind_rows(ppmi_data_common, gse111629_data_common) %>%
+gse145361_reduced <- gse145361_data_n[, colnames(gse145361_data_n) %in% colnames(gse111629_data_common)]
+dim(gse145361_reduced)
+
+gse145361_data_common <- gse145361_data_n[, colnames(gse145361_data_n) %in% colnames(gse111629_data_common)]
+
+dim(gse145361_data_common)
+
+merged_data <- bind_rows(ppmi_data_common, gse111629_data_common, gse145361_data_common) %>%
   as.data.frame()
 
 dim(merged_data)
 
+rm(list = setdiff(ls(), c("merged_data")))
+gc(full = TRUE)
+
 m_values <- merged_data[, startsWith(colnames(merged_data), "cg")]
 pca <- prcomp(m_values, center = TRUE, scale. = FALSE)
 
-npc <- 10
+npc <- 2
 pca_df <- data.frame(matrix(NA, nrow = nrow(m_values), ncol = npc))
 dim(pca_df)
 rownames(pca_df) <- rownames(m_values)

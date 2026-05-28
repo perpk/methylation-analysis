@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PROJECTS="GSE145361,GSE111629,PPMI"
+PROJECTS="PPMI"
 ROOT_DIR="/root/workspace/"
 
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")

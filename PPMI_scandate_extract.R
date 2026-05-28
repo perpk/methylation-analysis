@@ -71,6 +71,7 @@ enriched_targets %>% pull(ScanDate) %>% is.na() %>% sum()
 
 m_values <- readRDS("/Volumes/Elements/vastai/ppmi/ppmi_20260513_110353/results/m_values_bmiq.rds")
 dim(m_values)
+dim(enriched_targets)
 
 m_values_samples <- colnames(m_values)
 str(m_values_samples)
@@ -85,6 +86,10 @@ dim(harmonized_targets)
 harmonized_m_values <- m_values[, colnames(m_values) %in% common]
 dim(harmonized_m_values)
 
+harmonized_targets <- harmonized_targets %>% mutate(Sample_Group = case_when(is.na(Sample_Group) ~ "Control", TRUE ~ Sample_Group))
+harmonized_targets %>% pull(Age_Group) %>% table()
+harmonized_targets %>% pull(Age) %>% head()
+
 saveRDS(
     harmonized_targets, 
     "/Volumes/Elements/vastai/ppmi/ppmi_20260513_110353/processed/PPMI_harmonized_targets_local.rds"
@@ -95,8 +100,18 @@ saveRDS(
     "/Volumes/Elements/vastai/ppmi/ppmi_20260513_110353/processed/PPMI_harmonized_m_values_local.rds"
 )
 
+harmonized_targets %>% head()
+
 ### ____________________
 
 library(illuminaio)
 
 idat <- readIDAT("/Volumes/Elements/methylation-analysis/ppmi/Project120_IDATS_n524final_toLONI_030718/200973410143_R06C01_Red.idat")
+run_metadata <- idat$RunInfo
+scan_row <- which(run_metadata[, "BlockType"] == "Scan")[1]
+scan_date_string <- run_metadata[scan_row, "RunTime"]
+is.vector(scan_date_string)
+scan_date_string[1]
+scan_date_string
+dmy_hms(scan_date_string) %>% as.character() %>% str_extract("^(\\d{4}-\\d{2})")
+as.POSIXct(scan_date_string, format="%m/%d/%Y") %>% as.character() %>% str_extract("^(\\d{4}-\\d{2})")

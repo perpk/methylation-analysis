@@ -12,3 +12,5 @@ conda_env
 *.Rproj
 .vscode
 logs
+*.log
+*.pid
