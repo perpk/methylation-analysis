@@ -1,8 +1,13 @@
+
 # Do this if you suffer from low disk space
 #   DOCKER_TMPDIR=/mnt/data/docker-tmp
 
 # 1. Base Image: NVIDIA's official CUDA toolkit (Development version includes compilers)
 FROM nvidia/cuda:12.4.1-devel-ubuntu22.04
+
+ARG JUPYTER_HASH
+ENV JUPYTER_PASSWORD_HASH=$JUPYTER_HASH
+
 # 2. Set environment variables to prevent interactive prompts
 ENV DEBIAN_FRONTEND=noninteractive
 ENV CONDA_DIR=/opt/conda
@@ -39,7 +44,8 @@ RUN conda tos accept --override-channels --channel https://repo.anaconda.com/pkg
     conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r && \
     conda create -y -n rapids-env -c rapidsai -c conda-forge -c nvidia \
     rapids=26.02 python=3.13 cuda-version=12.4 jupyterlab && \
-    conda clean -afy
+    conda clean -afy && \
+    /opt/conda/envs/rapids-env/bin/python -m ipykernel install --system --name rapids-env --display-name "Python 3.13 (RAPIDS)"
 
 # 9. Ensure the conda environment activates automatically when you SSH/exec into Zsh
 RUN echo "conda activate rapids-env" >> ~/.zshrc
@@ -48,4 +54,4 @@ RUN echo "conda activate rapids-env" >> ~/.zshrc
 EXPOSE 8080
 
 # 11. Launch Jupyter Lab within the RAPIDS environment when the container starts
-CMD ["conda", "run", "--no-capture-output", "-n", "rapids-env", "jupyter", "lab", "--ip=0.0.0.0", "--port=8080", "--no-browser", "--allow-root"]
+CMD ["sh", "-c", "conda run --no-capture-output -n rapids-env jupyter lab --ip=0.0.0.0 --port=8080 --no-browser --allow-root --ServerApp.password=\"$JUPYTER_PASSWORD_HASH\""]
