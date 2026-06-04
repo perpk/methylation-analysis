@@ -44,8 +44,9 @@ RUN conda tos accept --override-channels --channel https://repo.anaconda.com/pkg
     conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r && \
     conda create -y -n rapids-env -c rapidsai -c conda-forge -c nvidia \
     rapids=26.02 python=3.13 cuda-version=12.4 jupyterlab && \
-    conda clean -afy && \
-    /opt/conda/envs/rapids-env/bin/python -m ipykernel install --system --name rapids-env --display-name "Python 3.13 (RAPIDS)"
+    conda clean -afy
+
+RUN /opt/conda/envs/rapids-env/bin/python -m ipykernel install --system --name rapids-env --display-name "Python 3.13 (RAPIDS)"
 
 # 9. Ensure the conda environment activates automatically when you SSH/exec into Zsh
 RUN echo "conda activate rapids-env" >> ~/.zshrc
