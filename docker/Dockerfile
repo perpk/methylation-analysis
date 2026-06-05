@@ -51,6 +51,10 @@ RUN /opt/conda/envs/rapids-env/bin/python -m ipykernel install --sys-prefix --na
 # 9. Ensure the conda environment activates automatically when you SSH/exec into Zsh
 RUN echo "conda activate rapids-env" >> ~/.zshrc
 
+RUN apt install -y htop lsof && conda install -c conda-forge nvitop
+
+RUN git clone https://github.com/perpk/methylation-analysis.git
+
 # 10. Expose the Jupyter port
 EXPOSE 8080
 
