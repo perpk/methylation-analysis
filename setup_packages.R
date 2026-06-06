@@ -8,8 +8,17 @@ cat("R version:", R.version.string, "\n")
 
 # Install renv
 cat("\nInstalling renv...\n")
-install.packages("renv", quiet = FALSE)
+# Print R version
+cat("R version:", R.version.string, "\n")
 
+# Install renv
+cat("\nInstalling renv...\n")
+install.packages("renv", quiet = FALSE)
+install.packages("patchwork")
+
+# Initialize renv (fresh)
+cat("\nInitializing fresh renv...\n")
+renv::init(bare = TRUE, settings = list(snapshot.type = "all"))
 # Initialize renv (fresh)
 cat("\nInitializing fresh renv...\n")
 renv::init(bare = TRUE, settings = list(snapshot.type = "all"))
@@ -24,6 +33,7 @@ cat("\nInstalling pak...\n")
 install.packages("pak", quiet = FALSE)
 
 # Install BiocManager
+cat("\nInstalling BiocManager...\n")
 cat("\nInstalling BiocManager...\n")
 install.packages("BiocManager", quiet = FALSE)
 
@@ -44,8 +54,20 @@ packages <- c(
     "reshape2",
     "ggpubr",
     "GenomicRanges",
-    "BSgenome.Hsapiens.UCSC.hg19"
+    "BSgenome.Hsapiens.UCSC.hg19",
+    "FlowSorted.Blood.450k",
+    "FlowSorted.Blood.EPIC",
+    "RPMM",
+    "sva"
 )
+
+# Install pak for better dependency resolution
+install.packages("pak", quiet = FALSE)
+
+install.packages("rlist")
+install.packages("arrow")
+
+pak::pkg_install("markgene/maxprobes")
 
 # Install packages
 for (pkg in packages) {
@@ -57,6 +79,15 @@ for (pkg in packages) {
         BiocManager::install(pkg, update = FALSE, ask = FALSE)
         cat("✓ Successfully installed:", pkg, "\n")
     }, error = function(e) {
+        # Try with pak if BiocManager fails
+        cat("Retrying with pak...\n")
+        tryCatch({
+            pak::pkg_install(pkg)
+            cat("✓ Successfully installed with pak:", pkg, "\n")
+        }, error = function(e2) {
+            cat("✗ Failed to install:", pkg, "\n")
+            cat("Error message:", e2$message, "\n")
+        })
         # Try with pak if BiocManager fails
         cat("Retrying with pak...\n")
         tryCatch({
@@ -81,7 +112,7 @@ installed_pkgs <- installed.packages()
 cat("Total packages installed:", nrow(installed_pkgs), "\n")
 
 # Check critical packages
-critical_packages <- c("minfi", "GEOquery")
+critical_packages <- c("minfi", "ChAMP", "GEOquery")
 for (pkg in critical_packages) {
     if (pkg %in% rownames(installed_pkgs)) {
         cat("✓", pkg, "- version:", installed_pkgs[pkg, "Version"], "\n")
