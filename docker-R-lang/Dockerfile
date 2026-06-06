@@ -43,7 +43,7 @@ WORKDIR /workspace
 
 # 5. Copy your custom R install script into the container
 # Make sure "install_script.R" is in the same folder as this Dockerfile when building
-COPY ./install_script.R /workspace/install_script.R
+COPY docker-R-lang/install_script.R /workspace/install_script.R
 
 # 6. Execute the R script during the build phase
 # This bakes all your downloaded libraries directly into the image layers
