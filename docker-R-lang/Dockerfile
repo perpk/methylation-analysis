@@ -14,6 +14,7 @@ ENV DISABLE_AUTH=true
 # from source, R requires specific underlying C++ libraries. Missing these is the #1 
 # cause of R package installation failures.
 RUN apt-get update && apt-get install -y \
+    openssh-server \
     libcurl4-openssl-dev \
     libxml2-dev \
     libssl-dev \
@@ -51,7 +52,23 @@ RUN Rscript /workspace/install_script.R
 
 RUN git clone https://github.com/perpk/methylation-analysis.git
 
+# Configure SSH to disable password logins
+RUN mkdir /var/run/sshd && \
+    echo "PasswordAuthentication no" >> /etc/ssh/sshd_config
+
+# Tell Rocker's init system to handle the Vast.ai SSH key and start the daemon
+RUN mkdir -p /etc/services.d/sshd && \
+    printf '#!/bin/bash\n\
+mkdir -p /root/.ssh\n\
+if [ -n "$PUBLIC_KEY" ]; then\n\
+  echo "$PUBLIC_KEY" > /root/.ssh/authorized_keys\n\
+fi\n\
+chmod 700 /root/.ssh\n\
+chmod 600 /root/.ssh/authorized_keys\n\
+exec /usr/sbin/sshd -D\n' > /etc/services.d/sshd/run && \
+    chmod +x /etc/services.d/sshd/run
+
 # 7. Expose the web port
-EXPOSE 8080
+EXPOSE 8080 22
 
 # (Note: No CMD is needed. The Rocker base image automatically starts the RStudio Server process)
