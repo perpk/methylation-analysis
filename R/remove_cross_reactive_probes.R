@@ -1,6 +1,10 @@
 library(maxprobes)
-remove_cross_reactive_probes <- function(context = NULL, methyl_set_filename = "methyl_set_filtered_chrom.rds") {
-  prog <- .create_progress_manager(4)
+remove_cross_reactive_probes <- function(
+  context = NULL, 
+  methyl_set = NULL, 
+  methyl_set_filename = NULL
+) {
+  prog <- .create_progress_manager(3)
 
   print("remove cross reactive probes")
 
@@ -23,8 +27,9 @@ remove_cross_reactive_probes <- function(context = NULL, methyl_set_filename = "
   # cross_reactive <- cross_reactive_probes$TargetID
 
   prog$update(2, "Reading methyl set raw data")
-  methyl_set_path <- file.path(context$paths$processed, methyl_set_filename)
-  methyl_set <- readRDS(methyl_set_path)
+  if (is.null(methyl_set)) {
+    methyl_set <- readRDS(methyl_set_filename)
+  }
 
   print(paste("Original probes in dataset:", nrow(getBeta(methyl_set))))
 
@@ -35,12 +40,14 @@ remove_cross_reactive_probes <- function(context = NULL, methyl_set_filename = "
 
   print(paste("Probes after removing cross-reactive probes:", nrow(methyl_set)))
 
-  methyl_set_cross_reactive_clean_path <- file.path(context$paths$processed, "methyl_set_removed_cross_reactive.rds")
-  prog$update(4, paste("Saving cleaned-up methyl set under", methyl_set_cross_reactive_clean_path))
-  saveRDS(methyl_set, methyl_set_cross_reactive_clean_path)
-
   prog$complete()
 
-  rm(list = ls())
-  gc(full = T)
+  methyl_set_cross_reactive_clean_path <- file.path(context$paths$processed, "methyl_set_removed_cross_reactive.rds")
+  methyl_set_cross_reactive_clean_container <- new("ResultsContainer", filename = methyl_set_cross_reactive_clean_path, object = methyl_set, future = NULL)   
+
+  return(
+    list(
+      methyl_set_cross_reactive_clean_container = methyl_set_cross_reactive_clean_container
+    )
+  )
 }

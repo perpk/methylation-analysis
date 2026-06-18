@@ -29,7 +29,7 @@ packages <- c(
 # 2. Base CRAN Installations
 # Wrapped in c() and provided a default mirror for non-interactive execution
 install.packages(
-    c("progress", "BiocManager", "patchwork", "devtools", "Rserve", "pak", "rlist", "arrow", "renv"),
+    c("progress", "BiocManager", "patchwork", "devtools", "Rserve", "pak", "rlist", "arrow", "renv", "mirai"),
     repos = "http://cran.us.r-project.org",
     quiet = FALSE
 )

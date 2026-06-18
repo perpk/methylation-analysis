@@ -1,5 +1,9 @@
-remove_snp <- function(context = NULL, methyl_set_file = "methyl_set_remove_probe_qc.rds") {
-  prog <- .create_progress_manager(5)
+remove_snp <- function(
+  context = NULL, 
+  methyl_set = NULL, 
+  methyl_set_file = NULL) {
+
+  prog <- .create_progress_manager(4)
   print("remove single nucleotide polymorphisms")
   ann <- NULL
   if (context$platform == "450k") {
@@ -11,9 +15,10 @@ remove_snp <- function(context = NULL, methyl_set_file = "methyl_set_remove_prob
     ann <- getAnnotation(IlluminaHumanMethylationEPICanno.ilm10b4.hg19)
   }
 
-  methyl_set_path <- file.path(context$paths$processed, methyl_set_file)
-  prog$update(2, paste("Reading methyl set from", methyl_set_path))
-  methyl_set <- readRDS(methyl_set_path)
+  prog$update(2, "Reading methyl set data")
+  if (is.null(methyl_set)) {
+    methyl_set <- readRDS(methyl_set_file)
+  }
 
   print(paste("Original probes in dataset:", nrow(getBeta(methyl_set))))
 
@@ -25,9 +30,14 @@ remove_snp <- function(context = NULL, methyl_set_file = "methyl_set_remove_prob
 
   print(paste("Probes after removing single nucleotide polymorphisms:", nrow(methyl_set_removed_snp)))
 
-  methyl_set_removed_snps_path <- file.path(context$paths$processed, "methyl_set_removed_snps.rds")
-  prog$update(5, paste("Saving SNP cleaned-up methyl set under", methyl_set_removed_snps_path))
-  saveRDS(methyl_set_removed_snp, methyl_set_removed_snps_path)
-
   prog$complete()
+
+  methyl_set_removed_snps_path <- file.path(context$paths$processed, "methyl_set_removed_snps.rds")
+  methyl_set_removed_snps_container <- new("ResultsContainer", filename = methyl_set_removed_snps_path, object = methyl_set_removed_snp, future = NULL) 
+
+  return(
+    list(
+      methyl_set_removed_snps_container = methyl_set_removed_snps_container
+    )
+  )
 }

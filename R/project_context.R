@@ -18,7 +18,11 @@
   (project_context)
 }
 
-create_methylation_project <- function(project_name, output_dir, keep_intermediates = T, platform = NULL, cohorts = NULL) {
+results_mode <- function() {
+  list(disk_only = 0, disk_and_memory = 1, memory_only = 2)
+}
+
+create_methylation_project <- function(project_name, output_dir, platform = NULL, cohorts = NULL, mode = 1) {
   if (is.null(platform)) {
     stop("Platform must be specified when creating a project (Either 450k or EPIC).")
   }
@@ -53,6 +57,7 @@ create_methylation_project <- function(project_name, output_dir, keep_intermedia
     project_id = project_id,
     project_name = project_name,
     base_dir = base_dir,
+    mode = mode,
     paths = as.list(paths),
     platform = platform,
     design = list(

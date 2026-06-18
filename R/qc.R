@@ -4,23 +4,27 @@ library(wateRmelon)
 
 qc <- function(context = NULL,
                targets = NULL,
-               rg_set_filename = "rg_set.rds",
-               methyl_set_filename = "methyl_set.rds",
+               rg_set = NULL,
+               methyl_set = NULL,
+               rg_set_filename = NULL,
+               methyl_set_filename = NULL,
                qc_threshold = 10.5,
                bisulfite_sd_multiplier = 2,
                bisulfite_absolute_min = NULL) {
   prog <- .create_progress_manager(8) # Increased to 8 steps
 
-  methyl_set_filepath <- file.path(context$paths$raw_data, methyl_set_filename)
-  prog$update(1, paste("Reading methyl set from ", methyl_set_filepath))
-  methyl_set <- readRDS(methyl_set_filepath)
-  rg_set_filepath <- file.path(context$paths$raw_data, rg_set_filename)
-  rg_set <- readRDS(rg_set_filepath)
+  prog$update(1, "Reading methyl set")
+  
+  if (is.null(methyl_set)) {
+    methyl_set <- readRDS(methyl_set_filename)
+  }
+  if (is.null(rg_set)) {
+    rg_set <- readRDS(rg_set_filename)
+  }
 
   prog$update(2, "Performing QC")
 
   qc <- getQC(methyl_set)
-  saveRDS(qc, file.path(context$paths$qc, "qc_metrics.rds"))
 
   prog$update(3, "Creating QC plot")
   qc_plot_path <- file.path(context$paths$plots, "qc_intensity_plot.png")
@@ -83,23 +87,13 @@ qc <- function(context = NULL,
     cat("No samples failed QC\n")
   }
 
-  rm(list = c("targets", "methyl_set"))
-  gc(full = T)
-
   prog$update(7, "Saving results")
 
-  saveRDS(
-    rg_set_clean,
-    file.path(context$paths$qc, "rg_set_clean.rds")
-  )
-  saveRDS(
-    targets_clean,
-    file.path(context$paths$qc, "targets_clean.rds")
-  )
-  saveRDS(
-    methyl_set_clean,
-    file.path(context$paths$qc, "methyl_set_clean.rds")
-  )
+  qc_results <- new("ResultsContainer", filename = "qc_metrics.rds", object = qc, future = NULL)
+  rg_set_results <- new("ResultsContainer", filename = "rg_set_clean.rds", object = rg_set_clean, future = NULL)
+  targets_results <- new("ResultsContainer", filename = "targets_clean.rds", object = targets_clean, future = NULL)
+  methyl_set_results <- new("ResultsContainer", filename = "methyl_set_clean.rds", object = methyl_set_clean, future = NULL)
+  bisulfite_thresholds_results <- new("ResultsContainer", filename = "bisulfite_thresholds.rds", object = bisulfite_thresholds, future = NULL)
 
   # Save bisulfite thresholds for documentation
   saveRDS(
@@ -119,10 +113,6 @@ qc <- function(context = NULL,
     file.path(context$paths$qc, "qc_summary.rds")
   )
 
-
-  rm(list = setdiff(ls(), c("prog", "qc", "qc_log", "qc_summary", "rg_set_filepath", "qc_plot_path", "targets_clean", "rg_set_clean", "context")))
-  gc(full = T)
-
   prog$update(8, "Creating Density Plot...")
   density_plot_path <- file.path(context$paths$plots, "density_plot.png")
 
@@ -131,6 +121,14 @@ qc <- function(context = NULL,
   dev.off()
 
   prog$complete()
+
+  return (list(
+    qc_results = qc_results,
+    rg_set_results = rg_set_results,
+    targets_results = targets_results,
+    methyl_set_results = methyl_set_results,
+    bisulfite_thresholds_results = bisulfite_thresholds_results
+  ))
 }
 
 .check_bisulfite_conversion <- function(rg_set, sd_multiplier, absolute_min, context, prog) {

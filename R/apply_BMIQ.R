@@ -2,7 +2,8 @@ library(IlluminaHumanMethylation450kanno.ilmn12.hg19)
 library(IlluminaHumanMethylationEPICanno.ilm10b4.hg19)
 
 apply_BMIQ <- function(context = NULL,
-                       beta_matrix_file = "beta_matrix.rds",
+                       beta_matrix = NULL,
+                       beta_matrix_file = NULL,
                        plot = FALSE) {
   platform <- NULL
   if (context$platform == "450k") {
@@ -18,9 +19,10 @@ apply_BMIQ <- function(context = NULL,
   print("Beta-Mixture quantile normalization (BMIQ)")
 
   beta_matrix_filepath <- file.path(context$paths$results, beta_matrix_file)
-
-  prog$update(1, paste("Reading beta-matrix file from", beta_matrix_filepath))
-  beta_matrix <- readRDS(beta_matrix_filepath)
+  if (is.null(beta_matrix)) {
+    prog$update(1, paste("Reading beta-matrix file from", beta_matrix_filepath))
+    beta_matrix <- readRDS(beta_matrix_filepath)
+  }
 
   prog$update(2, paste("Creating probe design vector for", context$platform))
   design.v <- .get_probe_design_vector(rownames(beta_matrix), platform)
@@ -72,20 +74,32 @@ apply_BMIQ <- function(context = NULL,
 
   prog$update(2, "Saving normalized beta and m-values")
   beta_bmiq_filepath <- file.path(context$paths$results, "beta_matrix_bmiq.rds")
-  saveRDS(beta_bmiq, beta_bmiq_filepath)
 
   m_bmiq_filepath <- file.path(context$paths$results, "m_values_bmiq.rds")
-  saveRDS(m_bmiq, m_bmiq_filepath)
   if (plot) {
     print("Plot beta distribution before and after normalization")
     .plot_BMIQ_comparison(beta_matrix, beta_bmiq, platform)
   }
   prog$complete()
-  rm(list = ls())
-  gc(full = TRUE)
+
+  m_bmiq_container <- new("ResultsContainer", filename = m_bmiq_filepath, object = m_bmiq, future = NULL)
+  beta_bmiq_container <- new("ResultsContainer", filename = beta_bmiq_filepath, object = beta_bmiq, future = NULL)
+
+  return(
+    list(
+      beta_bmiq_container = beta_bmiq_container,
+      m_bmiq_container = m_bmiq_container
+    )
+  )
 }
 
-plot_BMIQ <- function(context = NULL) {
+plot_BMIQ <- function(
+  context = NULL,
+  beta_before = NULL,
+  beta_after = NULL,
+  beta_before_filename = NULL,
+  beta_after_filename = NULL
+) {
   platform <- NULL
   if (context$platform == "450k") {
     platform <- IlluminaHumanMethylation450kanno.ilmn12.hg19

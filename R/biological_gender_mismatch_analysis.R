@@ -1,18 +1,29 @@
 biological_gender_mismatch_analysis <- function(context = NULL,
+                                                methyl_set = NULL,
+                                                rg_set = NULL,
+                                                targets = NULL,
                                                 methyl_set_filename = "methyl_set_norm.rds",
                                                 rg_set_filename = "rg_set_norm.rds",
                                                 targets_filename = "targets_clean.rds",
                                                 targets_sample_col = "Sample_Name",
                                                 recorded_sex_col = NULL) {
-  prog <- .create_progress_manager(5)
+  prog <- .create_progress_manager(7)
 
   print("biological gender mismatch analysis - redo")
 
-  methyl_set_file <- file.path(context$paths$processed, methyl_set_filename)
-  rg_set_file <- file.path(context$paths$processed, rg_set_filename)
-  prog$update(1, paste("Reading Methylset from filesystem", methyl_set_file))
-  methyl_set <- readRDS(methyl_set_file)
-  rg_set <- readRDS(rg_set_file)
+  prog$update(1, "Reading input data from filesystem")
+  if (is.null(methyl_set)) {
+    methyl_set_filepath <- file.path(context$paths$processed, methyl_set_filename)
+    methyl_set <- readRDS(methyl_set_filepath)
+  }
+  if (is.null(rg_set)) {
+    rg_set_filepath <- file.path(context$paths$processed, rg_set_filename)
+    rg_set <- readRDS(rg_set_filepath)
+  }
+  if (is.null(targets)) {
+    targets_filepath <- file.path(context$paths$qc, targets_filename)
+    targets <- readRDS(targets_filepath)
+  }
 
   prog$update(2, "Map Methylation Data to the Genome")
   methyl_set_genomic <- mapToGenome(methyl_set)
@@ -74,7 +85,6 @@ biological_gender_mismatch_analysis <- function(context = NULL,
 
   s <- colnames(methyl_set)
   indices <- which(s %in% rownames(mismatches))
-  # TODO in case there aren't any samples to remove, just copy the files
   if (length(indices) > 0) {
     methyl_set_remove_mismatch <- methyl_set[, -indices]
     rg_set_remove_mismatch <- rg_set[, -indices]
@@ -93,9 +103,17 @@ biological_gender_mismatch_analysis <- function(context = NULL,
     targets_remove_mismatch <- targets
   }
 
-  saveRDS(methyl_set_remove_mismatch, file.path(context$paths$processed, "methyl_set_remove_mismatch.rds"))
-  saveRDS(rg_set_remove_mismatch, file.path(context$paths$processed, "rg_set_remove_mismatch.rds"))
-  saveRDS(targets_remove_mismatch, file.path(context$paths$processed, "targets_remove_mismatch.rds"))
-
   prog$complete()
+
+  methyl_set_container <- new("ResultsContainer", filename = file.path(context$paths$processed, "methyl_set_remove_mismatch.rds"), object = methyl_set_remove_mismatch, future = NULL)
+  rg_set_container <- new("ResultsContainer", filename = file.path(context$paths$processed, "rg_set_remove_mismatch.rds"), object = rg_set_remove_mismatch, future = NULL)
+  targets_container <- new("ResultsContainer", filename = file.path(context$paths$processed, "targets_remove_mismatch.rds"), object = targets_remove_mismatch, future = NULL)
+
+  return(
+    list(
+      methyl_set_container = methyl_set_container,
+      rg_set_container = rg_set_container,
+      targets_container = targets_container
+    )
+  )
 }

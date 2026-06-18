@@ -1,5 +1,19 @@
-outlier_analysis <- function(context = NULL, pca_filename = "pca_df.rds", targets_filename = "targets_remove_mismatch.rds", sample_metadata = NULL) {
-  pca <- readRDS(file.path(context$paths$results, pca_filename))
+outlier_analysis <- function(
+  context = NULL, 
+  pca = NULL,
+  targets = NULL,
+  beta_bmiq = NULL,
+  pca_filename = NULL, 
+  targets_filename = NULL, 
+  beta_bmiq_filename = NULL,
+  sample_metadata = NULL
+) {
+  if (is.null(pca)) {
+    pca <- readRDS(file.path(context$paths$results, pca_filename))
+  }
+  if (is.null(targets)) {
+    targets <- readRDS(file.path(context$paths$processed, targets_filename))
+  }
 
   prog <- .create_progress_manager(4)
 
@@ -13,25 +27,21 @@ outlier_analysis <- function(context = NULL, pca_filename = "pca_df.rds", target
   print("PCA outliers detected:")
   print(rownames(pca_scores)[outliers])
 
-  targets_filepath <- file.path(context$paths$processed, targets_filename)
-  cat(paste("\nReading targets from", targets_filepath, "\n"))
-  targets <- readRDS(targets_filepath)
-
   outlier_metadata <- targets[outliers, ]
   print("Outlier sample metadata:")
   print(outlier_metadata[, sample_metadata])
   print(table(outlier_metadata$Sample_Group))
 
-  beta_val_filepath <- file.path(context$paths$results, "beta_matrix_bmiq.rds")
-  cat(paste("\nReading beta-values from", beta_val_filepath, "\n"))
-  beta_matrix <- readRDS(beta_val_filepath)
+  if (is.null(beta_bmiq)) {
+    beta_bmiq <- readRDS(file.path(context$paths$results, beta_bmiq_filename))
+  }
 
   prog$update(2, "Fetching Outlier beta ranges")
-  outlier_betas <- beta_matrix[, outliers]
+  outlier_betas <- beta_bmiq[, outliers]
   print("Outlier beta value ranges:")
   print(apply(outlier_betas, 2, function(x) c(mean = mean(x), sd = sd(x))))
 
-  non_outlier_betas <- beta_matrix[, -outliers]
+  non_outlier_betas <- beta_bmiq[, -outliers]
   print("Non-outlier beta value ranges:")
   print(c(mean = mean(non_outlier_betas), sd = sd(non_outlier_betas)))
 
@@ -60,8 +70,6 @@ outlier_analysis <- function(context = NULL, pca_filename = "pca_df.rds", target
   outlier_cases <- pca[pca$Is_Outlier, ]
   write.csv(outlier_cases, file = outlier_cases_logfile)
   prog$complete()
-  saveRDS(pca, file.path(context$paths$results, "pca_df_with_outliers.rds"))
 
-  rm(list = ls())
-  gc(full = T)
+  pca_outliers_container <- new("ResultsContainer", filename = file.path(context$paths$results, "pca_df_with_outliers.rds"), object = pca, future = NULL) 
 }

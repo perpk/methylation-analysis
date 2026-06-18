@@ -1,14 +1,19 @@
-principal_component_analysis <- function(context = NULL, m_values_filename = "m_values_bmiq.rds", targets_filename = "targets_remove_mismatch.rds", col_maps, keys, npc) {
+principal_component_analysis <- function(
+  context = NULL,
+  m_values = NULL,
+  targets = NULL,
+  m_values_filename = NULL,
+  targets_filename = NULL, 
+  col_maps, keys, npc
+) {
   prog <- .create_progress_manager(4)
 
-  targets_filepath <- file.path(context$paths$processed, targets_filename)
-  prog$update(1, paste("Reading targets from ", targets_filepath))
-  targets <- readRDS(targets_filepath)
-
-  m_values_filepath <- file.path(context$paths$results, m_values_filename)
-  prog$update(2, paste("Reading m-values matrix from", m_values_filepath))
-  cat(paste("Reading m-values from", m_values_filepath))
-  m_values <- readRDS(m_values_filepath)
+  if (is.null(targets)) {
+    targets <- readRDS(targets_filename)
+  }
+  if (is.null(m_values)) {
+    m_values <- readRDS(m_values_filename)
+  }
 
   prog$update(3, "Running PCA")
   pca <- prcomp(t(m_values), center = TRUE, scale. = FALSE)
@@ -29,10 +34,14 @@ principal_component_analysis <- function(context = NULL, m_values_filename = "m_
   }
 
   pca_df_filepath <- file.path(context$paths$results, "pca_df.rds")
-  prog$update(4, paste("Writing PCA results under", pca_df_filepath))
-  saveRDS(pca_df, pca_df_filepath)
+  prog$update(4, "Writing PCA results")
 
   prog$complete()
-  rm(list = ls())
-  gc(full = TRUE)
+
+  pca_df_container <- new("ResultsContainer", filename = pca_df_filepath, object = pca_df, future = NULL)
+  return(
+    list(
+      pca_df_container = pca_df_container
+    )
+  )
 }

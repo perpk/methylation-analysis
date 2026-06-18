@@ -210,7 +210,4 @@ plot_PCA <- function(context = NULL, pca_results_rds_filename = NULL, pca_vars =
     )
     print(paste("Saved pairplot to:", filename))
   }
-
-  rm(list = ls())
-  gc(full = T)
 }
