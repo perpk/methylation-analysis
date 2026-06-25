@@ -1,5 +1,5 @@
 # 1. Base Image: Rocker's RStudio image (comes with R, RStudio Server, and tidyverse)
-FROM rocker/rstudio:latest
+FROM rocker/rstudio:4.5.0
 
 # 2. Configure RStudio Server for vast.ai
 # Vast.ai's default web proxy looks for port 8080. We map RStudio to listen there.
@@ -52,25 +52,23 @@ RUN Rscript /workspace/install_script.R
 
 RUN git clone https://github.com/perpk/methylation-analysis.git
 
-# Configure SSH to disable password logins and explicitly allow root access
+# Configure SSH to disable password logins
 RUN mkdir /var/run/sshd && \
-    echo "PasswordAuthentication no" >> /etc/ssh/sshd_config && \
-    echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
+    echo "PasswordAuthentication no" >> /etc/ssh/sshd_config
 
 # Tell Rocker's init system to handle the Vast.ai SSH key and start the daemon
 RUN mkdir -p /etc/services.d/sshd && \
     printf '#!/bin/bash\n\
 mkdir -p /root/.ssh\n\
-touch /root/.ssh/authorized_keys\n\
-if [ -n "$SSH_PUBLIC_KEY" ]; then\n\
-  echo "$SSH_PUBLIC_KEY" > /root/.ssh/authorized_keys\n\
+if [ -n "$PUBLIC_KEY" ]; then\n\
+  echo "$PUBLIC_KEY" > /root/.ssh/authorized_keys\n\
 fi\n\
 chmod 700 /root/.ssh\n\
 chmod 600 /root/.ssh/authorized_keys\n\
 exec /usr/sbin/sshd -D\n' > /etc/services.d/sshd/run && \
     chmod +x /etc/services.d/sshd/run
 
-# 7. Expose the web port and SSH port
+# 7. Expose the web port
 EXPOSE 8080 22
 
 # (Note: No CMD is needed. The Rocker base image automatically starts the RStudio Server process)
