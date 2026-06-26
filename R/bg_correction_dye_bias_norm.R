@@ -19,5 +19,10 @@ bg_correction_dye_bias_norm <- function(context = NULL, rg_set = NULL, rg_set_fi
 
   prog$complete()
 
-  return(list(methyl_set_container, rg_set_container))
+  return(
+    list(
+      methyl_set_container = methyl_set_container, 
+      rg_set_container = rg_set_container
+    )
+  )
 }

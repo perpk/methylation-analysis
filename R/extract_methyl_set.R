@@ -18,7 +18,7 @@ extract_methyl_set <- function(context = NULL, read_chunkwise = FALSE, targets =
 
   rg_set_container <- new("ResultsContainer", filename = file.path(context$paths$raw_data, "rg_set.rds"), object = rg_set, future = NULL) 
   m_set_container <- new("ResultsContainer", filename = file.path(context$paths$raw_data, "methyl_set.rds"), object = methyl_set, future = NULL)
-  results <- list(rg_set_container, m_set_container)
+  results <- list(rg_set_container = rg_set_container, m_set_container = m_set_container)
   prog$complete()
   return (results)
 }

@@ -72,4 +72,10 @@ outlier_analysis <- function(
   prog$complete()
 
   pca_outliers_container <- new("ResultsContainer", filename = file.path(context$paths$results, "pca_df_with_outliers.rds"), object = pca, future = NULL) 
+
+  return(
+    list(
+      pca_outliers_container = pca_outliers_container,
+    )
+  )
 }

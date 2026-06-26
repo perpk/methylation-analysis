@@ -1,7 +1,7 @@
 library(IlluminaHumanMethylation450kanno.ilmn12.hg19)
 library(GEOquery)
 library(tidyverse)
-
+  
 rm(list = ls())
 gc(full = TRUE)
 
@@ -9,7 +9,7 @@ project_name <- "GSE111629"
 project_to_load <- "GSE111629_20260406_185759"
 data_folder <- paste0(project_name, "_RAW")
 
-targets <- read.metharray.sheet(data_folder, pattern = "GPL13534_HumanMethylation450_15017482_v.1.1.csv.gz")
+# targets <- read.metharray.sheet(data_folder, pattern = "GPL13534_HumanMethylation450_15017482_v.1.1.csv.gz")
 gse <- getGEO(project_name, GSEMatrix = TRUE, getGPL = FALSE)
 pdata <- pData(gse[[1]])
 all_idat_files <- list.files(data_folder, pattern = "\\.idat\\.gz$", full.names = FALSE)

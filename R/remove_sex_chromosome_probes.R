@@ -10,5 +10,12 @@ remove_sex_chromosome_probes <- function(
   autosomal_probes <- !(seqnames(methyl_set) %in% c("chrX", "chrY"))
   methyl_set_final <- methyl_set[autosomal_probes, ]
   print(paste("Probes after removing sex chromosomes:", nrow(methyl_set_final)))
-  saveRDS(methyl_set_final, file.path(context$paths$processed, "methyl_set_filtered_chrom.rds"))
+
+  mismatch_container <- new("ResultsContainer", filename = file.path(context$paths$processed, "methyl_set_filtered_chrom.rds"), object = methyl_set_final, future = NULL)
+
+  return(
+    list(
+      mismatch_container = mismatch_container
+    )
+  )
 }
