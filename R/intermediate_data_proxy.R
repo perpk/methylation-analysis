@@ -33,15 +33,15 @@ intermediate_data_proxy <- function(pipeline_function, project_context, ...) {
         updated_results <- list()
         for (result in results) {
             if (is(result, "ResultsContainer")) {
-                _future <- mirai({
-                    cat(paste("Saving", _f, "to disk asynchronously.\n"))
-                    saveRDS(_o, file = _f)
-                    return(_f)
-                }, _o = result@object, _f = result@filename)
+                future <- mirai({
+                    cat(paste("Saving", f, "to disk asynchronously.\n"))
+                    saveRDS(o, file = f)
+                    return(f)
+                }, o = result@object, f = result@filename)
                 updated_result <- new("ResultsContainer", 
                     filename = result@filename, 
                     object = result@object, 
-                    future = _future)
+                    future = future)
                 updated_results <- c(updated_results, list(updated_result))
             }
         }
