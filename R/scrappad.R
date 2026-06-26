@@ -268,16 +268,17 @@ plot_PCA(
 
 ## Outlier detection from PCA
 source("R/outlier_analysis.R")
-
+# Error in res_pca$pca_container@object : 
+  # no applicable method for `@` applied to an object of class "NULL"
 res_outlier <- intermediate_data_proxy(
   outlier_analysis, 
   project_context, 
   pca = res_pca$pca_container@object,
   pca_filename = res_pca$pca_container@filename,
-  targets = res_gender_mismatch$targets_container@object,
-  targets_filename = res_gender_mismatch$targets_container@filename,
-  beta_bmiq = res_bmiq$beta_matrix_bmiq_container@object,
-  beta_bmiq_filename = res_bmiq$beta_matrix_bmiq_container@filename
+  targets = res_bio_gender_mismatch[[3]]@object,
+  targets_filename = res_bio_gender_mismatch[[3]]@filename,
+  beta_bmiq = bmiq_res[[1]]@object,
+  beta_bmiq_filename = bmiq_res[[1]]@filename
 )
 
 source("R/outlier_remove_redo_BMIQ.R")
@@ -286,10 +287,10 @@ outlier_removed_bmiq_res <- outlier_remove_redo_BMIQ(context = project_context)
 source("R/apply_BMIQ.R")
 plot_BMIQ(
   project_context,
-  beta_before = res_bmiq$beta_matrix_bmiq_container@object,
-  beta_after = outlier_removed_bmiq_res$beta_bmiq_container@object,
-  beta_before_filename = res_bmiq$beta_matrix_bmiq_container@filename,
-  beta_after_filename = outlier_removed_bmiq_res$beta_bmiq_container@filename
+  beta_before = bmiq_res[[1]]@object,
+  beta_after = outlier_removed_bmiq_res[[1]]@object,
+  beta_before_filename = bmiq_res[[1]]@filename,
+  beta_after_filename = outlier_removed_bmiq_res[[1]]@filename
 )
 
 ## Calculate Delta-Beta values
