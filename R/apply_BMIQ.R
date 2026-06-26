@@ -78,7 +78,7 @@ apply_BMIQ <- function(context = NULL,
   m_bmiq_filepath <- file.path(context$paths$results, "m_values_bmiq.rds")
   if (plot) {
     print("Plot beta distribution before and after normalization")
-    .plot_BMIQ_comparison(beta_matrix, beta_bmiq, platform)
+    .plot_BMIQ_comparison(beta_matrix, beta_bmiq, platform, context)
   }
   prog$complete()
 

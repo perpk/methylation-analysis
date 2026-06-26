@@ -31,9 +31,6 @@ biological_gender_mismatch_analysis <- function(context = NULL,
   prog$update(3, "Predict Sex")
   predicted_sex <- getSex(methyl_set_genomic, cutoff = -2)
 
-  targets_filepath <- file.path(context$paths$qc, targets_filename)
-  targets <- readRDS(targets_filepath)
-
   prog$update(4, "Map Methylation Data to the Genome")
   sex_check <- data.frame(
     Sample_Name = targets$Sample_Name,

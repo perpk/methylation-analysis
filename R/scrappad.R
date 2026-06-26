@@ -1,3 +1,4 @@
+library(tidyverse)
 library(GEOquery)
 library(tidyverse)
 library(minfi)
@@ -18,8 +19,8 @@ library(IlluminaHumanMethylation450kanno.ilmn12.hg19)
 library(GEOquery)
 library(tidyverse)
   
-rm(list = ls())
-gc(full = TRUE)
+# rm(list = ls())
+# gc(full = TRUE)
 
 project_name <- "GSE111629"
 project_to_load <- "GSE111629_20260406_185759"
@@ -40,24 +41,16 @@ targets$Sample_Group <- factor(targets$`disease state:ch1`)
 targets <- targets %>% mutate(Sample_Group = case_when(Sample_Group == "Parkinson's disease (PD)" ~ "PD", Sample_Group == "PD-free control" ~ "Control"))
 targets$Sample_Group <- as.factor(targets$Sample_Group)
 
-rm(list = setdiff(ls(), c("targets", "project_name", "project_to_load", "data_folder")))
-gc(full = T)
+# rm(list = setdiff(ls(), c("targets", "project_name", "project_to_load", "data_folder")))
+# gc(full = T)
 
 source("./meta_vars_mapping.R")
-var_mappings <- meta_vars_mapping(dataset = project_name)
-
-cohorts <- list(
-  PD_vs_Control = c("PD", "Control")
-)
-
-
 var_mapping <- meta_vars_mapping(dataset = project_name)
 platform <- "450k"
 qc_threshold <- 10.5
 cohorts <- list(
   PD_vs_Control = c("PD", "Control")
 )
-platform = "450k"
 if (is.null(platform)) {
   stop("Platform must be specified as '450K' or 'EPIC'")
 }
@@ -80,7 +73,6 @@ source("R/extract_methyl_set.R")
 res_extract_methyl_set <- intermediate_data_proxy(
   extract_methyl_set, project_context, targets = targets
 )
-project_context$paths$raw_data
 
 ### Sample QC - Outlier detection and removal: Here samples are removed based on the median methylated and unmethylated signal intensities. Samples with a median methylated or unmethylated signal intensity below the specified threshold (default: 10.5) are flagged as outliers and removed from the dataset.
 #### It is crucial to do this step alongside cleaning up the data from problematic samples in order to not have outliers skewing the normalization and thus the downstream analyses. It is also important to do this step before the biological gender mismatch analysis since the outliers can
@@ -95,10 +87,10 @@ res_qc <- intermediate_data_proxy(
   qc, 
   project_context, 
   targets = targets, 
-  rg_set = res_extract_methyl_set$rg_set_container@object, 
-  methyl_set = res_extract_methyl_set$m_set_container@object,
-  rg_set_filename = res_extract_methyl_set$rg_set_container@filename,
-  methyl_set_filename = res_extract_methyl_set$m_set_container@filename,
+  rg_set = res_extract_methyl_set[[1]]@object, 
+  methyl_set = res_extract_methyl_set[[2]]@object,
+  rg_set_filename = res_extract_methyl_set[[1]]@filename,
+  methyl_set_filename = res_extract_methyl_set[[2]]@filename,
   qc_threshold = qc_threshold
 )
 
@@ -111,8 +103,8 @@ source("R/bg_correction_dye_bias_norm.R")
 res_bg_corr <- intermediate_data_proxy(
   bg_correction_dye_bias_norm, 
   project_context, 
-  rg_set = res_qc$rg_set_results@object,
-  rg_set_filename = res_qc$rg_set_results@filename
+  rg_set = res_qc[[2]]@object,
+  rg_set_filename = res_qc[[2]]@filename
 )
 
 # Probe QC - Detection p-value based probe filtering
@@ -126,8 +118,8 @@ source("R/probe_qc.R")
 res_probe_qc <- intermediate_data_proxy(
   probe_qc, 
   project_context, 
-  rg_set = res_bg_corr$rg_set_container@object,
-  rg_set_filename = res_bg_corr$rg_set_container@filename
+  rg_set = res_bg_corr[[2]]@object,
+  rg_set_filename = res_bg_corr[[2]]@filename
 )
 
 ### Remove sex-mismatched samples
@@ -138,25 +130,25 @@ res_probe_qc <- intermediate_data_proxy(
 #### - targets_container: A ResultsContainer object containing the filtered targets data frame after removing sex-mismatched samples
 source("R/biological_gender_mismatch_analysis.R")
 res_bio_gender_mismatch <- intermediate_data_proxy(
-  biological_gender_mismatch_analysis,
+biological_gender_mismatch_analysis,
   project_context,
   recorded_sex_col = var_mapping$gender_var,
-  methyl_set = res_bg_corr$methyl_set_container@object,
-  rg_set = res_bg_corr$rg_set_container@object,
-  targets = res_qc$targets_results@object,
+  methyl_set = res_bg_corr[[1]]@object,
+  rg_set = res_bg_corr[[2]]@object,
+  targets = res_qc[[3]]@object,
 )
 
-removed_pdp <- probe_qc_results$removed_probes_container@object
+removed_pdp <- res_probe_qc[[1]]@object
 if (is.null(removed_pdp)) {
-  removed_pdp <- readRDS(probe_qc_results$removed_probes_container@filename)
+  removed_pdp <- readRDS(res_probe_qc[[1]]@filename)
 }
-rg_set <- res_bio_gender_mismatch$rg_set_container@object
+rg_set <- res_bio_gender_mismatch[[2]]@object
 if (is.null(rg_set)) {
-  rg_set <- readRDS(res_bio_gender_mismatch$rg_set_container@filename)
+  rg_set <- readRDS(res_bio_gender_mismatch[[2]]@filename)
 }
-m_set <- res_bio_gender_mismatch$methyl_set_container@object
+m_set <- res_bio_gender_mismatch[[1]]@object
 if (is.null(m_set)) {
-  m_set <- readRDS(res_bio_gender_mismatch$methyl_set_container@filename)
+  m_set <- readRDS(res_bio_gender_mismatch[[1]]@filename)
 }
 
 rg_set <- rg_set[!rownames(rg_set) %in% removed_pdp[["probe_id"]], ]
@@ -189,22 +181,22 @@ source("R/remove_sex_chromosome_probes.R")
 res_sex_chromosome <- intermediate_data_proxy(
   remove_sex_chromosome_probes,
   project_context,
-  methyl_set = res_snp$methyl_set_removed_snps_container@object,
-  methyl_set_filename = res_snp$methyl_set_removed_snps_container@filename
+  methyl_set = res_snp[[1]]@object,
+  methyl_set_filename = res_snp[[1]]@filename
 )
 
 #### 3. Cross Reactive Probes
-source("R/remove_cross_reactive_probes.R")
+source("R/remove_cross_reactive_probes.R") 
 res_cross_reactive <- intermediate_data_proxy(
   remove_cross_reactive_probes,
   project_context,
-  res_sex_chromosome$mismatch_container@object,
-  res_sex_chromosome$mismatch_container@filename
+  res_sex_chromosome[[1]]@object,
+  res_sex_chromosome[[1]]@filename
 )
 
-methyl_set_final <- res_cross_reactive$methyl_set_cross_reactive_clean_container@object
+methyl_set_final <- res_cross_reactive[[1]]@object
 if (is.null(methyl_set_final)) {
-  methyl_set_final <- readRDS(res_cross_reactive$methyl_set_cross_reactive_clean_container@filename)
+  methyl_set_final <- readRDS(res_cross_reactive[[1]]@filename)
 }
 
 ### The filtering of the dataset is complete and beta & m-values are now extracted from the methyl_set and written to disk as "beta_matrix.rds" and "m_matrix.rds" respectively.
@@ -224,6 +216,7 @@ if (project_context$mode == results_mode()$disk_only ||
 beta_matrix_container <- new("ResultsContainer", filename = beta_matrix_filepath, object = beta_matrix, future = NULL)
 m_matrix_container <- new("ResultsContainer", filename = m_matrix_filepath, object = m_matrix, future = NULL)
 
+
 # Beta-Mixture Quantile (BMIQ) Normalization
 source("R/apply_BMIQ.R")
 bmiq_res <- intermediate_data_proxy(
@@ -242,13 +235,16 @@ col_map[["Gender"]] <- var_mapping$gender_var
 col_map[["Age"]] <- var_mapping$age_var
 keys <- c("Sample_Group", "Gender", "Age")
 
+beta_bmiq_container
+m_bmiq_container
+
 res_pca <- intermediate_data_proxy(
   principal_component_analysis, 
   project_context, 
-  m_values = bmiq_res$m_values_bmiq_container@object,
-  m_values_filename = bmiq_res$m_values_bmiq_container@filename,
-  targets = res_gender_mismatch$targets_container@object,
-  targets_filename = res_gender_mismatch$targets_container@filename,
+  m_values = bmiq_res[[1]]@object,
+  m_values_filename = bmiq_res[[1]]@filename,
+  targets = res_bio_gender_mismatch[[3]]@object,
+  targets_filename = res_bio_gender_mismatch[[3]]@filename,
   col_maps = col_map,
   keys = keys,
   npc = 5
