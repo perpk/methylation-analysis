@@ -17,7 +17,12 @@ cell_cnt_estimate <- function(
   targets <- readRDS(targets_path)
 
   prog$update(2, "Estimating cell counts")
-  cell_counts <- estimateCellCounts(rg_set, compositeType = "Blood", probeSelect = "IDOL")
+  cell_counts <- estimateCellCounts(
+    rg_set, 
+    compositeType = "Blood", 
+    probeSelect = "IDOL", 
+    cellTypes = getCellTypesForPlatform(context$platform)
+  )
   targets <- cbind(targets, cell_counts)
 
   prog$update(3, "Saving results in targets as metadata for downstream analysis")
@@ -28,3 +33,12 @@ cell_cnt_estimate <- function(
     list(targets_container = targets_container)
   )
 }
+
+getCellTypesForPlatform <- function(platform) {
+  if (platform == "EPIC") {
+    return(c("CD8T", "CD4T", "NK", "Bcell", "Mono", "Gran", "Eos", "Neutro"))
+  } else {
+    return(c("CD8T", "CD4T", "NK", "Bcell", "Mono", "Gran"))
+  }
+  stop(paste("Unsupported platform:", platform))
+} 

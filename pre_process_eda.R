@@ -209,8 +209,8 @@ pre_process_eda <- function(
     project_context, 
     m_values = bmiq_res$m_values_bmiq_container@object,
     m_values_filename = bmiq_res$m_values_bmiq_container@filename,
-    targets = res_gender_mismatch$targets_container@object,
-    targets_filename = res_gender_mismatch$targets_container@filename,
+    targets = res_bio_gender_mismatch$targets_container@object,
+    targets_filename = res_bio_gender_mismatch$targets_container@filename,
     col_maps = col_map,
     keys = keys,
     npc = 5
@@ -240,10 +240,10 @@ pre_process_eda <- function(
     project_context, 
     pca = res_pca$pca_container@object,
     pca_filename = res_pca$pca_container@filename,
-    targets = res_gender_mismatch$targets_container@object,
-    targets_filename = res_gender_mismatch$targets_container@filename,
-    beta_bmiq = res_bmiq$beta_matrix_bmiq_container@object,
-    beta_bmiq_filename = res_bmiq$beta_matrix_bmiq_container@filename
+    targets = res_bio_gender_mismatch$targets_container@object,
+    targets_filename = res_bio_gender_mismatch$targets_container@filename,
+    beta_bmiq = bmiq_res$beta_matrix_bmiq_container@object,
+    beta_bmiq_filename = bmiq_res$beta_matrix_bmiq_container@filename
   )
 
   source("R/outlier_remove_redo_BMIQ.R")
@@ -252,9 +252,9 @@ pre_process_eda <- function(
   source("R/apply_BMIQ.R")
   plot_BMIQ(
     project_context,
-    beta_before = res_bmiq$beta_matrix_bmiq_container@object,
+    beta_before = bmiq_res$beta_matrix_bmiq_container@object,
     beta_after = outlier_removed_bmiq_res$beta_bmiq_container@object,
-    beta_before_filename = res_bmiq$beta_matrix_bmiq_container@filename,
+    beta_before_filename = bmiq_res$beta_matrix_bmiq_container@filename,
     beta_after_filename = outlier_removed_bmiq_res$beta_bmiq_container@filename
   )
 
@@ -304,7 +304,7 @@ pre_process_eda <- function(
     context = project_context,
     targets = res_cell_cnt_estimate$targets_container@object,
     targets_file = res_cell_cnt_estimate$targets_container@filename,
-    cell_types = c("CD8T", "CD4T", "NK", "Bcell", "Mono")
+    cell_types = getCellTypesForPlatform(project_context$platform)
   )
 
   if (project_context$mode == results_mode()$disk_and_memory) {

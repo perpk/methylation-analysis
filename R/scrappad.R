@@ -339,7 +339,7 @@ plot_cell_proportions(
   context = project_context,
   targets = res_cell_cnt_estimate$targets_container@object,
   targets_file = res_cell_cnt_estimate$targets_container@filename,
-  cell_types = c("CD8T", "CD4T", "NK", "Bcell", "Mono")
+  cell_types = getCellTypesForPlatform(project_context$platform)
 )
 
 if (project_context$mode == results_mode()$disk_and_memory) {
@@ -372,3 +372,24 @@ if (project_context$mode == results_mode()$disk_and_memory) {
     }
   }
 }
+
+
+
+
+
+source("R/project_context.R")
+project_context <- list()
+project_context$mode = results_mode()$disk_and_memory
+
+source("R/intermediate_data_proxy.R")
+
+test_func <- function(contect, x) {
+  result <- x^2
+  result_container <- new("ResultsContainer", filename = paste0("result_", x, ".rds"), object = result, future = NULL)
+  return(list(test = result_container))
+}
+
+res <- intermediate_data_proxy(test_func, project_context, x = 5)
+
+res$test@object  # Should return 25
+
