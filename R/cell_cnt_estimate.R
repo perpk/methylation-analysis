@@ -36,8 +36,8 @@ cell_cnt_estimate <- function(
 
 getCellTypesForPlatform <- function(platform) {
   if (platform == "EPIC") {
-    return(c("CD8T", "CD4T", "NK", "Bcell", "Mono", "Gran", "Eos", "Neutro"))
-  } else {
+    return(c("CD8T", "CD4T", "NK", "Bcell", "Mono", "Neu"))
+  } else if (platform == "450k") {
     return(c("CD8T", "CD4T", "NK", "Bcell", "Mono", "Gran"))
   }
   stop(paste("Unsupported platform:", platform))
