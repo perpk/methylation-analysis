@@ -108,9 +108,9 @@ pre_process_eda <- function(
     targets = res_qc$targets_results@object,
   )
   
-  removed_pdp <- probe_qc_results$removed_probes_container@object
+  removed_pdp <- res_probe_qc$removed_probes_container@object
   if (is.null(removed_pdp)) {
-    removed_pdp <- readRDS(probe_qc_results$removed_probes_container@filename)
+    removed_pdp <- readRDS(res_probe_qc$removed_probes_container@filename)
   }
   rg_set <- res_bio_gender_mismatch$rg_set_container@object
   if (is.null(rg_set)) {

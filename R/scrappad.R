@@ -393,3 +393,12 @@ res <- intermediate_data_proxy(test_func, project_context, x = 5)
 
 res$test@object  # Should return 25
 
+
+
+fun_parm <- function(a = NULL, b = NULL, c = NULL) {
+  print(paste("a:", a, "b:", b, "c:", c))
+}
+
+hi_order_fun <- function(fun, ...) {
+  fun(...)
+}
