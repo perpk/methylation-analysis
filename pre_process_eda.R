@@ -19,7 +19,8 @@ pre_process_eda <- function(
   var_mapping = NULL,
   platform = NULL,
   qc_threshold = 10.5,
-  cohorts = NULL
+  cohorts = NULL,
+  mode = results_mode()$memory_only
 ) {
   if (is.null(platform)) {
     stop("Platform must be specified as '450K' or 'EPIC'")
@@ -27,9 +28,11 @@ pre_process_eda <- function(
   source("R/progress_mgr.R")
 
   source("R/project_context.R")
+
+  print(paste("mode is:", mode))
   if (is.null(project_to_load)) {
     # Create a new project
-    project_context <- create_methylation_project(project_name, project_location, platform = platform, cohorts = cohorts)
+    project_context <- create_methylation_project(project_name, project_location, platform = platform, cohorts = cohorts, mode = mode)
   } else {
     # Load an existing project
     project_context <- .load_methylation_project(project_location, project_to_load, platform = platform, cohorts = cohorts)
