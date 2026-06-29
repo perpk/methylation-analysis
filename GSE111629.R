@@ -24,6 +24,10 @@ targets$Sample_Group <- factor(targets$`disease state:ch1`)
 targets <- targets %>% mutate(Sample_Group = case_when(Sample_Group == "Parkinson's disease (PD)" ~ "PD", Sample_Group == "PD-free control" ~ "Control"))
 targets$Sample_Group <- as.factor(targets$Sample_Group)
 
+
+library(dplyr)
+count(targets, `gender:ch1`)
+
 rm(list = setdiff(ls(), c("targets", "project_name", "project_to_load", "data_folder")))
 gc(full = T)
 

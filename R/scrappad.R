@@ -18,7 +18,7 @@ source("./meta_vars_mapping.R")
 library(IlluminaHumanMethylation450kanno.ilmn12.hg19)
 library(GEOquery)
 library(tidyverse)
-  
+
 # rm(list = ls())
 # gc(full = TRUE)
 
@@ -71,7 +71,8 @@ if (is.null(project_to_load)) {
 #### - m_set_container: A ResultsContainer object containing the raw methylation set
 source("R/extract_methyl_set.R")
 res_extract_methyl_set <- intermediate_data_proxy(
-  extract_methyl_set, project_context, targets = targets
+  extract_methyl_set, project_context,
+  targets = targets
 )
 
 ### Sample QC - Outlier detection and removal: Here samples are removed based on the median methylated and unmethylated signal intensities. Samples with a median methylated or unmethylated signal intensity below the specified threshold (default: 10.5) are flagged as outliers and removed from the dataset.
@@ -84,10 +85,10 @@ res_extract_methyl_set <- intermediate_data_proxy(
 #### - bisulfite_thresholds_results: A ResultsContainer object containing the bisulfite conversion control thresholds
 source("R/qc.R")
 res_qc <- intermediate_data_proxy(
-  qc, 
-  project_context, 
-  targets = targets, 
-  rg_set = res_extract_methyl_set[[1]]@object, 
+  qc,
+  project_context,
+  targets = targets,
+  rg_set = res_extract_methyl_set[[1]]@object,
   methyl_set = res_extract_methyl_set[[2]]@object,
   rg_set_filename = res_extract_methyl_set[[1]]@filename,
   methyl_set_filename = res_extract_methyl_set[[2]]@filename,
@@ -101,8 +102,8 @@ res_qc <- intermediate_data_proxy(
 #### - rg_set_container: A ResultsContainer object containing the normalized RG set
 source("R/bg_correction_dye_bias_norm.R")
 res_bg_corr <- intermediate_data_proxy(
-  bg_correction_dye_bias_norm, 
-  project_context, 
+  bg_correction_dye_bias_norm,
+  project_context,
   rg_set = res_qc[[2]]@object,
   rg_set_filename = res_qc[[2]]@filename
 )
@@ -116,8 +117,8 @@ res_bg_corr <- intermediate_data_proxy(
 ## - qc_summary_container: A ResultsContainer object containing a summary of the probe QC results
 source("R/probe_qc.R")
 res_probe_qc <- intermediate_data_proxy(
-  probe_qc, 
-  project_context, 
+  probe_qc,
+  project_context,
   rg_set = res_bg_corr[[2]]@object,
   rg_set_filename = res_bg_corr[[2]]@filename
 )
@@ -130,7 +131,7 @@ res_probe_qc <- intermediate_data_proxy(
 #### - targets_container: A ResultsContainer object containing the filtered targets data frame after removing sex-mismatched samples
 source("R/biological_gender_mismatch_analysis.R")
 res_bio_gender_mismatch <- intermediate_data_proxy(
-biological_gender_mismatch_analysis,
+  biological_gender_mismatch_analysis,
   project_context,
   recorded_sex_col = var_mapping$gender_var,
   methyl_set = res_bg_corr[[1]]@object,
@@ -154,11 +155,11 @@ if (is.null(m_set)) {
 rg_set <- rg_set[!rownames(rg_set) %in% removed_pdp[["probe_id"]], ]
 m_set <- m_set[!rownames(m_set) %in% rownames(removed_pdp), ]
 
-if (project_context$mode == results_mode()$disk_only || 
-      project_context$mode == results_mode()$disk_and_memory) {
+if (project_context$mode == results_mode()$disk_only ||
+  project_context$mode == results_mode()$disk_and_memory) {
   saveRDS(rg_set, file.path(project_context$paths$processed, "rg_set_remove_probe_qc.rds"))
   saveRDS(m_set, file.path(project_context$paths$processed, "methyl_set_remove_probe_qc.rds"))
-} 
+}
 
 # Remove cross-reactive probes, sex-chromosome related probes and single nucleotide polymorphisms (SNPs)
 # Order matters, firstly SNPs must be removed then probes on XY chromosomes and thus keeping only those on autosomal and finally filtering of cross-reactive probes.
@@ -166,12 +167,12 @@ if (project_context$mode == results_mode()$disk_only ||
 ## 1. Single Nucleotide Polymorphisms
 source("R/remove_snp.R")
 res_snp <- intermediate_data_proxy(
-  remove_snp, 
-  project_context, 
+  remove_snp,
+  project_context,
   methyl_set = m_set,
-  methyl_set_file = 
+  methyl_set_file =
     file.path(
-      project_context$paths$processed, 
+      project_context$paths$processed,
       "methyl_set_remove_probe_qc.rds"
     )
 )
@@ -186,7 +187,7 @@ res_sex_chromosome <- intermediate_data_proxy(
 )
 
 #### 3. Cross Reactive Probes
-source("R/remove_cross_reactive_probes.R") 
+source("R/remove_cross_reactive_probes.R")
 res_cross_reactive <- intermediate_data_proxy(
   remove_cross_reactive_probes,
   project_context,
@@ -205,8 +206,8 @@ m_matrix <- getM(methyl_set_final)
 
 beta_matrix_filepath <- NULL
 m_matrix_filepath <- NULL
-if (project_context$mode == results_mode()$disk_only || 
-      project_context$mode == results_mode()$disk_and_memory) {
+if (project_context$mode == results_mode()$disk_only ||
+  project_context$mode == results_mode()$disk_and_memory) {
   beta_matrix_filepath <- file.path(project_context$paths$results, "beta_matrix.rds")
   m_matrix_filepath <- file.path(project_context$paths$results, "m_matrix.rds")
   saveRDS(beta_matrix, beta_matrix_filepath)
@@ -220,8 +221,8 @@ m_matrix_container <- new("ResultsContainer", filename = m_matrix_filepath, obje
 # Beta-Mixture Quantile (BMIQ) Normalization
 source("R/apply_BMIQ.R")
 bmiq_res <- intermediate_data_proxy(
-  apply_BMIQ, 
-  project_context, 
+  apply_BMIQ,
+  project_context,
   beta_matrix = beta_matrix_container@object,
   beta_matrix_file = beta_matrix_container@filename,
   plot = TRUE
@@ -239,8 +240,8 @@ beta_bmiq_container
 m_bmiq_container
 
 res_pca <- intermediate_data_proxy(
-  principal_component_analysis, 
-  project_context, 
+  principal_component_analysis,
+  project_context,
   m_values = bmiq_res[[1]]@object,
   m_values_filename = bmiq_res[[1]]@filename,
   targets = res_bio_gender_mismatch[[3]]@object,
@@ -268,11 +269,11 @@ plot_PCA(
 
 ## Outlier detection from PCA
 source("R/outlier_analysis.R")
-# Error in res_pca$pca_container@object : 
-  # no applicable method for `@` applied to an object of class "NULL"
+# Error in res_pca$pca_container@object :
+# no applicable method for `@` applied to an object of class "NULL"
 res_outlier <- intermediate_data_proxy(
-  outlier_analysis, 
-  project_context, 
+  outlier_analysis,
+  project_context,
   pca = res_pca$pca_container@object,
   pca_filename = res_pca$pca_container@filename,
   targets = res_bio_gender_mismatch[[3]]@object,
@@ -327,9 +328,9 @@ write.csv(beta_means, file.path(project_context$paths$results, "beta_means.csv")
 # Cell Count Estimation
 source("R/cell_cnt_estimate.R")
 res_cell_cnt_estimate <- intermediate_data_proxy(
-  cell_cnt_estimate, 
-  project_context, 
-  rg_set = res_extract_methyl_set$rg_set_container@object, 
+  cell_cnt_estimate,
+  project_context,
+  rg_set = res_extract_methyl_set$rg_set_container@object,
   targets = targets
 )
 
@@ -374,12 +375,9 @@ if (project_context$mode == results_mode()$disk_and_memory) {
 }
 
 
-
-
-
 source("R/project_context.R")
 project_context <- list()
-project_context$mode = results_mode()$disk_and_memory
+project_context$mode <- results_mode()$disk_and_memory
 
 source("R/intermediate_data_proxy.R")
 
@@ -391,14 +389,15 @@ test_func <- function(contect, x) {
 
 res <- intermediate_data_proxy(test_func, project_context, x = 5)
 
-res$test@object  # Should return 25
+res$test@object # Should return 25
 
 
-
-fun_parm <- function(a = NULL, b = NULL, c = NULL) {
+fun_parm <- function(b = NULL, c = NULL, a = NULL) {
   print(paste("a:", a, "b:", b, "c:", c))
 }
 
 hi_order_fun <- function(fun, ...) {
   fun(...)
 }
+
+hi_order_fun(fun_parm, a = 1, b = 2, c = 3) # Should print "a: 1 b: 2 c: 3"
