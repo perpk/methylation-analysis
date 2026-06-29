@@ -160,8 +160,8 @@ pre_process_eda <- function(
   res_cross_reactive <- intermediate_data_proxy(
     remove_cross_reactive_probes,
     project_context,
-    res_sex_chromosome$methyl_set_filtered_chrom@object,
-    res_sex_chromosome$methyl_set_filtered_chrom@filename
+    methyl_set = res_sex_chromosome$mismatch_container@object,
+    methyl_set_filename = res_sex_chromosome$mismatch_container@filename
   )
 
   methyl_set_final <- res_cross_reactive$methyl_set_cross_reactive_clean_container@object
