@@ -1,13 +1,12 @@
 source("R/apply_BMIQ.R")
 
 outlier_remove_redo_BMIQ <- function(
-    context = NULL,
-    pca = NULL,
-    beta_matrix = NULL,
-    pca_filename = NULL,
-    beta_matrix_filename = NULL
+  context = NULL,
+  pca = NULL,
+  beta_matrix = NULL,
+  pca_filename = NULL,
+  beta_matrix_filename = NULL
 ) {
-
     prog <- .create_progress_manager(4)
     prog$update(1, "Reading PCA results with outlier information")
     if (is.null(pca)) {
@@ -30,5 +29,8 @@ outlier_remove_redo_BMIQ <- function(
     saveRDS(beta_matrix_no_outliers, beta_matrix_no_outliers_filepath)
 
     prog$update(4, "Re-running BMIQ normalization without outliers")
-    return(apply_BMIQ(context, beta_matrix = beta_matrix_no_outliers, beta_matrix_filename = beta_matrix_no_outliers_filepath))
+    res <- apply_BMIQ(context, beta_matrix = beta_matrix_no_outliers, beta_matrix_filename = beta_matrix_no_outliers_filepath)
+    saveRDS(res$beta_bmiq_container@object, file.path(context$paths$results, "beta_matrix_bmiq_no_outliers.rds"))
+    saveRDS(res$m_bmiq_container@object, file.path(context$paths$results, "m_values_bmiq_no_outliers.rds"))
+    return(res)
 }

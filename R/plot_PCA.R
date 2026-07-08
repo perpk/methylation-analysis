@@ -9,9 +9,9 @@ plot_PCA <- function(context = NULL, pca_df = NULL, pca_results_rds_filename = N
   prog <- .create_progress_manager(1)
 
   # 1. Read PCA data
-  print(paste("Reading PCA from file", m_filepath))
   if (is.null(pca_df)) {
-    pca_df <- readRDS(m_filepath)
+    print(paste("Reading PCA from file", pca_results_rds_filename))
+    pca_df <- readRDS(pca_results_rds_filename)
   }
 
 
