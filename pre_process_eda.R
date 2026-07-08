@@ -243,8 +243,8 @@ pre_process_eda <- function(
   res_outlier <- intermediate_data_proxy(
     outlier_analysis,
     project_context,
-    pca = res_pca$pca_outliers_container@object,
-    pca_filename = res_pca$pca_outliers_container@filename,
+    pca = res_pca$pca_df_container@object,
+    pca_filename = res_pca$pca_df_container@filename,
     targets = res_bio_gender_mismatch$targets_container@object,
     targets_filename = res_bio_gender_mismatch$targets_container@filename,
     beta_bmiq = bmiq_res$beta_bmiq_container@object,
@@ -252,7 +252,13 @@ pre_process_eda <- function(
   )
 
   source("R/outlier_remove_redo_BMIQ.R")
-  outlier_removed_bmiq_res <- outlier_remove_redo_BMIQ(context = project_context)
+  outlier_removed_bmiq_res <- outlier_remove_redo_BMIQ(
+    context = project_context,
+    pca = res_pca$pca_df_container@object,
+    beta_matrix = bmiq_res$beta_bmiq_container@object,
+    pca_filename = res_pca$pca_df_container@filename,
+    beta_matrix_filename = bmiq_res$beta_bmiq_container@filename
+  )
 
   source("R/apply_BMIQ.R")
   plot_BMIQ(
