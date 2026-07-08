@@ -1,7 +1,7 @@
 setClass(
   "ResultsContainer",
   slots = list(
-    filename = "character",
+    filename = "ANY",
     object = "ANY",
     future = "ANY"
   )

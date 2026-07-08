@@ -18,10 +18,9 @@ apply_BMIQ <- function(context = NULL,
 
   print("Beta-Mixture quantile normalization (BMIQ)")
 
-  beta_matrix_filepath <- file.path(context$paths$results, beta_matrix_file)
   if (is.null(beta_matrix)) {
-    prog$update(1, paste("Reading beta-matrix file from", beta_matrix_filepath))
-    beta_matrix <- readRDS(beta_matrix_filepath)
+    prog$update(1, paste("Reading beta-matrix file from", beta_matrix_file))
+    beta_matrix <- readRDS(beta_matrix_file)
   }
 
   prog$update(2, paste("Creating probe design vector for", context$platform))
