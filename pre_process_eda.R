@@ -228,7 +228,8 @@ pre_process_eda <- function(
   }
   plot_PCA(
     context = project_context,
-    pca_results_rds_filename = "pca_df.rds",
+    pca_df = res_pca$pca_df_container@object,
+    pca_results_rds_filename = res_pca$pca_df_container@filename,
     pca_vars = pca_vars,
     convert_fun = convert_f,
     continuously_scaled = c("Age"),

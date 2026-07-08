@@ -1,4 +1,4 @@
-plot_PCA <- function(context = NULL, pca_results_rds_filename = NULL, pca_vars = NULL,
+plot_PCA <- function(context = NULL, pca_df = NULL, pca_results_rds_filename = NULL, pca_vars = NULL,
                      convert_fun = NULL, continuously_scaled = c(), pca_output_name = "pca_plot_", npc = 5, create_pairplot = TRUE, pairplot_color_by = NULL) {
   # Load required libraries
   library(ggplot2)
@@ -9,9 +9,10 @@ plot_PCA <- function(context = NULL, pca_results_rds_filename = NULL, pca_vars =
   prog <- .create_progress_manager(1)
 
   # 1. Read PCA data
-  m_filepath <- file.path(context$paths$results, pca_results_rds_filename)
   print(paste("Reading PCA from file", m_filepath))
-  pca_df <- readRDS(m_filepath)
+  if (is.null(pca_df)) {
+    pca_df <- readRDS(m_filepath)
+  }
 
 
   # 2. Apply conversion function if provided (FIXED)
