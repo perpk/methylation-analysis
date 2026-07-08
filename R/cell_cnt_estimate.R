@@ -1,5 +1,5 @@
 cell_cnt_estimate <- function(
-  context = NULL, 
+  context = NULL,
   rg_set = NULL,
   targets = NULL,
   rg_set_filename = NULL
@@ -18,9 +18,9 @@ cell_cnt_estimate <- function(
 
   prog$update(2, "Estimating cell counts")
   cell_counts <- estimateCellCounts(
-    rg_set, 
-    compositeType = "Blood", 
-    probeSelect = "IDOL", 
+    rg_set,
+    compositeType = "Blood",
+    probeSelect = "IDOL",
     cellTypes = getCellTypesForPlatform(context$platform)
   )
   targets <- cbind(targets, cell_counts)
@@ -29,7 +29,7 @@ cell_cnt_estimate <- function(
   targets_cell_types_path <- file.path(context$paths$qc, "targets_s_mismatch_cells.rds")
 
   targets_container <- new("ResultsContainer", filename = targets_cell_types_path, object = targets, future = NULL)
-  return (
+  return(
     list(targets_container = targets_container)
   )
 }
@@ -41,4 +41,4 @@ getCellTypesForPlatform <- function(platform) {
     return(c("CD8T", "CD4T", "NK", "Bcell", "Mono", "Gran"))
   }
   stop(paste("Unsupported platform:", platform))
-} 
+}

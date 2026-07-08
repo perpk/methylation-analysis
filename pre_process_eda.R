@@ -44,9 +44,10 @@ pre_process_eda <- function(
   #### - m_set_container: A ResultsContainer object containing the raw methylation set
   source("R/extract_methyl_set.R")
   res_extract_methyl_set <- intermediate_data_proxy(
-    extract_methyl_set, project_context, targets = targets
+    extract_methyl_set, project_context,
+    targets = targets
   )
-  
+
   ### Sample QC - Outlier detection and removal: Here samples are removed based on the median methylated and unmethylated signal intensities. Samples with a median methylated or unmethylated signal intensity below the specified threshold (default: 10.5) are flagged as outliers and removed from the dataset.
   #### It is crucial to do this step alongside cleaning up the data from problematic samples in order to not have outliers skewing the normalization and thus the downstream analyses. It is also important to do this step before the biological gender mismatch analysis since the outliers can
   #### Returns a list with ResultsContainer objects containing the filtered RG set and methylation set after sample QC:
@@ -57,10 +58,10 @@ pre_process_eda <- function(
   #### - bisulfite_thresholds_results: A ResultsContainer object containing the bisulfite conversion control thresholds
   source("R/qc.R")
   res_qc <- intermediate_data_proxy(
-    qc, 
-    project_context, 
-    targets = targets, 
-    rg_set = res_extract_methyl_set$rg_set_container@object, 
+    qc,
+    project_context,
+    targets = targets,
+    rg_set = res_extract_methyl_set$rg_set_container@object,
     methyl_set = res_extract_methyl_set$m_set_container@object,
     rg_set_filename = res_extract_methyl_set$rg_set_container@filename,
     methyl_set_filename = res_extract_methyl_set$m_set_container@filename,
@@ -74,8 +75,8 @@ pre_process_eda <- function(
   #### - rg_set_container: A ResultsContainer object containing the normalized RG set
   source("R/bg_correction_dye_bias_norm.R")
   res_bg_corr <- intermediate_data_proxy(
-    bg_correction_dye_bias_norm, 
-    project_context, 
+    bg_correction_dye_bias_norm,
+    project_context,
     rg_set = res_qc$rg_set_results@object,
     rg_set_filename = res_qc$rg_set_results@filename
   )
@@ -89,8 +90,8 @@ pre_process_eda <- function(
   ## - qc_summary_container: A ResultsContainer object containing a summary of the probe QC results
   source("R/probe_qc.R")
   res_probe_qc <- intermediate_data_proxy(
-    probe_qc, 
-    project_context, 
+    probe_qc,
+    project_context,
     rg_set = res_bg_corr$rg_set_container@object,
     rg_set_filename = res_bg_corr$rg_set_container@filename
   )
@@ -110,7 +111,7 @@ pre_process_eda <- function(
     rg_set = res_bg_corr$rg_set_container@object,
     targets = res_qc$targets_results@object,
   )
-  
+
   removed_pdp <- res_probe_qc$removed_probes_container@object
   if (is.null(removed_pdp)) {
     removed_pdp <- readRDS(res_probe_qc$removed_probes_container@filename)
@@ -126,12 +127,12 @@ pre_process_eda <- function(
 
   rg_set <- rg_set[!rownames(rg_set) %in% removed_pdp[["probe_id"]], ]
   m_set <- m_set[!rownames(m_set) %in% rownames(removed_pdp), ]
-  
-  if (project_context$mode == results_mode()$disk_only || 
-        project_context$mode == results_mode()$disk_and_memory) {
+
+  if (project_context$mode == results_mode()$disk_only ||
+    project_context$mode == results_mode()$disk_and_memory) {
     saveRDS(rg_set, file.path(project_context$paths$processed, "rg_set_remove_probe_qc.rds"))
     saveRDS(m_set, file.path(project_context$paths$processed, "methyl_set_remove_probe_qc.rds"))
-  } 
+  }
 
   # Remove cross-reactive probes, sex-chromosome related probes and single nucleotide polymorphisms (SNPs)
   # Order matters, firstly SNPs must be removed then probes on XY chromosomes and thus keeping only those on autosomal and finally filtering of cross-reactive probes.
@@ -139,12 +140,12 @@ pre_process_eda <- function(
   ## 1. Single Nucleotide Polymorphisms
   source("R/remove_snp.R")
   res_snp <- intermediate_data_proxy(
-    remove_snp, 
-    project_context, 
+    remove_snp,
+    project_context,
     methyl_set = m_set,
-    methyl_set_file = 
+    methyl_set_file =
       file.path(
-        project_context$paths$processed, 
+        project_context$paths$processed,
         "methyl_set_remove_probe_qc.rds"
       )
   )
@@ -178,8 +179,8 @@ pre_process_eda <- function(
 
   beta_matrix_filepath <- NULL
   m_matrix_filepath <- NULL
-  if (project_context$mode == results_mode()$disk_only || 
-        project_context$mode == results_mode()$disk_and_memory) {
+  if (project_context$mode == results_mode()$disk_only ||
+    project_context$mode == results_mode()$disk_and_memory) {
     beta_matrix_filepath <- file.path(project_context$paths$results, "beta_matrix.rds")
     m_matrix_filepath <- file.path(project_context$paths$results, "m_matrix.rds")
     saveRDS(beta_matrix, beta_matrix_filepath)
@@ -192,8 +193,8 @@ pre_process_eda <- function(
   # Beta-Mixture Quantile (BMIQ) Normalization
   source("R/apply_BMIQ.R")
   bmiq_res <- intermediate_data_proxy(
-    apply_BMIQ, 
-    project_context, 
+    apply_BMIQ,
+    project_context,
     beta_matrix = beta_matrix_container@object,
     beta_matrix_file = beta_matrix_container@filename,
     plot = TRUE
@@ -208,10 +209,10 @@ pre_process_eda <- function(
   keys <- c("Sample_Group", "Gender", "Age")
 
   res_pca <- intermediate_data_proxy(
-    principal_component_analysis, 
-    project_context, 
-    m_values = bmiq_res$m_values_bmiq_container@object,
-    m_values_filename = bmiq_res$m_values_bmiq_container@filename,
+    principal_component_analysis,
+    project_context,
+    m_values = bmiq_res$m_bmiq_container@object,
+    m_values_filename = bmiq_res$m_bmiq_container@filename,
     targets = res_bio_gender_mismatch$targets_container@object,
     targets_filename = res_bio_gender_mismatch$targets_container@filename,
     col_maps = col_map,
@@ -239,14 +240,14 @@ pre_process_eda <- function(
   source("R/outlier_analysis.R")
 
   res_outlier <- intermediate_data_proxy(
-    outlier_analysis, 
-    project_context, 
-    pca = res_pca$pca_container@object,
-    pca_filename = res_pca$pca_container@filename,
+    outlier_analysis,
+    project_context,
+    pca = res_pca$pca_outliers_container@object,
+    pca_filename = res_pca$pca_outliers_container@filename,
     targets = res_bio_gender_mismatch$targets_container@object,
     targets_filename = res_bio_gender_mismatch$targets_container@filename,
-    beta_bmiq = bmiq_res$beta_matrix_bmiq_container@object,
-    beta_bmiq_filename = bmiq_res$beta_matrix_bmiq_container@filename
+    beta_bmiq = bmiq_res$beta_bmiq_container@object,
+    beta_bmiq_filename = bmiq_res$beta_bmiq_container@filename
   )
 
   source("R/outlier_remove_redo_BMIQ.R")
@@ -255,9 +256,9 @@ pre_process_eda <- function(
   source("R/apply_BMIQ.R")
   plot_BMIQ(
     project_context,
-    beta_before = bmiq_res$beta_matrix_bmiq_container@object,
+    beta_before = bmiq_res$beta_bmiq_container@object,
     beta_after = outlier_removed_bmiq_res$beta_bmiq_container@object,
-    beta_before_filename = bmiq_res$beta_matrix_bmiq_container@filename,
+    beta_before_filename = bmiq_res$beta_bmiq_container@filename,
     beta_after_filename = outlier_removed_bmiq_res$beta_bmiq_container@filename
   )
 
@@ -268,10 +269,13 @@ pre_process_eda <- function(
   if (is.null(beta_matrix)) {
     beta_matrix <- readRDS(outlier_removed_bmiq_res$beta_bmiq_container@filename)
   }
-  targets <- sex_mismatch_res$targets_container@object
+  targets <- res_bio_gender_mismatch$targets_container@object
   if (is.null(targets)) {
-    targets <- readRDS(sex_mismatch_res$targets_container@filename)
+    targets <- readRDS(res_bio_gender_mismatch$targets_container@filename)
   }
+  library(dplyr)
+  library(stringr)
+
   rownames(targets) <- targets$Basename %>% str_remove(paste0(data_folder, "/"))
 
   pd_samples <- rownames(targets[targets$Sample_Group == "PD", ])
@@ -295,9 +299,9 @@ pre_process_eda <- function(
   # Cell Count Estimation
   source("R/cell_cnt_estimate.R")
   res_cell_cnt_estimate <- intermediate_data_proxy(
-    cell_cnt_estimate, 
-    project_context, 
-    rg_set = res_extract_methyl_set$rg_set_container@object, 
+    cell_cnt_estimate,
+    project_context,
+    rg_set = res_extract_methyl_set$rg_set_container@object,
     targets = targets
   )
 
@@ -311,6 +315,8 @@ pre_process_eda <- function(
   )
 
   if (project_context$mode == results_mode()$disk_and_memory) {
+    library(mirai)
+
     all_res <- list(
       res_extract_methyl_set = res_extract_methyl_set,
       res_qc = res_qc,
