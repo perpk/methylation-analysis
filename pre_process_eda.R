@@ -325,6 +325,11 @@ pre_process_eda <- function(
     targets = targets
   )
 
+  if (project_context$mode == results_mode()$memory_only) {
+    print(paste("Saving targets after cell count estimation to", file.path(project_context$paths$processed, "targets_after_cell_count_estimation.rds")))
+    saveRDS(res_cell_cnt_estimate$targets_container@object, file.path(project_context$paths$processed, "targets_after_cell_count_estimation.rds"))
+  }
+
   # Plot Cell proportion per cohort and write results to files for each cell type
   source("R/plot_cell_proportions.R")
   plot_cell_proportions(

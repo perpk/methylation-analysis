@@ -13,8 +13,6 @@ cell_cnt_estimate <- function(
   prog <- .create_progress_manager(3)
 
   prog$update(1, "Reading files")
-  rg_set <- readRDS(rg_set_path)
-  targets <- readRDS(targets_path)
 
   prog$update(2, "Estimating cell counts")
   cell_counts <- estimateCellCounts(

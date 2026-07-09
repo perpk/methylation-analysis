@@ -1,9 +1,10 @@
 library(ggpubr)
 
-plot_cell_proportions <- function(context = NULL,
-targets = NULL,
-targets_file = NULL,
-cell_types = c("CD8T", "CD4T", "NK", "Bcell", "Mono")
+plot_cell_proportions <- function(
+  context = NULL,
+  targets = NULL,
+  targets_file = NULL,
+  cell_types = c("CD8T", "CD4T", "NK", "Bcell", "Mono")
 ) {
   if (is.null(targets)) {
     targets <- readRDS(targets_file)
@@ -74,7 +75,7 @@ cell_types = c("CD8T", "CD4T", "NK", "Bcell", "Mono")
       plot = multi_plot,
       width = 16,
       height = 12,
-      dpi = 300
+      dpi = 600
     )
   }
 }
