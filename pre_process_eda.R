@@ -38,6 +38,9 @@ pre_process_eda <- function(
     project_context <- .load_methylation_project(project_location, project_to_load, platform = platform, cohorts = cohorts)
   }
 
+  print(paste("Saving initial targets to", file.path(project_context$paths$processed, "targets.rds")))
+  saveRDS(targets, file.path(project_context$paths$processed, "targets.rds"))
+
   ### Read raw data and write to disk
   #### Returns a list with:
   #### - rg_set_container: A ResultsContainer object containing the raw RG set
@@ -67,6 +70,11 @@ pre_process_eda <- function(
     methyl_set_filename = res_extract_methyl_set$m_set_container@filename,
     qc_threshold = qc_threshold
   )
+
+  if (project_context$mode == results_mode()$memory_only) {
+    print(paste("Saving targets after sample QC to", file.path(project_context$paths$processed, "targets_after_qc.rds")))
+    saveRDS(res_qc$targets_results@object, file.path(project_context$paths$processed, "targets_after_qc.rds"))
+  }
 
   ### Perform background correction and dye-bias normalization on rg_set and extract new methyl_set & beta-matrix based on the filtered rg_set from previous step
   ### Here, preprocessNoob is used and by doing so on the rgset, the methyl_set emerges.
@@ -111,6 +119,11 @@ pre_process_eda <- function(
     rg_set = res_bg_corr$rg_set_container@object,
     targets = res_qc$targets_results@object,
   )
+
+  if (project_context$mode == results_mode()$memory_only) {
+    print(paste("Saving targets after biological gender mismatch analysis to", file.path(project_context$paths$processed, "targets_after_bio_gender_mismatch.rds")))
+    saveRDS(res_bio_gender_mismatch$targets_container@object, file.path(project_context$paths$processed, "targets_after_bio_gender_mismatch.rds"))
+  }
 
   removed_pdp <- res_probe_qc$removed_probes_container@object
   if (is.null(removed_pdp)) {

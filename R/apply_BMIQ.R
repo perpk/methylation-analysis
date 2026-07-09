@@ -107,8 +107,12 @@ plot_BMIQ <- function(
   } else {
     stop("Unsupported platform. Please specify '450k' or 'EPIC'.")
   }
-  beta_before <- readRDS(file.path(context$paths$results, "beta_matrix_bmiq_no_outliers.rds"))
-  beta_after <- readRDS(file.path(context$paths$results, "beta_matrix_bmiq.rds"))
+  if (is.null(beta_before)) {
+    beta_before <- readRDS(beta_before_filename)
+  }
+  if (is.null(beta_after)) {
+    beta_after <- readRDS(beta_after_filename)
+  }
   .plot_BMIQ_comparison(beta_before, beta_after, platform, context)
 }
 
