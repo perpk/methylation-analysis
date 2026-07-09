@@ -1,10 +1,10 @@
 outlier_analysis <- function(
-  context = NULL, 
+  context = NULL,
   pca = NULL,
   targets = NULL,
   beta_bmiq = NULL,
-  pca_filename = NULL, 
-  targets_filename = NULL, 
+  pca_filename = NULL,
+  targets_filename = NULL,
   beta_bmiq_filename = NULL,
   sample_metadata = NULL
 ) {
@@ -71,11 +71,11 @@ outlier_analysis <- function(
   write.csv(outlier_cases, file = outlier_cases_logfile)
   prog$complete()
 
-  pca_outliers_container <- new("ResultsContainer", filename = file.path(context$paths$results, "pca_df_with_outliers.rds"), object = pca, future = NULL) 
+  pca_outliers_container <- new("ResultsContainer", filename = file.path(context$paths$results, "pca_df_with_outliers.rds"), object = pca, future = NULL)
 
   return(
     list(
-      pca_outliers_container = pca_outliers_container,
+      pca_outliers_container = pca_outliers_container
     )
   )
 }
