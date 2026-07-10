@@ -273,14 +273,6 @@ pre_process_eda <- function(
     beta_matrix_filename = bmiq_res$beta_bmiq_container@filename
   )
 
-  source("R/apply_BMIQ.R")
-  plot_BMIQ(
-    project_context,
-    beta_before = bmiq_res$beta_bmiq_container@object,
-    beta_after = outlier_removed_bmiq_res$beta_bmiq_container@object,
-    beta_before_filename = bmiq_res$beta_bmiq_container@filename,
-    beta_after_filename = outlier_removed_bmiq_res$beta_bmiq_container@filename
-  )
 
   ## Calculate Delta-Beta values
   print("Calculate Delta-Beta values")
