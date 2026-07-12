@@ -66,10 +66,10 @@ ppmi_scan_dates <- read.csv("./ppmi/ppmi_scan_dates.csv", header = TRUE)
 dim(ppmi_scan_dates)
 View(ppmi_scan_dates)
 
-summary(duplicated(ppmi_scan_dates[c("SentrixID","ScanDate")]))
-ppmi_scan_dates[c("SentrixID","ScanDate")]
+summary(duplicated(ppmi_scan_dates[c("SentrixID", "ScanDate")]))
+ppmi_scan_dates[c("SentrixID", "ScanDate")]
 
-duplicate_indices <- duplicated(ppmi_scan_dates[c("SentrixID","ScanDate")])
+duplicate_indices <- duplicated(ppmi_scan_dates[c("SentrixID", "ScanDate")])
 
 ppmi_scan_dates_harm <- ppmi_scan_dates[!duplicate_indices, ]
 
@@ -89,10 +89,13 @@ targets <- readRDS("/Volumes/Elements/vastai/ppmi/ppmi_20260415_170143/targets_r
 pca <- prcomp(t(m_values))
 
 head(ppmi_scan_dates_harm)
-targets$Sentrix_ID <- paste0(targets$Slide,"_", targets$Array)
+targets$Sentrix_ID <- paste0(targets$Slide, "_", targets$Array)
 
 library(stringr)
-ppmi_scan_dates_harm$ScanDate_Month <- ppmi_scan_dates_harm %>% pull(ScanDate) %>% as.character() %>% str_extract("^(\\d{4}-\\d{2})")
+ppmi_scan_dates_harm$ScanDate_Month <- ppmi_scan_dates_harm %>%
+  pull(ScanDate) %>%
+  as.character() %>%
+  str_extract("^(\\d{4}-\\d{2})")
 head(ppmi_scan_dates_harm)
 dim(targets)
 targets_harm <- merge(
@@ -112,12 +115,12 @@ pca_df <- data.frame(matrix(NA, nrow = ncol(m_values), ncol = 10))
 rownames(pca_df) <- colnames(m_values)
 colnames(pca_df) <- sapply(1:10, function(i) paste0("PC", i))
 for (index in 1:10) {
-    pca_df[[paste0("PC", index)]] <- pca$x[, index]
+  pca_df[[paste0("PC", index)]] <- pca$x[, index]
 }
 
 library(ggplot2)
 
-targets_harm$Sentrix_ID <- paste0(targets_harm$Slide,"_", targets_harm$Array)
+targets_harm$Sentrix_ID <- paste0(targets_harm$Slide, "_", targets_harm$Array)
 
 pca_df_with_dates <- merge(
   x = pca_df,
@@ -158,50 +161,51 @@ pca_pairplot <- function(pca_df_with_dates, color_by = NULL, size_factor = 3, n_
   plot_idx <- 1
 
   for (i in 1:nrow(combos)) {
-      x_var <- as.character(combos$x[i])
-      y_var <- as.character(combos$y[i])
+    x_var <- as.character(combos$x[i])
+    y_var <- as.character(combos$y[i])
 
-      if (x_var == y_var) {
-        # Diagonal: Density plot
-        p <- ggplot(pca_df_with_dates, aes(x = .data[[x_var]])) +
-          geom_density(fill = "steelblue", alpha = 0.5) +
-          labs(x = x_var, y = "Density") +
-          theme_minimal() +
-          theme(axis.text = element_text(size = 6))
+    if (x_var == y_var) {
+      # Diagonal: Density plot
+      p <- ggplot(pca_df_with_dates, aes(x = .data[[x_var]])) +
+        geom_density(fill = "steelblue", alpha = 0.5) +
+        labs(x = x_var, y = "Density") +
+        theme_minimal() +
+        theme(axis.text = element_text(size = 6))
+    } else {
+      # Off-diagonal: Scatter plot
+      if (!is.null(color_by) && color_by %in% colnames(pca_df_with_dates)) {
+        p <- ggplot(pca_df_with_dates, aes(
+          x = .data[[x_var]], y = .data[[y_var]],
+          color = as.factor(.data[[color_by]])
+        )) +
+          geom_point(size = 0.5, alpha = 0.5) +
+          scale_color_viridis_d(name = color_by)
       } else {
-        # Off-diagonal: Scatter plot
-        if (!is.null(color_by) && color_by %in% colnames(pca_df_with_dates)) {
-          p <- ggplot(pca_df_with_dates, aes(
-            x = .data[[x_var]], y = .data[[y_var]],
-            color = as.factor(.data[[color_by]])
-          )) +
-            geom_point(size = 0.5, alpha = 0.5) +
-            scale_color_viridis_d(name = color_by)
-        } else {
-          p <- ggplot(pca_df_with_dates, aes(x = .data[[x_var]], y = .data[[y_var]])) +
-            geom_point(size = 0.5, alpha = 0.5, color = "steelblue")
-        }
-        p <- p +
-          labs(x = x_var, y = y_var) +
-          theme_minimal() +
-          theme(
-            axis.text = element_text(size = 6),
-            legend.position = "right",
-          )
+        p <- ggplot(pca_df_with_dates, aes(x = .data[[x_var]], y = .data[[y_var]])) +
+          geom_point(size = 0.5, alpha = 0.5, color = "steelblue")
       }
-      plots[[plot_idx]] <- p
-      plot_idx <- plot_idx + 1
+      p <- p +
+        labs(x = x_var, y = y_var) +
+        theme_minimal() +
+        theme(
+          axis.text = element_text(size = 6),
+          legend.position = "right",
+        )
+    }
+    plots[[plot_idx]] <- p
+    plot_idx <- plot_idx + 1
   }
 
   pplot <- wrap_plots(plots, ncol = length(pc_columns)) +
-      plot_annotation(title = paste("PCA Pairplot - First", length(pc_columns), "PCs"))
+    plot_annotation(title = paste("PCA Pairplot - First", length(pc_columns), "PCs"))
 
-  ggsave(paste0("./ppmi/ppmi_pca_pairplot_", color_by, ".png"), 
-    pplot, 
-    width = size_factor * length(pc_columns), 
-    height = size_factor * length(pc_columns), 
-    dpi = 300, 
-    limitsize = FALSE)
+  ggsave(paste0("./ppmi/ppmi_pca_pairplot_", color_by, ".png"),
+    pplot,
+    width = size_factor * length(pc_columns),
+    height = size_factor * length(pc_columns),
+    dpi = 300,
+    limitsize = FALSE
+  )
 }
 library(patchwork)
 pca_pairplot(pca_df_with_dates, color_by = "ScanDate_Month", n_pcs = 3)
@@ -221,8 +225,8 @@ library(sva)
 
 batch <- as.factor(pca_df_with_dates$ScanDate_Month)
 
-mod_matrix <- model.matrix(~ as.factor(Sample_Group), data=pca_df_with_dates)
-combat_m <- ComBat(dat=m_values, batch=batch, mod=mod_matrix, par.prior=TRUE, prior.plots=FALSE)
+mod_matrix <- model.matrix(~ as.factor(Sample_Group), data = pca_df_with_dates)
+combat_m <- ComBat(dat = m_values, batch = batch, mod = mod_matrix, par.prior = TRUE, prior.plots = FALSE)
 
 dim(beta_matrix)
 dim(pca_df_with_dates)
