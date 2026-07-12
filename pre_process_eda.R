@@ -11,17 +11,16 @@ library(IlluminaHumanMethylationEPICanno.ilm10b4.hg19)
 source("R/intermediate_data_proxy.R")
 
 pre_process_eda <- function(
-  project_name = NULL,
-  project_to_load = NULL,
-  targets = NULL,
-  data_folder = NULL,
-  project_location = NULL,
-  var_mapping = NULL,
-  platform = NULL,
-  qc_threshold = 10.5,
-  cohorts = NULL,
-  mode = results_mode()$memory_only
-) {
+    project_name = NULL,
+    project_to_load = NULL,
+    targets = NULL,
+    data_folder = NULL,
+    project_location = NULL,
+    var_mapping = NULL,
+    platform = NULL,
+    qc_threshold = 10.5,
+    cohorts = NULL,
+    mode = results_mode()$memory_only) {
   if (is.null(platform)) {
     stop("Platform must be specified as '450K' or 'EPIC'")
   }
@@ -189,6 +188,9 @@ pre_process_eda <- function(
   ### The filtering of the dataset is complete and beta & m-values are now extracted from the methyl_set and written to disk as "beta_matrix.rds" and "m_matrix.rds" respectively.
   beta_matrix <- getBeta(methyl_set_final)
   m_matrix <- getM(methyl_set_final)
+
+  saveRDS(beta_matrix, file.path(project_context$paths$results, "beta_matrix.rds"))
+  saveRDS(m_matrix, file.path(project_context$paths$results, "m_matrix.rds"))
 
   beta_matrix_filepath <- NULL
   m_matrix_filepath <- NULL

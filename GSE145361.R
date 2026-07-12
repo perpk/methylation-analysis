@@ -23,9 +23,9 @@ targets <- data.frame(
 targets <- merge(targets, pdata, by.x = "Sample_Name", by.y = "row.names", all.x = TRUE)
 targets %>% head()
 
-# targets$Sample_Group <- factor(targets$`disease-state:ch1`)
-# targets <- targets %>% mutate(Sample_Group = case_when(Sample_Group == "Parkinson's disease" ~ "PD", Sample_Group == "Control" ~ "Control"))
-# targets$Sample_Group <- as.factor(targets$Sample_Group)
+targets$Sample_Group <- factor(targets$`disease-state:ch1`)
+targets <- targets %>% mutate(Sample_Group = case_when(Sample_Group == "Parkinson's disease" ~ "PD", Sample_Group == "Control" ~ "Control"))
+targets$Sample_Group <- as.factor(targets$Sample_Group)
 
 # rm(list = setdiff(ls(), c("targets", "project_name", "project_to_load", "data_folder")))
 # gc(full = T)
@@ -40,7 +40,7 @@ cohorts <- list(
 )
 source("./pre_process_eda.R")
 pre_process_eda(
-    project_to_load = "GSE145361_20260522_110341",
+    project_to_load = "GSE145361_20260710_210747",
     targets = targets,
     data_folder = data_folder,
     project_location = "/root/workspace/methyl-pipe-out",
