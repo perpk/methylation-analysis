@@ -26,3 +26,11 @@ run_combat <- function(m_values, meta_df, batch_colname, mod_colnames) {
     combat_m_values <- ComBat(dat = m_values, batch = batch, mod = mod_matrix)
     return(combat_m_values)
 }
+
+combat_m_values <- run_combat(
+    m_values = m_values,
+    meta_df = targets,
+    batch_colname = "ScanDate",
+    mod_colnames = "Sample_Group"
+)
+saveRDS(combat_m_values, file.path(project_context$paths$results, "GSE111629_combat_m_values.rds"))

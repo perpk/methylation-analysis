@@ -74,13 +74,13 @@ m_values <- readRDS(file.path(project_context$paths$results, "m_values_bmiq_no_o
 
 m_values_samples <- colnames(m_values)
 
+head(m_values_samples)
+
 rownames(enriched_targets) <- enriched_targets$Basename %>% str_extract("GSM\\d{7}_\\d{10}_R\\d{2}C\\d{2}")
-enriched_targets %>%
-    rownames() %>%
-    head()
 
 common <- intersect(rownames(enriched_targets), m_values_samples)
 length(common)
+
 
 harmonized_targets <- enriched_targets[rownames(enriched_targets) %in% common, ]
 dim(harmonized_targets)
@@ -90,10 +90,10 @@ dim(harmonized_m_values)
 
 saveRDS(
     harmonized_targets,
-    "/Volumes/Elements/vastai/gse111629/GSE111629_20260515_083253/processed/GSE111629_harmonized_targets.rds"
+    file.path(project_context$paths$processed, "GSE111629_harmonized_targets.rds")
 )
 
 saveRDS(
     harmonized_m_values,
-    "/Volumes/Elements/vastai/gse111629/GSE111629_20260515_083253/processed/GSE111629_harmonized_m_values.rds"
+    file.path(project_context$paths$processed, "GSE111629_harmonized_m_values.rds")
 )
