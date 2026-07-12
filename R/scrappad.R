@@ -43,3 +43,5 @@ res_cell_cnt_estimate <- intermediate_data_proxy(
 )
 
 saveRDS(res_cell_cnt_estimate$targets_container@object, file.path(project_context$paths$results, "targets_s_mismatch_cells.rds"))
+
+head(res_cell_cnt_estimate$targets_container@object)

@@ -67,7 +67,16 @@ data_folder <- "ppmi"
 
 # ppmi_meth_120_meta <- ppmi_meth_120_meta %>%
 #   mutate(
-#     Age_Group =
+#     Age_Group ='
+
+
+
+
+
+
+
+
+
 #       case_when(
 #         ENROLL_AGE >= 30 & ENROLL_AGE < 50 ~ "30-49",
 #         ENROLL_AGE >= 50 & ENROLL_AGE < 60 ~ "50-59",
