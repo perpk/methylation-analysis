@@ -146,3 +146,11 @@ barplot(
     col = c("steelblue", "salmon"),
     border = "white"
 )
+
+### NOTE: There are about 70 slides in the polished version of the metadata. Correcting for microbatches in
+### that resolution is not feasible. Instead, we will correct for ScanDate, which is a more coarse-grained batch variable.
+#
+### (Trivia: Illumina 450k and EPIC arrays have a maximum of 12 samples per slide.)
+##
+## https://www.bioconductor.org/packages//release/bioc/vignettes/minfi/inst/doc/minfi.html
+# Physically, each sample is measured on a single “array”. For the 450k design, there are 12 arrays on a single physical “slide” (organized in a 6 by 2 grid). Slides are organized into “plates” containing at most 8 slides (96 arrays). The EPIC array has 8 arrays per slide and 64 arrays per plate.
