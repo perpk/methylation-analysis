@@ -4,7 +4,8 @@ library(IlluminaHumanMethylationEPICanno.ilm10b4.hg19)
 apply_BMIQ <- function(context = NULL,
                        beta_matrix = NULL,
                        beta_matrix_file = NULL,
-                       plot = FALSE) {
+                       plot = FALSE,
+                       save_bmiq = FALSE) {
   platform <- NULL
   if (context$platform == "450k") {
     platform <- IlluminaHumanMethylation450kanno.ilmn12.hg19
@@ -73,8 +74,10 @@ apply_BMIQ <- function(context = NULL,
 
   prog$update(2, "Saving normalized beta and m-values")
   beta_bmiq_filepath <- file.path(context$paths$results, "beta_matrix_bmiq.rds")
-
   m_bmiq_filepath <- file.path(context$paths$results, "m_values_bmiq.rds")
+
+  saveRDS(beta_bmiq, beta_bmiq_filepath)
+  saveRDS(m_bmiq, m_bmiq_filepath)
   if (plot) {
     print("Plot beta distribution before and after normalization")
     .plot_BMIQ_comparison(beta_matrix, beta_bmiq, platform, context)
@@ -93,12 +96,11 @@ apply_BMIQ <- function(context = NULL,
 }
 
 plot_BMIQ <- function(
-  context = NULL,
-  beta_before = NULL,
-  beta_after = NULL,
-  beta_before_filename = NULL,
-  beta_after_filename = NULL
-) {
+    context = NULL,
+    beta_before = NULL,
+    beta_after = NULL,
+    beta_before_filename = NULL,
+    beta_after_filename = NULL) {
   platform <- NULL
   if (context$platform == "450k") {
     platform <- IlluminaHumanMethylation450kanno.ilmn12.hg19

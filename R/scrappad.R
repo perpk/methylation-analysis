@@ -14,7 +14,7 @@ library(IlluminaHumanMethylationEPICanno.ilm10b4.hg19)
 source("R/progress_mgr.R")
 source("R/project_context.R")
 
-project_to_load <- "GSE111629_20260709_222156"
+project_to_load <- "GSE145361_20260712_222124"
 project_location <- "/root/workspace/methyl-pipe-out"
 platform <- "450k"
 
@@ -26,22 +26,22 @@ project_context <- .load_methylation_project(project_location, project_to_load, 
 
 targets <- readRDS(file.path(project_context$paths$processed, "targets.rds"))
 
+beta_matrix <- readRDS(file.path(project_context$paths$results, "beta_matrix.rds"))
+
 source("R/intermediate_data_proxy.R")
 
-source("R/extract_methyl_set.R")
-res_extract_methyl_set <- intermediate_data_proxy(
-  extract_methyl_set, project_context,
-  targets = targets
-)
-
-source("R/cell_cnt_estimate.R")
-res_cell_cnt_estimate <- intermediate_data_proxy(
-  cell_cnt_estimate,
+source("R/apply_BMIQ.R")
+source("R/results_container.R")
+bmiq_res <- intermediate_data_proxy(
+  apply_BMIQ,
   project_context,
-  rg_set = res_extract_methyl_set$rg_set_container@object,
-  targets = targets
+  beta_matrix = beta_matrix,
+  beta_matrix_file = file.path(project_context$paths$results, "beta_matrix.rds"),
+  plot = FALSE,
+  save_bmiq = TRUE
 )
 
-saveRDS(res_cell_cnt_estimate$targets_container@object, file.path(project_context$paths$results, "targets_s_mismatch_cells.rds"))
+is.null(bmiq_res)
 
-head(res_cell_cnt_estimate$targets_container@object)
+saveRDS(bmiq_res$beta_bmiq_container@object, file = file.path(project_context$paths$results, "beta_matrix_bmiq.rds"))
+saveRDS(bmiq_res$m_bmiq_container@object, file = file.path(project_context$paths$results, "m_values_bmiq.rds"))
