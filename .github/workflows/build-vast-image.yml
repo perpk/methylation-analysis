@@ -73,7 +73,7 @@ jobs:
 
           # Add GCP tag if selected
           if [[ "${{ inputs.registry }}" == "gcp" || "${{ inputs.registry }}" == "both" ]]; then
-            TAGS="${TAGS}europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/ml-docker-repo/kpax-vastai-cuda-12.4.1:latest,"
+            TAGS="${TAGS}europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/iou-projects-repo/kpax-vastai-cuda-12.4.1:latest,"
           fi
 
           # Remove the trailing comma required by build-push-action array parsing
