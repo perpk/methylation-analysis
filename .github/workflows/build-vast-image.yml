@@ -46,13 +46,13 @@ jobs:
 
       - name: Authenticate to Google Cloud
         if: ${{ inputs.registry == 'gcp' || inputs.registry == 'both' }}
-        uses: google-github-actions/auth@f3c8d3e3f1ab9821144f25b9a349540ad6b3320d # v3.0.0
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
         with:
           credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
 
       - name: Set up Cloud SDK
         if: ${{ inputs.registry == 'gcp' || inputs.registry == 'both' }}
-        uses: google-github-actions/setup-gcloud@ebfd056f554d2f7d1614f3c2f0c87bc29c527d99 # v3.0.1
+        uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
 
       - name: Configure Docker for GCP Artifact Registry
         if: ${{ inputs.registry == 'gcp' || inputs.registry == 'both' }}
@@ -83,7 +83,7 @@ jobs:
       # --- Build and Push ---
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@f2a1d5e99df2e4e35d4c1b468c95b0d94e7d7d4c # v6.18.0
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
         with:
           context: .
           file: ./docker-ml-cuda/Dockerfile
