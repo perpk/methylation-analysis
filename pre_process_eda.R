@@ -212,7 +212,7 @@ pre_process_eda <- function(
     project_context,
     beta_matrix = beta_matrix_container@object,
     beta_matrix_file = beta_matrix_container@filename,
-    plot = FALSE
+    plot = TRUE
   )
 
   # Principal Component Analysis

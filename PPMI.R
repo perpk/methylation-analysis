@@ -36,7 +36,7 @@ data_folder <- "ppmi"
 
 # patient_meta <- patient_meta %>% filter(!PATNO %in% c("141081","140041"))
 
-# ppmi_meth_120_txt <- read.delim("./ppmi/Project120_IDATS_n524final_toLONI_030718/PPMI_Meth_n524_for_LONI030718.txt", header = T, sep = "\t")
+ppmi_meth_120_txt <- read.delim("./ppmi/Project120_IDATS_n524final_toLONI_030718/PPMI_Meth_n524_for_LONI030718.txt", header = T, sep = "\t")
 
 # ppmi_meth_120_meta <- merge(
 #   x = patient_meta,
@@ -94,7 +94,7 @@ data_folder <- "ppmi"
 project_name <- "ppmi"
 data_folder <- "ppmi"
 
-# targets <- read.metharray.sheet(data_folder, pattern = "sample_sheet")
+targets <- read.metharray.sheet(data_folder, pattern = "sample_sheet")
 # saveRDS(targets, file = file.path(data_folder, "targets.rds"))
 # targets <- readRDS(file.path(data_folder, "targets.rds"))
 # saveRDS(targets, file.path(data_folder, "targets.rds"))
@@ -102,9 +102,11 @@ source("./meta_vars_mapping.R")
 var_mappings <- meta_vars_mapping(dataset = project_name)
 
 cohorts <- list(
-  PD_vs_Control = c("PD", "Control"),
-  SWEDD_vs_Control = c("SWEDD", "Control")
+  PD_vs_Control = c("PD", "Control")
 )
+
+targets <- targets[targets$Sample_Group %in% unlist(cohorts), ]
+
 project_to_load <- "ppmi"
 
 source("./pre_process_eda.R")
