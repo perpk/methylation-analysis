@@ -153,7 +153,7 @@ plot_BMIQ <- function(
   combined_plot <- p1 / p2 +
     plot_annotation(title = "BMIQ Normalization Effect")
 
-  print(combined_plot)
+  # print(combined_plot)
 
   bmiq_plot_file <- file.path(context$paths$processed, "BMIQ_normalization_comparison.png")
   ggsave(bmiq_plot_file,

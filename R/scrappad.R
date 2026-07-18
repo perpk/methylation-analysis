@@ -1,6 +1,7 @@
 rm(list = ls())
 gc(full = TRUE)
 
+
 library(GEOquery)
 library(tidyverse)
 library(minfi)
@@ -24,93 +25,81 @@ cohorts <- list(
 
 project_context <- .load_methylation_project(project_location, project_to_load, platform = platform, cohorts = cohorts)
 
-targets <- readRDS(file.path(project_context$paths$processed, "targets.rds"))
 targets_gender_mismatch <- readRDS(file.path(project_context$paths$processed, "targets_after_bio_gender_mismatch.rds"))
 
-targets_after_qc <- readRDS(file.path(project_context$paths$processed, "targets_after_qc.rds"))
+beta_matrix <- readRDS(file.path(project_context$paths$results, "beta_matrix.rds"))
 
-dim(targets)
-dim(targets_gender_mismatch)
-dim(targets_after_qc)
+pca_df <- readRDS(file.path(project_context$paths$results, "pca_df.rds"))
 
+pca_scores <- pca_df[, 1:2]
+center <- colMeans(pca_scores)
+cov_matrix <- cov(pca_scores)
+distances <- mahalanobis(pca_scores, center, cov_matrix)
+outlier_threshold <- qchisq(0.975, df = 2)
+outliers <- which(distances > outlier_threshold)
 
+outlier_samples <- rownames(pca_scores)[outliers]
+pca_df$Is_Outlier <- rownames(pca_df) %in% outlier_samples
 
-m_bmiq <- readRDS(file.path(project_context$paths$results, "m_values_bmiq.rds"))
-beta_bmiq <- readRDS(file.path(project_context$paths$results, "beta_matrix_bmiq.rds"))
+beta_matrix_no_outliers <- beta_matrix[, !colnames(beta_matrix) %in% outlier_samples]
 
-source("R/principal_component_analysis.R")
-col_map <- list()
-col_map[["Sample_Group"]] <- "Sample_Group"
-col_map[["Gender"]] <- var_mapping$gender_var
-keys <- c("Sample_Group", "Gender")
+sum(beta_matrix_no_outliers == 0)
+saveRDS(beta_matrix_no_outliers, file.path(project_context$paths$results, "beta_matrix_no_outliers.rds"))
 
-pca <- prcomp(t(m_bmiq), center = TRUE, scale. = FALSE)
-
-pca_df <- data.frame(matrix(NA, nrow = ncol(m_bmiq), ncol = 5))
-
-rownames(pca_df) <- colnames(m_bmiq)
-colnames(pca_df) <- sapply(1:5, function(pca_df) {
-  (paste0("PC", pca_df))
-})
-
-for (index in 1:5) {
-  pca_df[[paste0("PC", index)]] <- pca$x[, index]
-}
-
-source("./meta_vars_mapping.R")
-var_mappings <- meta_vars_mapping(dataset = "GSE145361")
-
-col_map <- list()
-col_map[["Sample_Group"]] <- "Sample_Group"
-col_map[["Gender"]] <- var_mappings$gender_var
-col_map[["Age"]] <- var_mappings$age_var
-
-keys <- c("Sample_Group", "Gender", "Age")
-for (k in keys) {
-  if (!is.null(col_map[[k]])) {
-    pca_df[[k]] <- targets_gender_mismatch[[col_map[[k]]]]
-  }
-}
-
-
-pca_df_filepath <- file.path(project_context$paths$results, "pca_df.rds")
-saveRDS(pca_df, pca_df_filepath)
-
-source("R/plot_PCA.R")
-pca_vars <- c("Sample_Group" = "By Diagnosis", "Gender" = "By Biological Gender", "Age" = "By Age")
-
-# GSE145361 doesn't have Age included in the source meta information
-# convert_f <- function(df) {
-#   (transform(df, Age = as.numeric(Age)))
-# }
-plot_PCA(
-  context = project_context,
-  pca_df = pca_df,
-  pca_results_rds_filename = pca_df_filepath,
-  pca_vars = pca_vars,
-  convert_fun = NULL,
-  continuously_scaled = c("Age"),
-  "pca_plot_",
-  pairplot_color_by = "Age"
+source("R/results_container.R")
+source("R/apply_BMIQ.R")
+res <- apply_BMIQ(project_context,
+  beta_matrix = beta_matrix_no_outliers,
+  plot = FALSE
 )
 
-source("R/outlier_analysis.R")
-res_outlier <- intermediate_data_proxy(
-  outlier_analysis,
+m_bmiq_no_outliers <- readRDS(file.path(project_context$paths$results, "m_values_bmiq.rds"))
+beta_bmiq_no_outliers <- readRDS(file.path(project_context$paths$results, "beta_matrix_bmiq.rds"))
+
+targets_gender_mismatch$Basename %>% head()
+
+rownames(targets_gender_mismatch) <- targets_gender_mismatch$Basename %>% str_remove(paste0("GSE145361_RAW", "/"))
+
+pd_samples <- rownames(targets_gender_mismatch[targets_gender_mismatch$Sample_Group == "PD", ])
+hc_samples <- rownames(targets_gender_mismatch[targets_gender_mismatch$Sample_Group == "Control", ])
+
+colnames_pd <- which(colnames(beta_bmiq_no_outliers) %in% pd_samples)
+colnames_hc <- which(colnames(beta_bmiq_no_outliers) %in% hc_samples)
+
+mean_beta_pd <- rowMeans(beta_bmiq_no_outliers[, colnames_pd], na.rm = TRUE)
+mean_beta_hc <- rowMeans(beta_bmiq_no_outliers[, colnames_hc], na.rm = TRUE)
+delta_beta <- mean_beta_pd - mean_beta_hc
+
+beta_means <- data.frame(
+  mean_beta_pd,
+  mean_beta_hc,
+  delta_beta
+)
+
+write.csv(beta_means, file.path(project_context$paths$results, "beta_means.csv"))
+
+targets <- readRDS(file.path(project_context$paths$processed, "targets.rds"))
+
+source("R/extract_methyl_set.R")
+source("R/intermediate_data_proxy.R")
+res_extract_methyl_set <- intermediate_data_proxy(
+  extract_methyl_set, project_context,
+  targets = targets
+)
+
+source("R/cell_cnt_estimate.R")
+res_cell_cnt_estimate <- intermediate_data_proxy(
+  cell_cnt_estimate,
   project_context,
-  pca = pca_df,
-  pca_filename = pca_df_filepath,
-  targets = targets_gender_mismatch,
-  targets_filename = file.path(project_context$paths$processed, "targets_after_bio_gender_mismatch.rds"),
-  beta_bmiq = m_bmiq,
-  beta_bmiq_filename = file.path(project_context$paths$results, "m_values_bmiq.rds")
+  rg_set = res_extract_methyl_set$rg_set_container@object,
+  targets = targets
 )
+saveRDS(res_cell_cnt_estimate$targets_container@object, file.path(project_context$paths$qc, "targets_s_mismatch_cells.rds"))
 
-source("R/outlier_remove_redo_BMIQ.R")
-outlier_removed_bmiq_res <- outlier_remove_redo_BMIQ(
+source("R/plot_cell_proportions.R")
+plot_cell_proportions(
   context = project_context,
-  pca = res_outlier$pca_outliers_container@object,
-  beta_matrix = beta_bmiq,
-  pca_filename = res_outlier$pca_outliers_container@filename,
-  beta_matrix_filename = NULL
+  targets = res_cell_cnt_estimate$targets_container@object,
+  targets_file = res_cell_cnt_estimate$targets_container@filename,
+  cell_types = getCellTypesForPlatform(project_context$platform)
 )

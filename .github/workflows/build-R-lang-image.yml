@@ -1,8 +1,17 @@
 name: Build and Push Vast.ai RStudio Image
 
 on:
-  # Keeps the manual "on-demand" trigger
   workflow_dispatch:
+    inputs:
+      registry:
+        description: 'Choose the destination registry'
+        required: true
+        default: 'gcp'
+        type: choice
+        options:
+          - dockerhub
+          - gcp
+          - both
 
 jobs:
   build-and-push:
@@ -12,15 +21,70 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # Frees up ~30GB by removing tools we don't need for the Docker build
+          # Crucial for bulky bioinformatics R images
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      # --- Conditional Authentication Steps ---
+
       - name: Log in to Docker Hub
+        if: ${{ inputs.registry == 'dockerhub' || inputs.registry == 'both' }}
         uses: docker/login-action@v3
         with:
-          # Reusing the exact same secrets from your previous workflow
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Authenticate to Google Cloud
+        if: ${{ inputs.registry == 'gcp' || inputs.registry == 'both' }}
+        uses: google-github-actions/auth@v2
+        with:
+          # Reusing the GCP_CREDENTIALS secret you set up for the ML pipeline
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+
+      - name: Set up Cloud SDK
+        if: ${{ inputs.registry == 'gcp' || inputs.registry == 'both' }}
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for GCP Artifact Registry
+        if: ${{ inputs.registry == 'gcp' || inputs.registry == 'both' }}
+        run: gcloud auth configure-docker europe-west1-docker.pkg.dev --quiet
+
+      # --- Dynamic Tag Generation ---
+
+      - name: Determine Image Tags
+        id: set-tags
+        run: |
+          TAGS=""
+          
+          # Add Docker Hub tag if selected
+          if [[ "${{ inputs.registry }}" == "dockerhub" || "${{ inputs.registry }}" == "both" ]]; then
+            TAGS="${TAGS}${{ secrets.DOCKERHUB_USERNAME }}/vast-r-env:latest,"
+          fi
+          
+          # Add GCP tags if selected (Both :v1 and :latest)
+          # Note: We are using the explicit pd-methylation project/repo path you provided
+          if [[ "${{ inputs.registry }}" == "gcp" || "${{ inputs.registry }}" == "both" ]]; then
+            GCP_BASE="europe-west1-docker.pkg.dev/pd-methylation/iou-projects-repo/vast-r-env"
+            TAGS="${TAGS}${GCP_BASE}:v1,${GCP_BASE}:latest,"
+          fi
+          
+          # Remove the trailing comma required by build-push-action array parsing
+          TAGS=${TAGS%,}
+          echo "tags=$TAGS" >> $GITHUB_OUTPUT
+
+      # --- Build and Push ---
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -28,8 +92,8 @@ jobs:
           context: .
           file: ./docker-R-lang/Dockerfile
           push: true
-          # Using the kpax namespace automatically via the secret
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/vast-r-env:latest
+          # Pulls the dynamic list of tags from the previous step
+          tags: ${{ steps.set-tags.outputs.tags }}
           # Utilizes GitHub's cache to speed up subsequent R package compilations
           cache-from: type=gha
           cache-to: type=gha,mode=max
