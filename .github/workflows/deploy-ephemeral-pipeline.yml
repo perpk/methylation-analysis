@@ -116,18 +116,18 @@ jobs:
           # The Dry-Run Switch
           if [ "${{ github.event.inputs.execution_mode }}" == "dry-run" ]; then
             echo "========================================="
-            echo "DRY-RUN MODE ACTIVE: Bypassing deployment"
+            echo "DRY-RUN MODE ACTIVE: Testing GCP Permissions"
             echo "========================================="
-            echo "Template: ${{ github.event.inputs.vm_template }}"
-            echo "Image: $IMAGE_NAME"
-            echo ""
-            echo "Generated Startup Script:"
-            cat startup-script.sh
-            echo ""
-            echo "Execution Command:"
-            echo "gcloud compute instances create ephemeral-pipeline-vm --source-instance-template=${{ github.event.inputs.vm_template }} --metadata-from-file=startup-script=startup-script.sh"
+            
+            # This contacts the GCP API and tests IAM perms, but creates nothing
+            gcloud compute instances create ephemeral-pipeline-vm \
+              --source-instance-template=${{ github.event.inputs.vm_template }} \
+              --metadata-from-file=startup-script=startup-script.sh \
+              --dry-run
+              
+            echo "Permission check passed! No resources were created."
           else
-            # Provision the VM using your specified Instance Template
+            # Provision the VM for real
             gcloud compute instances create ephemeral-pipeline-vm \
               --source-instance-template=${{ github.event.inputs.vm_template }} \
               --metadata-from-file=startup-script=startup-script.sh
