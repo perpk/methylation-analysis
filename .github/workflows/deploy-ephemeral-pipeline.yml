@@ -1,0 +1,134 @@
+name: Deploy Ephemeral Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      execution_mode:
+        description: 'Execution Mode'
+        required: true
+        default: 'run'
+        type: choice
+        options:
+          - run
+          - dry-run
+      vm_template:
+        description: 'GCP Instance Template name (e.g., highmem-template)'
+        required: true
+        type: string
+      image_track:
+        description: 'Which analysis track to run?'
+        required: true
+        type: choice
+        options:
+          - python
+          - r-lang
+      docker_registry:
+        description: 'Target Docker Registry (e.g., gcr.io/pd-methylation)'
+        required: true
+        default: 'gcp'
+        type: choice
+        options:
+          - dockerhub
+          - gcp
+          - both
+
+jobs:
+  # Conditionally call the Python Image Build
+  build_python_image:
+    # Notice the added check for execution_mode
+    if: ${{ github.event.inputs.image_track == 'python' && github.event.inputs.execution_mode == 'run' }}
+    uses: ./.github/workflows/build-vast-image.yml
+    with:
+      registry: ${{ github.event.inputs.docker_registry }}
+    secrets: inherit
+
+  # Conditionally call the R Image Build
+  build_r_image:
+    if: ${{ github.event.inputs.image_track == 'r-lang' && github.event.inputs.execution_mode == 'run' }}
+    uses: ./.github/workflows/build-R-lang-image.yml
+    with:
+      registry: ${{ github.event.inputs.docker_registry }}
+    secrets: inherit
+
+  # Deploy the VM and run the pipeline
+  deploy_and_run:
+    needs: [build_python_image, build_r_image]
+    # This ensures the job still runs even if the build jobs were skipped via dry-run
+    if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_INFRA_CREDENTIALS }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Deploy Self-Destructing VM
+        run: |
+          # Determine the image name based on the chosen track
+          if [ "${{ github.event.inputs.image_track }}" == "python" ]; then
+            IMAGE_NAME="${{ github.event.inputs.docker_registry }}/your-python-image:latest"
+          else
+            IMAGE_NAME="${{ github.event.inputs.docker_registry }}/your-r-image:latest"
+          fi
+
+          # Generate the startup script locally before passing it to GCP
+          cat << EOF > startup-script.sh
+          #!/bin/bash
+          # 1. Create host directories
+          mkdir -p /var/log/methylation /workspace/results
+          chmod 777 /var/log/methylation /workspace/results
+
+          # 2. Configure Ops Agent
+          cat << 'CONFIG' > /etc/google-cloud-ops-agent/config.yaml
+          logging:
+            receivers:
+              pipeline_logs:
+                type: files
+                include_paths:
+                  - /var/log/methylation/*.log
+            service:
+              pipelines:
+                custom_pipeline:
+                  receivers: [pipeline_logs]
+          CONFIG
+          systemctl restart google-cloud-ops-agent
+
+          # 3. Pull and run the pipeline
+          docker run \\
+            --name pipeline-runner \\
+            -v /var/log/methylation:/workspace/methylation-project/logs \\
+            -v /workspace/results:/workspace/results \\
+            \$IMAGE_NAME
+
+          # 4. Upload Results
+          gsutil cp -r /workspace/results/* gs://your-results-bucket/
+
+          # 5. Self-Destruct
+          export NAME=\$(curl -s "http://metadata.google.internal/computeMetadata/v1/instance/name" -H "Metadata-Flavor: Google")
+          export ZONE=\$(curl -s "http://metadata.google.internal/computeMetadata/v1/instance/zone" -H "Metadata-Flavor: Google" | awk -F/ '{print \$4}')
+          gcloud compute instances delete \$NAME --zone=\$ZONE --quiet
+          EOF
+
+          # The Dry-Run Switch
+          if [ "${{ github.event.inputs.execution_mode }}" == "dry-run" ]; then
+            echo "========================================="
+            echo "DRY-RUN MODE ACTIVE: Bypassing deployment"
+            echo "========================================="
+            echo "Template: ${{ github.event.inputs.vm_template }}"
+            echo "Image: $IMAGE_NAME"
+            echo ""
+            echo "Generated Startup Script:"
+            cat startup-script.sh
+            echo ""
+            echo "Execution Command:"
+            echo "gcloud compute instances create ephemeral-pipeline-vm --source-instance-template=${{ github.event.inputs.vm_template }} --metadata-from-file=startup-script=startup-script.sh"
+          else
+            # Provision the VM using your specified Instance Template
+            gcloud compute instances create ephemeral-pipeline-vm \
+              --source-instance-template=${{ github.event.inputs.vm_template }} \
+              --metadata-from-file=startup-script=startup-script.sh
+          fi

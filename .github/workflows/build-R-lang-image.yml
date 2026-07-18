@@ -1,6 +1,12 @@
 name: Build and Push Vast.ai RStudio Image
 
 on:
+  workflow_call:
+    inputs:
+      registry:
+        description: 'Docker registry target'
+        required: true
+        type: string
   workflow_dispatch:
     inputs:
       registry:
@@ -67,19 +73,19 @@ jobs:
         id: set-tags
         run: |
           TAGS=""
-          
+
           # Add Docker Hub tag if selected
           if [[ "${{ inputs.registry }}" == "dockerhub" || "${{ inputs.registry }}" == "both" ]]; then
             TAGS="${TAGS}${{ secrets.DOCKERHUB_USERNAME }}/vast-r-env:latest,"
           fi
-          
+
           # Add GCP tags if selected (Both :v1 and :latest)
           # Note: We are using the explicit pd-methylation project/repo path you provided
           if [[ "${{ inputs.registry }}" == "gcp" || "${{ inputs.registry }}" == "both" ]]; then
             GCP_BASE="europe-west1-docker.pkg.dev/pd-methylation/iou-projects-repo/vast-r-env"
             TAGS="${TAGS}${GCP_BASE}:v1,${GCP_BASE}:latest,"
           fi
-          
+
           # Remove the trailing comma required by build-push-action array parsing
           TAGS=${TAGS%,}
           echo "tags=$TAGS" >> $GITHUB_OUTPUT

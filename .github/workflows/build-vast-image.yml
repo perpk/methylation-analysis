@@ -1,6 +1,12 @@
 name: Build and Push Vast.ai ML Image
 
 on:
+  workflow_call:
+    inputs:
+      registry:
+        description: 'Docker registry target'
+        required: true
+        type: string
   workflow_dispatch:
     inputs:
       registry:
