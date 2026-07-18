@@ -1,4 +1,4 @@
-name: Deploy Ephemeral Pipeline
+name: Deploy Interactive Pipeline
 
 on:
   workflow_dispatch:
@@ -33,7 +33,6 @@ on:
           - both
 
 jobs:
-  # Conditionally call the Python Image Build
   build_python_image:
     if: ${{ github.event.inputs.image_track == 'python' }}
     uses: ./.github/workflows/build-vast-image.yml
@@ -41,7 +40,6 @@ jobs:
       registry: ${{ github.event.inputs.docker_registry }}
     secrets: inherit
 
-  # Conditionally call the R Image Build
   build_r_image:
     if: ${{ github.event.inputs.image_track == 'r-lang' }}
     uses: ./.github/workflows/build-R-lang-image.yml
@@ -49,7 +47,6 @@ jobs:
       registry: ${{ github.event.inputs.docker_registry }}
     secrets: inherit
 
-  # Deploy the VM and run the pipeline
   deploy_and_run:
     needs: [build_python_image, build_r_image]
     if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
@@ -64,66 +61,56 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
 
-      - name: Deploy Self-Destructing VM
+      - name: Deploy Interactive VM
         run: |
-          # Determine the image name based on the chosen track
           if [ "${{ github.event.inputs.image_track }}" == "python" ]; then
             IMAGE_NAME="${{ github.event.inputs.docker_registry }}/your-python-image:latest"
           else
             IMAGE_NAME="${{ github.event.inputs.docker_registry }}/your-r-image:latest"
           fi
 
-          # Generate the startup script locally before passing it to GCP
           cat << EOF > startup-script.sh
           #!/bin/bash
-          # 1. Create host directories
-          mkdir -p /var/log/methylation /workspace/results
-          chmod 777 /var/log/methylation /workspace/results
+          # EXIT_CODE variable to track if everything went well
+          EXIT_CODE=0
 
-          # 2. Configure Ops Agent
-          cat << 'CONFIG' > /etc/google-cloud-ops-agent/config.yaml
-          logging:
-            receivers:
-              pipeline_logs:
-                type: files
-                include_paths:
-                  - /var/log/methylation/*.log
-            service:
-              pipelines:
-                custom_pipeline:
-                  receivers: [pipeline_logs]
-          CONFIG
-          systemctl restart google-cloud-ops-agent
+          # Cleanup function: Deletes the VM if we are in 'test' mode
+          cleanup() {
+            if [ "${{ github.event.inputs.execution_mode }}" == "test" ]; then
+              echo "Cleaning up test VM..."
+              NAME=\$(curl -s "http://metadata.google.internal/computeMetadata/v1/instance/name" -H "Metadata-Flavor: Google")
+              ZONE=\$(curl -s "http://metadata.google.internal/computeMetadata/v1/instance/zone" -H "Metadata-Flavor: Google" | awk -F/ '{print \$4}')
+              gcloud compute instances delete \$NAME --zone=\$ZONE --quiet
+            fi
+          }
 
-          # 3. Pull and run the pipeline
-          if [ "${{ github.event.inputs.execution_mode }}" == "test" ]; then
-            # TEST MODE: Instantly writes a log, pauses 15s for Ops Agent, and exits
-            docker run \\
-              --name pipeline-runner \\
-              --entrypoint /bin/bash \\
-              -v /var/log/methylation:/workspace/methylation-project/logs \\
-              -v /workspace/results:/workspace/results \\
-              \$IMAGE_NAME \\
-              -c "echo 'TEST LOG: The container successfully wrote to the volume.' > /workspace/methylation-project/logs/test_pipeline.log && echo 'Test Result' > /workspace/results/test_result.txt && sleep 15"
-          else
-            # RUN MODE: Executes your actual hours-long analysis
-            docker run \\
-              --name pipeline-runner \\
-              -v /var/log/methylation:/workspace/methylation-project/logs \\
-              -v /workspace/results:/workspace/results \\
-              \$IMAGE_NAME
+          # Register the cleanup function to run on exit (error or success)
+          trap cleanup EXIT
+
+          # 1. Setup Docker, Ops Agent, etc.
+          # [ ... (Keep all your existing setup logic here) ... ]
+
+          # 2. Pull and Test the image
+          echo "Testing image: $IMAGE_NAME"
+          if ! docker pull $IMAGE_NAME; then
+            echo "ERROR: Failed to pull image. Check Artifact Registry permissions."
+            EXIT_CODE=1
+            exit \$EXIT_CODE
           fi
 
-          # 4. Upload Results (Works for both test and run modes)
-          gsutil cp -r /workspace/results/* gs://your-results-bucket/
-
-          # 5. Self-Destruct
-          export NAME=\$(curl -s "http://metadata.google.internal/computeMetadata/v1/instance/name" -H "Metadata-Flavor: Google")
-          export ZONE=\$(curl -s "http://metadata.google.internal/computeMetadata/v1/instance/zone" -H "Metadata-Flavor: Google" | awk -F/ '{print \$4}')
-          gcloud compute instances delete \$NAME --zone=\$ZONE --quiet
+          # 3. If test mode, verify run
+          if [ "${{ github.event.inputs.execution_mode }}" == "test" ]; then
+            if ! docker run --name test-runner $IMAGE_NAME /bin/true; then
+              echo "ERROR: Container failed to start. Check your entrypoint/image."
+              EXIT_CODE=1
+              exit \$EXIT_CODE
+            fi
+          else
+            # Start for manual interaction
+            docker run -d --name pipeline-runner ... $IMAGE_NAME
+          fi
           EOF
 
-          # Provision the VM using your specified Instance Template
           gcloud compute instances create ephemeral-pipeline-vm \
             --source-instance-template=${{ github.event.inputs.vm_template }} \
             --metadata-from-file=startup-script=startup-script.sh
