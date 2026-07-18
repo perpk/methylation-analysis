@@ -33,6 +33,7 @@ RUN apt-get update && apt-get install -y \
     wget \
     bzip2 \
     ca-certificates \
+    vim \
     && rm -rf /var/lib/apt/lists/*
 
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
