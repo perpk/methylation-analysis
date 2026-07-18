@@ -34,6 +34,8 @@ install.packages(
     quiet = FALSE
 )
 
+install.packages("tidyverse")
+
 # Custom repo installation
 install.packages("vscDebugger", repos = "https://manuelhentschel.r-universe.dev")
 
