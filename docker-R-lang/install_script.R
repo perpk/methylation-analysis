@@ -30,7 +30,6 @@ packages <- c(
 # Wrapped in c() and provided a default mirror for non-interactive execution
 install.packages(
     c("progress", "BiocManager", "patchwork", "devtools", "Rserve", "pak", "rlist", "arrow", "renv", "mirai", "tidyverse"),
-    repos = "http://cran.us.r-project.org",
     quiet = FALSE
 )
 
