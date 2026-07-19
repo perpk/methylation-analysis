@@ -23,7 +23,7 @@ on:
           - python
           - r-lang
       docker_registry:
-        description: 'Target Docker Registry (e.g., gcr.io/pd-methylation)'
+        description: 'Target Docker Registry'
         required: true
         default: 'gcp'
         type: choice
@@ -63,13 +63,21 @@ jobs:
 
       - name: Deploy Interactive VM
         run: |
-          # Determine the exact image tag based on the chosen track
-          if [ "${{ github.event.inputs.image_track }}" == "python" ]; then
-            IMAGE_NAME="${{ github.event.inputs.docker_registry }}/vast-python-env:latest"
+          # 1. Map the 'gcp' dropdown option to your actual registry URL
+          if [ "${{ github.event.inputs.docker_registry }}" == "gcp" ]; then
+            REGISTRY_URL="europe-west1-docker.pkg.dev/pd-methylation/iou-projects-repo"
           else
-            IMAGE_NAME="${{ github.event.inputs.docker_registry }}/vast-r-env:v1"
+            REGISTRY_URL="${{ github.event.inputs.docker_registry }}"
           fi
 
+          # 2. Determine the exact image tag
+          if [ "${{ github.event.inputs.image_track }}" == "python" ]; then
+            IMAGE_NAME="$REGISTRY_URL/vast-python-env:latest"
+          else
+            IMAGE_NAME="$REGISTRY_URL/vast-r-env:v1"
+          fi
+
+          # 3. Generate the startup script
           cat << EOF > startup-script.sh
           #!/bin/bash
           set -e
@@ -86,26 +94,19 @@ jobs:
             fi
           }
 
-          # Ensure cleanup runs whether the script succeeds or fails
           trap cleanup EXIT
 
-          # 1. Install Docker natively on the Debian VM
-          apt-get update
-          apt-get install -y ca-certificates curl gnupg
-          install -m 0755 -d /etc/apt/keyrings
-          curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-          chmod a+r /etc/apt/keyrings/docker.gpg
-
-          # Properly escaped variables so the VM evaluates them, not GitHub
-          echo "deb [arch=\$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \$(. /etc/os-release && echo "\$VERSION_CODENAME") stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-          apt-get update
-          apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+          # 1. Install Docker (Universal, foolproof method)
+          echo "Installing Docker..."
+          curl -fsSL https://get.docker.com -o get-docker.sh
+          sh get-docker.sh
 
           # 2. Authenticate Docker for GCP Artifact Registry
+          echo "Authenticating Artifact Registry..."
           gcloud auth configure-docker europe-west1-docker.pkg.dev --quiet
 
           # 3. Setup Ops Agent and Host Directories
+          echo "Setting up logging agent..."
           mkdir -p /var/log/methylation /workspace/results
           chmod 777 /var/log/methylation /workspace/results
 
@@ -127,7 +128,6 @@ jobs:
           systemctl restart google-cloud-ops-agent
 
           # 4. Pull the image
-          # Notice: $IMAGE_NAME is no longer escaped with a backslash
           echo "Pulling image: $IMAGE_NAME"
           if ! docker pull $IMAGE_NAME; then
             echo "ERROR: Failed to pull image. Check Artifact Registry permissions."
@@ -137,14 +137,14 @@ jobs:
 
           # 5. Spin up the container based on execution mode
           if [ "${{ github.event.inputs.execution_mode }}" == "test" ]; then
-            # TEST MODE: Instantly validates run permissions, then exits (triggering trap cleanup)
+            echo "Running in TEST mode..."
             if ! docker run --name test-runner $IMAGE_NAME /bin/true; then
               echo "ERROR: Container failed to start."
               EXIT_CODE=1
               exit \$EXIT_CODE
             fi
           else
-            # RUN MODE: Starts container in background for manual SSH access
+            echo "Running in INTERACTIVE mode..."
             docker run -d \\
               --name pipeline-runner \\
               --shm-size=16g \\
@@ -155,6 +155,7 @@ jobs:
           fi
           EOF
 
+          # Provision the VM
           gcloud compute instances create ephemeral-pipeline-vm \
             --source-instance-template=${{ github.event.inputs.vm_template }} \
             --zone=europe-west1-b \
