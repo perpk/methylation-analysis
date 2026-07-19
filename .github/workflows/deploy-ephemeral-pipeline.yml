@@ -23,14 +23,10 @@ on:
           - python
           - r-lang
       docker_registry:
-        description: 'Target Docker Registry (e.g., gcr.io/pd-methylation)'
+        description: 'Target Docker Registry'
         required: true
-        default: 'gcp'
-        type: choice
-        options:
-          - dockerhub
-          - gcp
-          - both
+        default: 'europe-west1-docker.pkg.dev/pd-methylation/iou-projects-repo'
+        type: string
 
 jobs:
   build_python_image:
@@ -63,11 +59,11 @@ jobs:
 
       - name: Deploy Interactive VM
         run: |
-          # Determine the image name based on the chosen track
+          # Determine the exact image tag based on the chosen track
           if [ "${{ github.event.inputs.image_track }}" == "python" ]; then
-            IMAGE_NAME="${{ github.event.inputs.docker_registry }}/your-python-image:latest"
+            IMAGE_NAME="${{ github.event.inputs.docker_registry }}/vast-python-env:latest"
           else
-            IMAGE_NAME="${{ github.event.inputs.docker_registry }}/your-r-image:latest"
+            IMAGE_NAME="${{ github.event.inputs.docker_registry }}/vast-r-env:v1"
           fi
 
           cat << EOF > startup-script.sh
@@ -127,8 +123,8 @@ jobs:
           systemctl restart google-cloud-ops-agent
 
           # 4. Pull the image
-          echo "Pulling image: $IMAGE_NAME"
-          if ! docker pull $IMAGE_NAME; then
+          echo "Pulling image: \$IMAGE_NAME"
+          if ! docker pull \$IMAGE_NAME; then
             echo "ERROR: Failed to pull image. Check Artifact Registry permissions."
             EXIT_CODE=1
             exit \$EXIT_CODE
@@ -137,7 +133,7 @@ jobs:
           # 5. Spin up the container based on execution mode
           if [ "${{ github.event.inputs.execution_mode }}" == "test" ]; then
             # TEST MODE: Instantly validates run permissions, then exits (triggering trap cleanup)
-            if ! docker run --name test-runner $IMAGE_NAME /bin/true; then
+            if ! docker run --name test-runner \$IMAGE_NAME /bin/true; then
               echo "ERROR: Container failed to start."
               EXIT_CODE=1
               exit \$EXIT_CODE
@@ -150,7 +146,7 @@ jobs:
               -p 2222:22 -p 8080:8080 \\
               -v /var/log/methylation:/workspace/methylation-analysis/logs \\
               -v /workspace/results:/workspace/results \\
-              $IMAGE_NAME
+              \$IMAGE_NAME
           fi
           EOF
 
