@@ -127,8 +127,9 @@ jobs:
           systemctl restart google-cloud-ops-agent
 
           # 4. Pull the image
-          echo "Pulling image: \$IMAGE_NAME"
-          if ! docker pull \$IMAGE_NAME; then
+          # Notice: $IMAGE_NAME is no longer escaped with a backslash
+          echo "Pulling image: $IMAGE_NAME"
+          if ! docker pull $IMAGE_NAME; then
             echo "ERROR: Failed to pull image. Check Artifact Registry permissions."
             EXIT_CODE=1
             exit \$EXIT_CODE
@@ -137,7 +138,7 @@ jobs:
           # 5. Spin up the container based on execution mode
           if [ "${{ github.event.inputs.execution_mode }}" == "test" ]; then
             # TEST MODE: Instantly validates run permissions, then exits (triggering trap cleanup)
-            if ! docker run --name test-runner \$IMAGE_NAME /bin/true; then
+            if ! docker run --name test-runner $IMAGE_NAME /bin/true; then
               echo "ERROR: Container failed to start."
               EXIT_CODE=1
               exit \$EXIT_CODE
@@ -150,7 +151,7 @@ jobs:
               -p 2222:22 -p 8080:8080 \\
               -v /var/log/methylation:/workspace/methylation-analysis/logs \\
               -v /workspace/results:/workspace/results \\
-              \$IMAGE_NAME
+              $IMAGE_NAME
           fi
           EOF
 
