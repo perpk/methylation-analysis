@@ -113,4 +113,5 @@ jobs:
 
           gcloud compute instances create ephemeral-pipeline-vm \
             --source-instance-template=${{ github.event.inputs.vm_template }} \
+            --zone=europe-west1-b \
             --metadata-from-file=startup-script=startup-script.sh
