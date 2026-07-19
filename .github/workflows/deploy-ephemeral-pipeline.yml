@@ -23,10 +23,14 @@ on:
           - python
           - r-lang
       docker_registry:
-        description: 'Target Docker Registry'
+        description: 'Target Docker Registry (e.g., gcr.io/pd-methylation)'
         required: true
-        default: 'europe-west1-docker.pkg.dev/pd-methylation/iou-projects-repo'
-        type: string
+        default: 'gcp'
+        type: choice
+        options:
+          - dockerhub
+          - gcp
+          - both
 
 jobs:
   build_python_image:
