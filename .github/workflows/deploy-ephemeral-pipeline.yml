@@ -63,6 +63,7 @@ jobs:
 
       - name: Deploy Interactive VM
         run: |
+          # Determine the image name based on the chosen track
           if [ "${{ github.event.inputs.image_track }}" == "python" ]; then
             IMAGE_NAME="${{ github.event.inputs.docker_registry }}/your-python-image:latest"
           else
@@ -71,10 +72,11 @@ jobs:
 
           cat << EOF > startup-script.sh
           #!/bin/bash
-          # EXIT_CODE variable to track if everything went well
+          set -e
+
           EXIT_CODE=0
 
-          # Cleanup function: Deletes the VM if we are in 'test' mode
+          # Cleanup function: Deletes the VM immediately if we are in 'test' mode
           cleanup() {
             if [ "${{ github.event.inputs.execution_mode }}" == "test" ]; then
               echo "Cleaning up test VM..."
@@ -84,30 +86,71 @@ jobs:
             fi
           }
 
-          # Register the cleanup function to run on exit (error or success)
+          # Ensure cleanup runs whether the script succeeds or fails
           trap cleanup EXIT
 
-          # 1. Setup Docker, Ops Agent, etc.
-          # [ ... (Keep all your existing setup logic here) ... ]
+          # 1. Install Docker natively on the Debian VM
+          apt-get update
+          apt-get install -y ca-certificates curl gnupg
+          install -m 0755 -d /etc/apt/keyrings
+          curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+          chmod a+r /etc/apt/keyrings/docker.gpg
 
-          # 2. Pull and Test the image
-          echo "Testing image: $IMAGE_NAME"
+          # Properly escaped variables so the VM evaluates them, not GitHub
+          echo "deb [arch=\$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \$(. /etc/os-release && echo "\$VERSION_CODENAME") stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+          apt-get update
+          apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+          # 2. Authenticate Docker for GCP Artifact Registry
+          gcloud auth configure-docker europe-west1-docker.pkg.dev --quiet
+
+          # 3. Setup Ops Agent and Host Directories
+          mkdir -p /var/log/methylation /workspace/results
+          chmod 777 /var/log/methylation /workspace/results
+
+          curl -sSO https://dl.google.com/cloudagents/add-google-cloud-ops-agent-repo.sh
+          bash add-google-cloud-ops-agent-repo.sh --also-install
+
+          cat << 'CONFIG' > /etc/google-cloud-ops-agent/config.yaml
+          logging:
+            receivers:
+              pipeline_logs:
+                type: files
+                include_paths:
+                  - /var/log/methylation/*.log
+            service:
+              pipelines:
+                custom_pipeline:
+                  receivers: [pipeline_logs]
+          CONFIG
+          systemctl restart google-cloud-ops-agent
+
+          # 4. Pull the image
+          echo "Pulling image: $IMAGE_NAME"
           if ! docker pull $IMAGE_NAME; then
             echo "ERROR: Failed to pull image. Check Artifact Registry permissions."
             EXIT_CODE=1
             exit \$EXIT_CODE
           fi
 
-          # 3. If test mode, verify run
+          # 5. Spin up the container based on execution mode
           if [ "${{ github.event.inputs.execution_mode }}" == "test" ]; then
+            # TEST MODE: Instantly validates run permissions, then exits (triggering trap cleanup)
             if ! docker run --name test-runner $IMAGE_NAME /bin/true; then
-              echo "ERROR: Container failed to start. Check your entrypoint/image."
+              echo "ERROR: Container failed to start."
               EXIT_CODE=1
               exit \$EXIT_CODE
             fi
           else
-            # Start for manual interaction
-            docker run -d --name pipeline-runner ... $IMAGE_NAME
+            # RUN MODE: Starts container in background for manual SSH access
+            docker run -d \\
+              --name pipeline-runner \\
+              --shm-size=16g \\
+              -p 2222:22 -p 8080:8080 \\
+              -v /var/log/methylation:/workspace/methylation-analysis/logs \\
+              -v /workspace/results:/workspace/results \\
+              $IMAGE_NAME
           fi
           EOF
 
