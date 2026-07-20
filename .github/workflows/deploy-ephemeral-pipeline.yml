@@ -23,7 +23,7 @@ on:
           - python
           - r-lang
       docker_registry:
-        description: 'Target Docker Registry (e.g., gcr.io/pd-methylation)'
+        description: 'Target Docker Registry'
         required: true
         default: 'gcp'
         type: choice
@@ -63,18 +63,28 @@ jobs:
 
       - name: Deploy Interactive VM
         run: |
-          if [ "${{ github.event.inputs.image_track }}" == "python" ]; then
-            IMAGE_NAME="${{ github.event.inputs.docker_registry }}/your-python-image:latest"
+          # 1. Map the 'gcp' dropdown option to your actual registry URL
+          if [ "${{ github.event.inputs.docker_registry }}" == "gcp" ]; then
+            REGISTRY_URL="europe-west1-docker.pkg.dev/pd-methylation/iou-projects-repo"
           else
-            IMAGE_NAME="${{ github.event.inputs.docker_registry }}/your-r-image:latest"
+            REGISTRY_URL="${{ github.event.inputs.docker_registry }}"
           fi
 
+          # 2. Determine the exact image tag
+          if [ "${{ github.event.inputs.image_track }}" == "python" ]; then
+            IMAGE_NAME="$REGISTRY_URL/vast-python-env:latest"
+          else
+            IMAGE_NAME="$REGISTRY_URL/vast-r-env:v1"
+          fi
+
+          # 3. Generate the startup script
           cat << EOF > startup-script.sh
           #!/bin/bash
-          # EXIT_CODE variable to track if everything went well
+          set -e
+
           EXIT_CODE=0
 
-          # Cleanup function: Deletes the VM if we are in 'test' mode
+          # Cleanup function: Deletes the VM immediately if we are in 'test' mode
           cleanup() {
             if [ "${{ github.event.inputs.execution_mode }}" == "test" ]; then
               echo "Cleaning up test VM..."
@@ -84,33 +94,68 @@ jobs:
             fi
           }
 
-          # Register the cleanup function to run on exit (error or success)
           trap cleanup EXIT
 
-          # 1. Setup Docker, Ops Agent, etc.
-          # [ ... (Keep all your existing setup logic here) ... ]
+          # 1. Install Docker (Universal, foolproof method)
+          echo "Installing Docker..."
+          curl -fsSL https://get.docker.com -o get-docker.sh
+          sh get-docker.sh
 
-          # 2. Pull and Test the image
-          echo "Testing image: $IMAGE_NAME"
+          # 2. Authenticate Docker for GCP Artifact Registry
+          echo "Authenticating Artifact Registry..."
+          gcloud auth configure-docker europe-west1-docker.pkg.dev --quiet
+
+          # 3. Setup Ops Agent and Host Directories
+          echo "Setting up logging agent..."
+          mkdir -p /var/log/methylation /workspace/results
+          chmod 777 /var/log/methylation /workspace/results
+
+          curl -sSO https://dl.google.com/cloudagents/add-google-cloud-ops-agent-repo.sh
+          bash add-google-cloud-ops-agent-repo.sh --also-install
+
+          cat << 'CONFIG' > /etc/google-cloud-ops-agent/config.yaml
+          logging:
+            receivers:
+              pipeline_logs:
+                type: files
+                include_paths:
+                  - /var/log/methylation/*.log
+            service:
+              pipelines:
+                custom_pipeline:
+                  receivers: [pipeline_logs]
+          CONFIG
+          systemctl restart google-cloud-ops-agent
+
+          # 4. Pull the image
+          echo "Pulling image: $IMAGE_NAME"
           if ! docker pull $IMAGE_NAME; then
             echo "ERROR: Failed to pull image. Check Artifact Registry permissions."
             EXIT_CODE=1
             exit \$EXIT_CODE
           fi
 
-          # 3. If test mode, verify run
+          # 5. Spin up the container based on execution mode
           if [ "${{ github.event.inputs.execution_mode }}" == "test" ]; then
+            echo "Running in TEST mode..."
             if ! docker run --name test-runner $IMAGE_NAME /bin/true; then
-              echo "ERROR: Container failed to start. Check your entrypoint/image."
+              echo "ERROR: Container failed to start."
               EXIT_CODE=1
               exit \$EXIT_CODE
             fi
           else
-            # Start for manual interaction
-            docker run -d --name pipeline-runner ... $IMAGE_NAME
+            echo "Running in INTERACTIVE mode..."
+            docker run -d \\
+              --name pipeline-runner \\
+              --shm-size=16g \\
+              -p 2222:22 -p 8080:8080 \\
+              -v /var/log/methylation:/workspace/methylation-analysis/logs \\
+              -v /workspace/results:/workspace/results \\
+              $IMAGE_NAME
           fi
           EOF
 
+          # Provision the VM
           gcloud compute instances create ephemeral-pipeline-vm \
             --source-instance-template=${{ github.event.inputs.vm_template }} \
             --zone=europe-west1-b \
