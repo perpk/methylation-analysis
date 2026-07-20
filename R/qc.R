@@ -67,6 +67,16 @@ qc <- function(context = NULL,
     bisulfite_failures = bisulfite_failed_samples$indices
   )
 
+  failed_samples_df <- data.frame(
+    Sample_Name = bad_samples$names,
+    Intensity_Failure = bad_samples$indices %in% intensity_bad_samples$indices,
+    Bisulfite_Failure = bad_samples$indices %in% bisulfite_failed_samples$indices,
+    Beadcount_Failure = bad_samples$indices %in% bad_samples_indices,
+    row.names = NULL,
+    check.rows = FALSE,
+    check.names = TRUE
+  )
+
   prog$update(6, "Filtering samples")
 
   if (length(bad_samples$indices) > 0) {
@@ -94,7 +104,7 @@ qc <- function(context = NULL,
   targets_results <- new("ResultsContainer", filename = "targets_clean.rds", object = targets_clean, future = NULL)
   methyl_set_results <- new("ResultsContainer", filename = "methyl_set_clean.rds", object = methyl_set_clean, future = NULL)
   bisulfite_thresholds_results <- new("ResultsContainer", filename = "bisulfite_thresholds.rds", object = bisulfite_thresholds, future = NULL)
-
+  failed_samples_results <- new("ResultsContainer", filename = "failed_samples.rds", object = failed_samples_df, future = NULL)
   # Save bisulfite thresholds for documentation
   saveRDS(
     bisulfite_thresholds,
@@ -127,7 +137,8 @@ qc <- function(context = NULL,
     rg_set_results = rg_set_results,
     targets_results = targets_results,
     methyl_set_results = methyl_set_results,
-    bisulfite_thresholds_results = bisulfite_thresholds_results
+    bisulfite_thresholds_results = bisulfite_thresholds_results,
+    failed_samples_results = failed_samples_results
   ))
 }
 

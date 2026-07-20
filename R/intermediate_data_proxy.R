@@ -17,7 +17,7 @@ intermediate_data_proxy <- function(pipeline_function, project_context, ...) {
         updated_results <- lapply(results, function(result) {
             if (is(result, "ResultsContainer")) {
                 future <- mirai({
-                    cat(paste("Saving", f, "to disk asynchronously.\n"))
+                    cat(paste("Saving", f, "to disk synchronously.\n"))
                     saveRDS(o, file = f)
                     return(f)
                 }, o = result@object, f = result@filename)

@@ -1,7 +1,6 @@
 rm(list = ls())
 gc(full = TRUE)
 
-
 library(GEOquery)
 library(tidyverse)
 library(minfi)
@@ -11,95 +10,91 @@ library(FlowSorted.Blood.EPIC)
 library(ggplot2)
 library(IlluminaHumanMethylation450kanno.ilmn12.hg19)
 library(IlluminaHumanMethylationEPICanno.ilm10b4.hg19)
+library(tidyverse)
+
+install.packages(c("tidyverse", "mirai"))
 
 source("R/progress_mgr.R")
 source("R/project_context.R")
 
-project_to_load <- "GSE145361_20260714_080452"
+
+project_name <- "GSE145361"
 project_location <- "/root/workspace/methyl-pipe-out"
 platform <- "450k"
 
 cohorts <- list(
   PD_vs_Control = c("PD", "Control")
 )
+mode <- results_mode()$memory_only
 
-project_context <- .load_methylation_project(project_location, project_to_load, platform = platform, cohorts = cohorts)
-
-targets_gender_mismatch <- readRDS(file.path(project_context$paths$processed, "targets_after_bio_gender_mismatch.rds"))
-
-beta_matrix <- readRDS(file.path(project_context$paths$results, "beta_matrix.rds"))
-
-pca_df <- readRDS(file.path(project_context$paths$results, "pca_df.rds"))
-
-pca_scores <- pca_df[, 1:2]
-center <- colMeans(pca_scores)
-cov_matrix <- cov(pca_scores)
-distances <- mahalanobis(pca_scores, center, cov_matrix)
-outlier_threshold <- qchisq(0.975, df = 2)
-outliers <- which(distances > outlier_threshold)
-
-outlier_samples <- rownames(pca_scores)[outliers]
-pca_df$Is_Outlier <- rownames(pca_df) %in% outlier_samples
-
-beta_matrix_no_outliers <- beta_matrix[, !colnames(beta_matrix) %in% outlier_samples]
-
-sum(beta_matrix_no_outliers == 0)
-saveRDS(beta_matrix_no_outliers, file.path(project_context$paths$results, "beta_matrix_no_outliers.rds"))
-
+source("R/intermediate_data_proxy.R")
 source("R/results_container.R")
-source("R/apply_BMIQ.R")
-res <- apply_BMIQ(project_context,
-  beta_matrix = beta_matrix_no_outliers,
-  plot = FALSE
+project_context <- create_methylation_project(project_name, project_location, platform = platform, cohorts = cohorts, mode = mode)
+
+data_folder <- paste0(project_name, "_RAW")
+
+targets <- read.metharray.sheet(data_folder, pattern = "GPL13534_HumanMethylation450_15017482_v.1.1.csv.gz")
+
+gse <- getGEO(project_name, GSEMatrix = TRUE, getGPL = FALSE)
+pdata <- pData(gse[[1]])
+all_idat_files <- list.files(data_folder, pattern = "\\.idat\\.gz$", full.names = FALSE)
+basenames <- unique(gsub("_(Grn|Red).idat.gz", "", all_idat_files))
+targets <- data.frame(
+    Sample_Name = gsub("_.*", "", basenames),
+    Basename = file.path(data_folder, basenames),
+    stringsAsFactors = FALSE
 )
 
-m_bmiq_no_outliers <- readRDS(file.path(project_context$paths$results, "m_values_bmiq.rds"))
-beta_bmiq_no_outliers <- readRDS(file.path(project_context$paths$results, "beta_matrix_bmiq.rds"))
+targets <- merge(targets, pdata, by.x = "Sample_Name", by.y = "row.names", all.x = TRUE)
 
-targets_gender_mismatch$Basename %>% head()
+library(tidyverse)
+targets$Sample_Group <- factor(targets$`disease-state:ch1`)
+targets <- targets %>% mutate(Sample_Group = case_when(Sample_Group == "Parkinson's disease" ~ "PD", Sample_Group == "Control" ~ "Control"))
+targets$Sample_Group <- as.factor(targets$Sample_Group)
 
-rownames(targets_gender_mismatch) <- targets_gender_mismatch$Basename %>% str_remove(paste0("GSE145361_RAW", "/"))
-
-pd_samples <- rownames(targets_gender_mismatch[targets_gender_mismatch$Sample_Group == "PD", ])
-hc_samples <- rownames(targets_gender_mismatch[targets_gender_mismatch$Sample_Group == "Control", ])
-
-colnames_pd <- which(colnames(beta_bmiq_no_outliers) %in% pd_samples)
-colnames_hc <- which(colnames(beta_bmiq_no_outliers) %in% hc_samples)
-
-mean_beta_pd <- rowMeans(beta_bmiq_no_outliers[, colnames_pd], na.rm = TRUE)
-mean_beta_hc <- rowMeans(beta_bmiq_no_outliers[, colnames_hc], na.rm = TRUE)
-delta_beta <- mean_beta_pd - mean_beta_hc
-
-beta_means <- data.frame(
-  mean_beta_pd,
-  mean_beta_hc,
-  delta_beta
-)
-
-write.csv(beta_means, file.path(project_context$paths$results, "beta_means.csv"))
-
-targets <- readRDS(file.path(project_context$paths$processed, "targets.rds"))
 
 source("R/extract_methyl_set.R")
-source("R/intermediate_data_proxy.R")
-res_extract_methyl_set <- intermediate_data_proxy(
-  extract_methyl_set, project_context,
-  targets = targets
-)
-
-source("R/cell_cnt_estimate.R")
-res_cell_cnt_estimate <- intermediate_data_proxy(
-  cell_cnt_estimate,
-  project_context,
-  rg_set = res_extract_methyl_set$rg_set_container@object,
-  targets = targets
-)
-saveRDS(res_cell_cnt_estimate$targets_container@object, file.path(project_context$paths$qc, "targets_s_mismatch_cells.rds"))
-
-source("R/plot_cell_proportions.R")
-plot_cell_proportions(
+res <- extract_methyl_set(
   context = project_context,
-  targets = res_cell_cnt_estimate$targets_container@object,
-  targets_file = res_cell_cnt_estimate$targets_container@filename,
-  cell_types = getCellTypesForPlatform(project_context$platform)
+  targets = targets
 )
+
+is.null(res$m_set_container@object)
+is.null(res$rg_set_container@object)
+
+source("R/qc.R")
+res_qc <- qc(context = project_context,
+  methyl_set = res$m_set_container@object,
+  rg_set = res$rg_set_container@object,
+  targets = targets
+)
+
+saveRDS(res_qc$failed_samples_results@object, file = file.path(project_context$paths$qc, "failed_samples.rds"))
+
+saveRDS(res_qc$bisulfite_thresholds_results@object, file = file.path(project_context$paths$qc, "bisulfite_thresholds.rds"))
+saveRDS(res_qc$qc_results@object, file = file.path(project_context$paths$qc, "qc_results.rds"))
+saveRDS(res_qc$failed_samples_results@object, file = file.path(project_context$paths$qc, "failed_samples.rds"))
+
+
+m_set_clean <- res$m_set_container@object
+rg_set_clean <- res$rg_set_container@object
+
+source("R/bg_correction_dye_bias_norm.R")
+res_bg_corr <- bg_correction_dye_bias_norm(
+  context = project_context,
+  rg_set = rg_set_clean
+)
+
+is.null(res_bg_corr$rg_set_container@object)
+
+source("R/probe_qc.R")
+res_probe_qc <- probe_qc(
+  context = project_context,
+  rg_set = res_bg_corr$rg_set_container@object
+)
+
+removed_probes_container <- res_probe_qc$removed_probes_container@object
+qc_summary_container <- res_probe_qc$qc_summary_container@object
+
+saveRDS(removed_probes_container, file = res_probe_qc$removed_probes_container@filename)
+saveRDS(qc_summary_container, file = res_probe_qc$qc_summary_container@filename)

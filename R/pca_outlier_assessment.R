@@ -77,6 +77,4 @@ pca_outlier_assessment <- function(context = NULL) {
   saveRDS(metrics, metrics_filepath)
 
   prog$complete()
-  rm(list = ls())
-  gc(full = T)
 }
