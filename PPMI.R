@@ -110,6 +110,7 @@ targets <- targets[targets$Sample_Group %in% unlist(cohorts), ]
 project_to_load <- "ppmi"
 
 source("./pre_process_eda.R")
+source("R/project_context.R")
 pre_process_eda(
   project_name = project_name,
   targets = targets,
@@ -118,5 +119,6 @@ pre_process_eda(
   var_mapping = var_mappings,
   platform = "EPIC",
   qc_threshold = "auto",
-  cohorts = cohorts
+  cohorts = cohorts,
+  mode = results_mode()$disk_only
 )

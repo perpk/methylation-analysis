@@ -99,12 +99,12 @@ qc <- function(context = NULL,
 
   prog$update(7, "Saving results")
 
-  qc_results <- new("ResultsContainer", filename = "qc_metrics.rds", object = qc, future = NULL)
-  rg_set_results <- new("ResultsContainer", filename = "rg_set_clean.rds", object = rg_set_clean, future = NULL)
-  targets_results <- new("ResultsContainer", filename = "targets_clean.rds", object = targets_clean, future = NULL)
-  methyl_set_results <- new("ResultsContainer", filename = "methyl_set_clean.rds", object = methyl_set_clean, future = NULL)
-  bisulfite_thresholds_results <- new("ResultsContainer", filename = "bisulfite_thresholds.rds", object = bisulfite_thresholds, future = NULL)
-  failed_samples_results <- new("ResultsContainer", filename = "failed_samples.rds", object = failed_samples_df, future = NULL)
+  qc_results <- new("ResultsContainer", filename = file.path(context$paths$qc, "qc_metrics.rds"), object = qc, future = NULL)
+  rg_set_results <- new("ResultsContainer", filename = file.path(context$paths$qc, "rg_set_clean.rds"), object = rg_set_clean, future = NULL)
+  targets_results <- new("ResultsContainer", filename = file.path(context$paths$qc, "targets_clean.rds"), object = targets_clean, future = NULL)
+  methyl_set_results <- new("ResultsContainer", filename = file.path(context$paths$qc, "methyl_set_clean.rds"), object = methyl_set_clean, future = NULL)
+  bisulfite_thresholds_results <- new("ResultsContainer", filename = file.path(context$paths$qc, "bisulfite_thresholds.rds"), object = bisulfite_thresholds, future = NULL)
+  failed_samples_results <- new("ResultsContainer", filename = file.path(context$paths$qc, "failed_samples.rds"), object = failed_samples_df, future = NULL)
   # Save bisulfite thresholds for documentation
   saveRDS(
     bisulfite_thresholds,

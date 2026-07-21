@@ -34,8 +34,7 @@ principal_component_analysis <- function(
   }
 
   pca_df_filepath <- file.path(context$paths$results, "pca_df.rds")
-  prog$update(4, "Writing PCA results")
-
+  
   prog$complete()
 
   pca_df_container <- new("ResultsContainer", filename = pca_df_filepath, object = pca_df, future = NULL)
