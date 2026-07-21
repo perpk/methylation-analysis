@@ -11,16 +11,17 @@ library(IlluminaHumanMethylationEPICanno.ilm10b4.hg19)
 source("R/intermediate_data_proxy.R")
 
 pre_process_eda <- function(
-    project_name = NULL,
-    project_to_load = NULL,
-    targets = NULL,
-    data_folder = NULL,
-    project_location = NULL,
-    var_mapping = NULL,
-    platform = NULL,
-    qc_threshold = 10.5,
-    cohorts = NULL,
-    mode = results_mode()$memory_only) {
+  project_name = NULL,
+  project_to_load = NULL,
+  targets = NULL,
+  data_folder = NULL,
+  project_location = NULL,
+  var_mapping = NULL,
+  platform = NULL,
+  qc_threshold = 10.5,
+  cohorts = NULL,
+  mode = results_mode()$memory_only
+) {
   if (is.null(platform)) {
     stop("Platform must be specified as '450K' or 'EPIC'")
   }
@@ -46,7 +47,9 @@ pre_process_eda <- function(
   #### - m_set_container: A ResultsContainer object containing the raw methylation set
   source("R/extract_methyl_set.R")
   res_extract_methyl_set <- intermediate_data_proxy(
-    extract_methyl_set, project_context,
+    extract_methyl_set,
+    auto_clean = TRUE,
+    project_context,
     targets = targets
   )
 
@@ -61,6 +64,7 @@ pre_process_eda <- function(
   source("R/qc.R")
   res_qc <- intermediate_data_proxy(
     qc,
+    auto_clean = TRUE,
     project_context,
     targets = targets,
     rg_set = res_extract_methyl_set$rg_set_container@object,
@@ -83,6 +87,7 @@ pre_process_eda <- function(
   source("R/bg_correction_dye_bias_norm.R")
   res_bg_corr <- intermediate_data_proxy(
     bg_correction_dye_bias_norm,
+    auto_clean = TRUE,
     project_context,
     rg_set = res_qc$rg_set_results@object,
     rg_set_filename = res_qc$rg_set_results@filename
@@ -98,6 +103,7 @@ pre_process_eda <- function(
   source("R/probe_qc.R")
   res_probe_qc <- intermediate_data_proxy(
     probe_qc,
+    auto_clean = FALSE,
     project_context,
     rg_set = res_bg_corr$rg_set_container@object,
     rg_set_filename = res_bg_corr$rg_set_container@filename
@@ -112,6 +118,7 @@ pre_process_eda <- function(
   source("R/biological_gender_mismatch_analysis.R")
   res_bio_gender_mismatch <- intermediate_data_proxy(
     biological_gender_mismatch_analysis,
+    auto_clean = TRUE,
     project_context,
     recorded_sex_col = var_mapping$gender_var,
     methyl_set = res_bg_corr$methyl_set_container@object,
@@ -153,6 +160,7 @@ pre_process_eda <- function(
   source("R/remove_snp.R")
   res_snp <- intermediate_data_proxy(
     remove_snp,
+    auto_clean = TRUE,
     project_context,
     methyl_set = m_set,
     methyl_set_file =
@@ -166,6 +174,7 @@ pre_process_eda <- function(
   source("R/remove_sex_chromosome_probes.R")
   res_sex_chromosome <- intermediate_data_proxy(
     remove_sex_chromosome_probes,
+    auto_clean = TRUE,
     project_context,
     methyl_set = res_snp$methyl_set_removed_snps_container@object,
     methyl_set_filename = res_snp$methyl_set_removed_snps_container@filename
@@ -175,6 +184,7 @@ pre_process_eda <- function(
   source("R/remove_cross_reactive_probes.R")
   res_cross_reactive <- intermediate_data_proxy(
     remove_cross_reactive_probes,
+    auto_clean = TRUE,
     project_context,
     methyl_set = res_sex_chromosome$mismatch_container@object,
     methyl_set_filename = res_sex_chromosome$mismatch_container@filename
@@ -209,6 +219,7 @@ pre_process_eda <- function(
   source("R/apply_BMIQ.R")
   bmiq_res <- intermediate_data_proxy(
     apply_BMIQ,
+    auto_clean = FALSE,
     project_context,
     beta_matrix = beta_matrix_container@object,
     beta_matrix_file = beta_matrix_container@filename,
@@ -225,6 +236,7 @@ pre_process_eda <- function(
 
   res_pca <- intermediate_data_proxy(
     principal_component_analysis,
+    auto_clean = FALSE,
     project_context,
     m_values = bmiq_res$m_bmiq_container@object,
     m_values_filename = bmiq_res$m_bmiq_container@filename,
@@ -257,6 +269,7 @@ pre_process_eda <- function(
 
   res_outlier <- intermediate_data_proxy(
     outlier_analysis,
+    auto_clean = FALSE,
     project_context,
     pca = res_pca$pca_df_container@object,
     pca_filename = res_pca$pca_df_container@filename,
@@ -269,6 +282,7 @@ pre_process_eda <- function(
   source("R/outlier_remove_redo_BMIQ.R")
   outlier_removed_bmiq_res <- outlier_remove_redo_BMIQ(
     context = project_context,
+    auto_clean = FALSE,
     pca = res_outlier$pca_outliers_container@object,
     beta_matrix = bmiq_res$beta_bmiq_container@object,
     pca_filename = res_outlier$pca_outliers_container@filename,
@@ -314,6 +328,7 @@ pre_process_eda <- function(
   source("R/cell_cnt_estimate.R")
   res_cell_cnt_estimate <- intermediate_data_proxy(
     cell_cnt_estimate,
+    auto_clean = FALSE,
     project_context,
     rg_set = res_extract_methyl_set$rg_set_container@object,
     targets = targets
