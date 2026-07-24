@@ -4,7 +4,7 @@ gc(full = TRUE)
 source("R/progress_mgr.R")
 source("R/project_context.R")
 
-project_to_load <- "GSE111629_20260709_222156"
+project_to_load <- "GSE111629_20260722_083339"
 project_location <- "/root/workspace/methyl-pipe-out"
 platform <- "450k"
 
@@ -15,7 +15,7 @@ cohorts <- list(
 project_context <- .load_methylation_project(project_location, project_to_load, platform = platform, cohorts = cohorts)
 
 targets <- readRDS(file.path(project_context$paths$results, "targets_s_mismatch_cells.rds"))
-targets_reduced <- readRDS(file.path(project_context$paths$processed, "targets_after_bio_gender_mismatch.rds"))
+targets_reduced <- readRDS(file.path(project_context$paths$processed, "targets_after_cell_count_estimation.rds"))
 
 head(rownames(targets))
 head(rownames(targets_reduced))
@@ -80,7 +80,6 @@ rownames(enriched_targets) <- enriched_targets$Basename %>% str_extract("GSM\\d{
 
 common <- intersect(rownames(enriched_targets), m_values_samples)
 length(common)
-
 
 harmonized_targets <- enriched_targets[rownames(enriched_targets) %in% common, ]
 dim(harmonized_targets)
