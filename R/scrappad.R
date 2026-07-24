@@ -17,10 +17,10 @@ source("R/project_context.R")
 source("R/intermediate_data_proxy.R")
 source("R/results_container.R")
 
-project_to_load <- "ppmi_20260721_075730"
+project_to_load <- "GSE111629_20260722_083339"
 project_location <- "/root/workspace/methyl-pipe-out"
-platform <- "EPIC"
-data_folder <- "ppmi"
+platform <- "450k"
+data_folder <- "GSE111629_RAW"
 
 cohorts <- list(
   PD_vs_Control = c("PD", "Control")
@@ -31,21 +31,20 @@ project_context <- .load_methylation_project(project_location, project_to_load, 
 project_context$mode <- mode
 project_context$mode
 
-beta_before <- readRDS("/root/workspace/methyl-pipe-out/ppmi_20260721_075730/results/beta_matrix.rds")
-beta_bmiq <- readRDS("/root/workspace/methyl-pipe-out/ppmi_20260721_075730/results/beta_matrix_bmiq.rds")
+beta_before <- readRDS("/root/workspace/methyl-pipe-out/GSE111629_20260722_083339/results/beta_matrix.rds")
+beta_bmiq <- readRDS("/root/workspace/methyl-pipe-out/GSE111629_20260722_083339/results/beta_matrix_bmiq.rds")
 
-project_context$paths$processed
 source("R/apply_BMIQ.R")
 plot_BMIQ(
   context = project_context,
   beta_before = beta_before,
   beta_after = beta_bmiq
-) 
+)
 
 # Principal Component Analysis
 source("R/principal_component_analysis.R")
 source("./meta_vars_mapping.R")
-var_mappings <- meta_vars_mapping(dataset = "ppmi")
+var_mappings <- meta_vars_mapping(dataset = "GSE111629")
 col_map <- list()
 col_map[["Sample_Group"]] <- "Sample_Group"
 col_map[["Gender"]] <- var_mappings$gender_var
@@ -56,7 +55,7 @@ m_values_bmiq <- readRDS(file.path(project_context$paths$results, "m_values_bmiq
 targets <- readRDS(file.path(project_context$paths$processed, "targets_remove_mismatch.rds"))
 
 m_bmiq_container <- new("ResultsContainer", filename = file.path(project_context$paths$results, "m_values_bmiq.rds"), object = m_values_bmiq, future = NULL)
-targets_container <- new("ResultsContainer", filename = file.path(project_context$paths$processed, "targets_remove_mismatch.rds"), object = targets, future = NULL)  
+targets_container <- new("ResultsContainer", filename = file.path(project_context$paths$processed, "targets_remove_mismatch.rds"), object = targets, future = NULL)
 
 bmiq_res <- list(
   m_bmiq_container = m_bmiq_container
@@ -132,8 +131,8 @@ outlier_removed_bmiq_res <- outlier_remove_redo_BMIQ(
 beta_matrix <- outlier_removed_bmiq_res$beta_bmiq_container@object
 targets <- res_bio_gender_mismatch$targets_container@object
 
-  library(dplyr)
-  library(stringr)
+library(dplyr)
+library(stringr)
 
 rownames(targets) <- targets$Basename %>% str_remove(paste0("ppmi/", "Project120_IDATS_n524final_toLONI_030718", "/"))
 rownames(targets) <- targets$Basename %>% str_remove("ppmi")
@@ -188,4 +187,4 @@ plot_cell_proportions(
 getCellTypesForPlatform(project_context$platform)
 project_context$platform
 
-res_cell_cnt_estimate$targets_container@object %>% head()  
+res_cell_cnt_estimate$targets_container@object %>% head()

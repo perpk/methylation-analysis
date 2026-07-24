@@ -7,7 +7,7 @@ library(dplyr)
 source("R/progress_mgr.R")
 source("R/project_context.R")
 
-project_to_load <- "GSE111629_20260709_222156"
+project_to_load <- "GSE111629_20260722_083339"
 project_location <- "/root/workspace/methyl-pipe-out"
 platform <- "450k"
 

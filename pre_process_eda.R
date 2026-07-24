@@ -20,7 +20,7 @@ pre_process_eda <- function(
   platform = NULL,
   qc_threshold = 10.5,
   cohorts = NULL,
-  mode = results_mode()$memory_only
+  mode = results_mode()$disk_only
 ) {
   if (is.null(platform)) {
     stop("Platform must be specified as '450K' or 'EPIC'")

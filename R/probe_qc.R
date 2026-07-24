@@ -1,13 +1,11 @@
 library(minfi)
 
 probe_qc <- function(
-  context = NULL,
-  rg_set = NULL,
-  rg_set_filename = "rg_set.rds",
-  det_p_threshold = 0.01,
-  max_failed_samples = 0.05
-) {
-
+    context = NULL,
+    rg_set = NULL,
+    rg_set_filename = "rg_set.rds",
+    det_p_threshold = 0.01,
+    max_failed_samples = 0.05) {
   prog <- .create_progress_manager(5)
 
   if (is.null(rg_set)) {

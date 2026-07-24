@@ -4,7 +4,7 @@ gc(full = TRUE)
 source("R/progress_mgr.R")
 source("R/project_context.R")
 
-project_to_load <- "GSE111629_20260709_222156"
+project_to_load <- "GSE111629_20260722_083339"
 project_location <- "/root/workspace/methyl-pipe-out"
 platform <- "450k"
 
@@ -120,10 +120,21 @@ pca_pairplot <- function(pca_df_with_dates, color_by = NULL, size_factor = 3, n_
 }
 
 is.numeric(pca_df_enriched_meta[["Slide"]])
+pca_df_enriched_meta[["Slide"]] %>%
+    as.factor() %>%
+    levels()
+
+pca_df_enriched_meta %>%
+    pull("Slide", "ScanDate") %>%
+    head()
+
+pca_df_enriched_meta[["Slide"]] %>% head()
 
 pca_df_enriched_meta$Slide_num <- as.numeric(pca_df_enriched_meta$Slide)
 
 pca_df_enriched_meta$Slide_num
+
+table(pca_df_enriched_meta$Slide_num, pca_df_enriched_meta$Sample_Group)
 
 pca_pairplot(pca_df_enriched_meta, color_by = "ScanDate", n_pcs = 5)
 pca_pairplot(pca_df_enriched_meta, color_by = "Slide_num", n_pcs = 5)

@@ -4,9 +4,9 @@ gc(full = TRUE)
 source("R/progress_mgr.R")
 source("R/project_context.R")
 
-project_to_load <- "GSE111629_20260722_083339"
+project_to_load <- "ppmi_20260721_075730"
 project_location <- "/root/workspace/methyl-pipe-out"
-platform <- "450k"
+platform <- "EPIC"
 
 cohorts <- list(
     PD_vs_Control = c("PD", "Control")
@@ -14,8 +14,8 @@ cohorts <- list(
 
 project_context <- .load_methylation_project(project_location, project_to_load, platform = platform, cohorts = cohorts)
 
-targets <- readRDS(file.path(project_context$paths$processed, "GSE111629_harmonized_targets.rds"))
-m_values <- readRDS(file.path(project_context$paths$processed, "GSE111629_harmonized_m_values.rds"))
+targets <- readRDS(file.path(project_context$paths$processed, "ppmi_harmonized_targets.rds"))
+m_values <- readRDS(file.path(project_context$paths$processed, "ppmi_harmonized_m_values.rds"))
 
 library(sva)
 
@@ -33,7 +33,7 @@ combat_m_values <- run_combat(
     batch_colname = "ScanDate",
     mod_colnames = "Sample_Group"
 )
-saveRDS(combat_m_values, file.path(project_context$paths$results, "GSE111629_combat_m_values.rds"))
+saveRDS(combat_m_values, file.path(project_context$paths$results, "ppmi_combat_m_values.rds"))
 
 # ==== re-do PCA
 
@@ -50,7 +50,7 @@ targets$Slide <- sapply(split_names, function(x) x[2])
 targets$Array <- sapply(split_names, function(x) x[3])
 targets %>% head()
 
-targets_for_pca <- targets[, c("Sample_Group", "CD8T", "CD4T", "NK", "Bcell", "Mono", "Gran", "Sex", "Age_Group", "ScanDate", "Sample_Name", "Slide", "Array")]
+targets_for_pca <- targets[, c("Sample_Group", "CD8T", "CD4T", "NK", "Bcell", "Mono", "Neu", "Sex", "Age_Group", "ScanDate", "Sample_Name", "Slide", "Array")]
 
 pca_df_enriched_meta <- merge(
     x = pca_df,
@@ -62,7 +62,7 @@ pca_df_enriched_meta <- merge(
 
 saveRDS(
     pca_df_enriched_meta,
-    file.path(project_context$paths$processed, "GSE111629_pca_df_enriched_meta_after_combat.rds")
+    file.path(project_context$paths$processed, "ppmi_pca_df_enriched_meta_after_combat.rds")
 )
 
 library(ggplot2)
@@ -128,7 +128,7 @@ pca_pairplot <- function(pca_df_with_dates, color_by = NULL, size_factor = 3, n_
     pplot <- wrap_plots(plots, ncol = length(pc_columns)) +
         plot_annotation(title = paste("PCA Pairplot - First", length(pc_columns), "PCs"))
 
-    ggsave(file.path(project_context$paths$plots, paste0("GSE111629_pca_pairplot_after_combat", color_by, ".png")),
+    ggsave(file.path(project_context$paths$plots, paste0("ppmi_pca_pairplot_after_combat", color_by, ".png")),
         pplot,
         width = size_factor * length(pc_columns),
         height = size_factor * length(pc_columns),
@@ -142,7 +142,7 @@ pca_df_enriched_meta$Slide_num <- as.numeric(pca_df_enriched_meta$Slide)
 pca_df_enriched_meta$Slide_num
 
 pca_pairplot(pca_df_enriched_meta, color_by = "ScanDate", n_pcs = 5)
-pca_pairplot(pca_df_enriched_meta, color_by = "Slide_num", n_pcs = 5)
+pca_pairplot(pca_df_enriched_meta, color_by = "Slide", n_pcs = 5)
 pca_pairplot(pca_df_enriched_meta, color_by = "Array", n_pcs = 5)
 pca_pairplot(pca_df_enriched_meta, color_by = "Sex", n_pcs = 5)
 pca_pairplot(pca_df_enriched_meta, color_by = "Age_Group", n_pcs = 5)
@@ -152,4 +152,4 @@ pca_pairplot(pca_df_enriched_meta, color_by = "CD4T", n_pcs = 5)
 pca_pairplot(pca_df_enriched_meta, color_by = "NK", n_pcs = 5)
 pca_pairplot(pca_df_enriched_meta, color_by = "Bcell", n_pcs = 5)
 pca_pairplot(pca_df_enriched_meta, color_by = "Mono", n_pcs = 5)
-pca_pairplot(pca_df_enriched_meta, color_by = "Gran", n_pcs = 5)
+pca_pairplot(pca_df_enriched_meta, color_by = "Neu", n_pcs = 5)
