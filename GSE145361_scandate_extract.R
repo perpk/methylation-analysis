@@ -1,8 +1,21 @@
 rm(list = ls())
 gc(full = TRUE)
 
-targets <- readRDS("/Volumes/saucepan/methylation-project/GSE145361_20260714_080452/processed/targets_after_bio_gender_mismatch.rds")
-targets_cells <- readRDS("/Volumes/saucepan/methylation-project/GSE145361_20260714_080452/qc/targets_s_mismatch_cells.rds")
+source("R/progress_mgr.R")
+source("R/project_context.R")
+
+project_to_load <- "GSE145361_20260714_080452"
+project_location <- "/root/workspace/methyl-pipe-out"
+platform <- "450k"
+
+cohorts <- list(
+    PD_vs_Control = c("PD", "Control")
+)
+
+project_context <- .load_methylation_project(project_location, project_to_load, platform = platform, cohorts = cohorts)
+
+targets <- readRDS(file.path(project_context$paths$processed, "targets_after_bio_gender_mismatch.rds"))
+targets_cells <- readRDS(file.path(project_context$paths$processed, "targets_s_mismatch_cells.rds"))
 
 dim(targets)
 dim(targets_cells)
@@ -53,11 +66,24 @@ merged$Sentrix_ID %>%
 merged$Sentrix_ID
 scan_dates$SentrixID
 
-idat_folder_loc <- "/Volumes/scaucepan/methylation-analysis/GSE145361_RAW"
+idat_folder_loc <- "/workspace/methylation-analysis/GSE145361_RAW"
 source("R/extract_scandate_from_idat.R")
 scan_dates <- extract_scandate_from_idat(
-    file_path = idat_folder_loc
+    file_path = idat_folder_loc, format = "%d/%m/%Y"
 )
+
+
+# idat <- readIDAT("/workspace/methylation-analysis/GSE145361_RAW/GSM4315521_3998888024_R01C01_Grn.idat.gz")
+# idat$RunInfo
+# run_metadata <- idat$RunInfo
+# scan_row <- which(run_metadata[, "BlockType"] == "Scan")[1]
+# scan_date_string <- run_metadata[scan_row, "RunTime"]
+# scan_date_string
+# as.POSIXct(scan_date_string, format = "%d/%m/%Y") %>%
+#     as.character() %>%
+#     str_extract("^(\\d{4}-\\d{2})")
+
+
 
 scan_dates$ScanDate %>%
     is.na() %>%
@@ -92,7 +118,7 @@ dim(merged)
 View(targets)
 View(enriched_targets)
 
-m_values <- readRDS("/Volumes/Elements/vastai/gse145361/GSE145361_20260522_110341/results/m_values_bmiq.rds")
+m_values <- readRDS(file.path(project_context$paths$results, "m_values_bmiq.rds"))
 dim(m_values)
 
 m_values_samples <- colnames(m_values)
@@ -122,10 +148,10 @@ dim(harmonized_m_values)
 
 saveRDS(
     harmonized_targets,
-    "/Volumes/Elements/vastai/gse145361/GSE145361_20260522_110341/processed/GSE145361_harmonized_targets.rds"
+    file.path(project_context$paths$processed, "GSE145361_harmonized_targets.rds")
 )
 
 saveRDS(
     harmonized_m_values,
-    "/Volumes/Elements/vastai/gse145361/GSE145361_20260522_110341/processed/GSE145361_harmonized_m_values.rds"
+    file.path(project_context$paths$processed, "GSE145361_harmonized_m_values.rds")
 )

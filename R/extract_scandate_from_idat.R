@@ -1,12 +1,12 @@
-extract_scandate_from_idat <- function(file_path=NULL, idat_ptn="^.+\\.idat(\\.gz)?$") {
+extract_scandate_from_idat <- function(file_path = NULL, format = "%m/%d/%Y", idat_ptn = "^.+\\.idat(\\.gz)?$") {
     library(illuminaio)
     library(stringr)
     library(dplyr)
     library(lubridate)
-    results_df = data.frame(
+    results_df <- data.frame(
         SentrixID = character(),
         ScanDate = character()
-    )  
+    )
     all_idat_files <- list.files(file_path, pattern = idat_ptn, full.names = TRUE)
     print(paste("Found", length(all_idat_files), "IDAT files in the specified directory."))
     for (idat_file in all_idat_files) {
@@ -21,9 +21,11 @@ extract_scandate_from_idat <- function(file_path=NULL, idat_ptn="^.+\\.idat(\\.g
         #     scan_date <- dmy_hms(tmp_d_str) %>% as.character() %>% str_extract("^(\\d{4}-\\d{2})")
         #     print("successfully parsed scan date string using lubridate's dmy_hms function.")
         # } else {
-            print(paste("Scan date string for file", idat_file, "is not a vector. Attempting to parse directly."))
-            scan_date <- as.POSIXct(scan_date_string, format="%m/%d/%Y") %>% as.character() %>% str_extract("^(\\d{4}-\\d{2})")
-            print("successfully parsed scan date string using as.POSIXct function.")
+        print(paste("Scan date string for file", idat_file, "is not a vector. Attempting to parse directly."))
+        scan_date <- as.POSIXct(scan_date_string, format = format) %>%
+            as.character() %>%
+            str_extract("^(\\d{4}-\\d{2})")
+        print("successfully parsed scan date string using as.POSIXct function.")
         # }
         if (is.na(scan_date)) {
             warning(paste("Could not extract scan date from file:", idat_file))
@@ -31,7 +33,7 @@ extract_scandate_from_idat <- function(file_path=NULL, idat_ptn="^.+\\.idat(\\.g
         sentrix_id <- paste0(idat_data$Barcode, "_", idat_data$Unknowns$MostlyA)
         results_df <- rbind(results_df, data.frame(SentrixID = sentrix_id, ScanDate = scan_date))
     }
-    return (results_df)
+    return(results_df)
 }
 
 # root_data_folder <- "/Volumes/Elements/methylation-analysis/"
@@ -39,4 +41,3 @@ extract_scandate_from_idat <- function(file_path=NULL, idat_ptn="^.+\\.idat(\\.g
 # scan_dates_gse <- extract_scandate_from_idat(file_path=paste0(root_data_folder, "GSE111629_RAW/"))
 # scan_dates_gse2 <- extract_scandate_from_idat(file_path=paste0(root_data_folder, "GSE145361_RAW/"))
 # head(scan_dates_gse)
-
