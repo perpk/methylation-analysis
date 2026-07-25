@@ -20,6 +20,10 @@ While creating the code the GEO dataset GSE111629[^readme-1] was used. The sourc
 Pre-processing involves sample- and probe QC, outlier detection and removal and further measures, like SNPs, X/Y-chromosome located probes and Cross-reactive probe removal and also removal of biological-gender mismatched samples. Other than that, background correction and dye-bias normalization via noob and Beta-Mixture Quantile (BMIQ) Normalization is performed during the pre-processing stage.  
 Additionally, cell count estimates are retrieved as the last stage of pre-processing and the results exported as csv and visualized as boxplots, together with statistical testing across the respective study groups according to FDR and Bonferroni correction.
 
-Regarding QC, probes with p-value > 0.01 in more than 5% of the samples are removed. Samples with mean intensities below a threshold (empirical) of 10.5 are removed. Also, samples where bisulfite conversion of channel I and II probes while those were removed which fall below a threshold value, calculated by 2 standard deviations below the mean. Additionally, samples with less than 3 beads in more than 5% of probes are excluded as well.
+Regarding QC, probes with p-value > 0.01 in more than 5% of the samples are removed. Samples with mean intensities below a threshold (empirical) of 10.5 are removed. Also, samples where bisulfite conversion of channel I and II probes while those were removed which fall below a threshold value, calculated by 2 standard deviations below the mean. Additionally, samples with less than 3 beads in more than 5% of probes are excluded as well. Probe-QC by excluding probes with p-value > 0.01 in more than 5% of the samples.
 
 ![](./pre-proc.png)
+
+After outlier removal and BMIQ normalization the scandates are retrieved from each experiments' idat files and used for batch correction. Batch-corrected m-values are then consolidated with the respective metadata (targets) for downstream analysis.
+
+![](./data-wrapup.png)

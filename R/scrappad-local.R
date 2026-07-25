@@ -86,12 +86,99 @@ ggsave(paste0(projects_location, "/cohort_sex_barplot.png"), sex_barplot, width 
 rm(list = ls())
 gc(full = TRUE)
 
-# qc_results = qc_results,
-# bisulfite_thresholds_results = bisulfite_thresholds_results,
-# failed_samples_results = failed_samples_results
+methyl_set_before_probe_qc <- readRDS("/Volumes/saucepan/methylation-project/ppmi_20260721_075730/processed/methyl_set_remove_mismatch.rds")
+methyl_set_after_probe_qc <- readRDS("/Volumes/saucepan/methylation-project/ppmi_20260721_075730/processed/methyl_set_remove_probe_qc.rds")
 
+dim(methyl_set_before_probe_qc)
+dim(methyl_set_after_probe_qc)
+
+rg_set_before_probe_qc <- readRDS("/Volumes/saucepan/methylation-project/ppmi_20260721_075730/processed/rg_set_remove_mismatch.rds")
+rg_set_after_probe_qc <- readRDS("/Volumes/saucepan/methylation-project/ppmi_20260721_075730/processed/rg_set_remove_probe_qc.rds")
+
+dim(rg_set_before_probe_qc)
+dim(rg_set_after_probe_qc)
+1052641 - 1043999
+866836 - 858194
+
+rg_set_after_probe_qc %>%
+    rownames() %>%
+    head()
+
+methyl_set_after_probe_qc %>%
+    rownames() %>%
+    head()
+
+library(minfi)
+ann <- getAnnotation(rg_set_after_probe_qc)
+
+probe_det_p <- readRDS("/Volumes/saucepan/methylation-project/ppmi_20260721_075730/qc/removed_probes_detection_p.rds")
+
+probe_det_p %>%
+    head()
+
+# ========================================================================================================================================================================
+# Sample QC Summary Statistics
 library(tidyverse)
-ppmi_sample_qc <- readRDS(file.path(paste0(projects_location, "/", ppmi_project, "/qc"), "targets_after_cell_count_estimation.rds"))
-ppmi_bisulfite_qc <- readRDS(file.path(paste0(projects_location, "/", ppmi_project, "/qc"), "bisulfite_thresholds.rds"))
-gse111629_sample_qc <- readRDS(file.path(paste0(projects_location, "/", "GSE111629_20260722_083339", "/processed"), "targets_after_cell_count_estimation.rds"))
-gse145361_sample_qc <- readRDS(file.path(paste0(projects_location, "/", "GSE145361_20260714_080452", "/processed"), "targets.rds"))
+
+rm(list = ls())
+gc(full = TRUE)
+
+projects_location <- "/Volumes/saucepan/methylation-project"
+ppmi_project <- "ppmi_20260721_075730"
+
+ppmi_targets <- readRDS(file.path(paste0(projects_location, "/", ppmi_project, "/processed"), "targets_after_cell_count_estimation.rds"))
+
+qc_results <- readRDS(file.path(paste0(projects_location, "/", ppmi_project, "/qc"), "qc_metrics.rds"))
+
+qc_results %>%
+    dim()
+
+failed_samples_gse111629 <- readRDS(file.path(paste0(projects_location, "/", "GSE111629_20260722_083339", "/qc"), "failed_samples.rds"))
+failed_samples_gse145361 <- readRDS(file.path(paste0(projects_location, "/", "GSE145361_20260714_080452", "/qc"), "failed_samples.rds"))
+failed_samples_ppmi <- readRDS(file.path(paste0(projects_location, "/", ppmi_project, "/qc"), "failed_samples.rds"))
+
+failed_samples_ppmi$Beadcount_Failure == FALSE %>% count()
+failed_samples_ppmi %>% dim()
+
+failed_samples_gse111629$Beadcount_Failure %>% table()
+failed_samples_gse111629 %>% dim()
+failed_samples_gse145361$Beadcount_Failure %>% table()
+failed_samples_gse145361 %>% dim()
+# --- Failed samples per cohort by failure category (Intensity_Failure, Bisulfite_Failure) ---
+
+failed_samples_summary <- bind_rows(
+    failed_samples_ppmi %>% mutate(Cohort = "PPMI"),
+    failed_samples_gse111629 %>% mutate(Cohort = "GSE111629"),
+    failed_samples_gse145361 %>% mutate(Cohort = "GSE145361")
+) %>%
+    select(Cohort, Intensity_Failure, Bisulfite_Failure, Beadcount_Failure) %>%
+    pivot_longer(
+        cols = c(Intensity_Failure, Bisulfite_Failure, Beadcount_Failure),
+        names_to = "Failure_Category",
+        values_to = "Failed"
+    ) %>%
+    mutate(
+        Failure_Category = factor(
+            Failure_Category,
+            levels = c("Intensity_Failure", "Bisulfite_Failure", "Beadcount_Failure")
+        )
+    ) %>%
+    filter(Failed) %>%
+    count(Cohort, Failure_Category, name = "n_failed") %>%
+    complete(Cohort, Failure_Category, fill = list(n_failed = 0)) %>%
+    mutate(Cohort = factor(Cohort, levels = c("PPMI", "GSE111629", "GSE145361")))
+
+failed_samples_summary$Failure_Category == "Beadcount_Failure"
+
+failed_samples_barplot <- ggplot(failed_samples_summary, aes(x = Cohort, y = n_failed, fill = Failure_Category)) +
+    geom_col(position = "dodge") +
+    geom_text(aes(label = n_failed), position = position_dodge(width = 0.9), vjust = -0.4) +
+    labs(
+        title = "Failed Samples by Cohort and Failure Category",
+        x = "Cohort", y = "Number of Failed Samples", fill = "Failure Category"
+    ) +
+    theme_minimal()
+
+ggsave(paste0(projects_location, "/cohort_failed_samples_barplot.png"), failed_samples_barplot, width = 7, height = 5, dpi = 300)
+
+View(failed_samples_summary)
