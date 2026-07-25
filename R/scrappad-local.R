@@ -182,3 +182,66 @@ failed_samples_barplot <- ggplot(failed_samples_summary, aes(x = Cohort, y = n_f
 ggsave(paste0(projects_location, "/cohort_failed_samples_barplot.png"), failed_samples_barplot, width = 7, height = 5, dpi = 300)
 
 View(failed_samples_summary)
+
+# ==== Probe QC Summary Statistics ====
+library(tidyverse)
+
+rm(list = ls())
+gc(full = TRUE)
+
+ppmi_probe_summary <- readRDS(file.path(paste0(projects_location, "/", ppmi_project, "/qc"), "probe_qc_summary.rds"))
+gse111629_probe_summary <- readRDS(file.path(paste0(projects_location, "/", "GSE111629_20260722_083339", "/qc"), "probe_qc_summary.rds"))
+gse145361_probe_summary <- readRDS(file.path(paste0(projects_location, "/", "GSE145361_20260714_080452", "/qc"), "probe_qc_summary.rds"))
+
+ppmi_probe_summary %>%
+    table()
+
+gse111629_probe_summary %>%
+    table()
+
+gse145361_probe_summary %>%
+    table()
+
+# --- Consolidate probe QC summary lists into a single table (for documentation) ---
+
+probe_qc_summary_table <- bind_rows(
+    list(
+        PPMI = ppmi_probe_summary,
+        GSE111629 = gse111629_probe_summary,
+        GSE145361 = gse145361_probe_summary
+    ),
+    .id = "Cohort"
+)
+
+probe_qc_summary_table
+
+write_csv(probe_qc_summary_table, paste0(projects_location, "/probe_qc_summary_table.csv"))
+
+ppmi_removed_probes <- readRDS(file.path(paste0(projects_location, "/", ppmi_project, "/qc"), "removed_probes_detection_p.rds"))
+gse111629_removed_probes <- readRDS(file.path(paste0(projects_location, "/", "GSE111629_20260722_083339", "/qc"), "removed_probes_detection_p.rds"))
+gse145361_removed_probes <- readRDS(file.path(paste0(projects_location, "/", "GSE145361_20260714_080452", "/qc"), "removed_probes_detection_p.rds"))
+
+ppmi_removed_probes %>%
+    tail()
+
+# --- Number of failed (removed) probes per cohort ---
+
+removed_probes_summary <- bind_rows(
+    ppmi_removed_probes %>% mutate(Cohort = "PPMI"),
+    gse111629_removed_probes %>% mutate(Cohort = "GSE111629"),
+    gse145361_removed_probes %>% mutate(Cohort = "GSE145361")
+) %>%
+    mutate(Cohort = factor(Cohort, levels = c("PPMI", "GSE111629", "GSE145361"))) %>%
+    count(Cohort, name = "n_removed_probes", .drop = FALSE) %>%
+    complete(Cohort, fill = list(n_removed_probes = 0))
+
+removed_probes_barplot <- ggplot(removed_probes_summary, aes(x = Cohort, y = n_removed_probes, fill = Cohort)) +
+    geom_col() +
+    geom_text(aes(label = n_removed_probes), vjust = -0.4) +
+    labs(
+        title = "Number of Failed (Removed) Probes by Cohort",
+        x = "Cohort", y = "Number of Removed Probes"
+    ) +
+    theme_minimal()
+
+ggsave(paste0(projects_location, "/cohort_removed_probes_barplot.png"), removed_probes_barplot, width = 7, height = 5, dpi = 300)
