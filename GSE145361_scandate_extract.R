@@ -1,8 +1,8 @@
 rm(list = ls())
 gc(full = TRUE)
 
-targets <- readRDS("/Volumes/Elements/vastai/gse145361/GSE145361_20260522_110341/processed/targets_remove_mismatch.rds")
-targets_cells <- readRDS("/Volumes/Elements/vastai/gse145361/GSE145361_20260522_110341/qc/targets_s_mismatch_cells.rds")
+targets <- readRDS("/Volumes/saucepan/methylation-project/GSE145361_20260714_080452/processed/targets_after_bio_gender_mismatch.rds")
+targets_cells <- readRDS("/Volumes/saucepan/methylation-project/GSE145361_20260714_080452/qc/targets_s_mismatch_cells.rds")
 
 dim(targets)
 dim(targets_cells)
@@ -53,7 +53,7 @@ merged$Sentrix_ID %>%
 merged$Sentrix_ID
 scan_dates$SentrixID
 
-idat_folder_loc <- "/Volumes/Elements/methylation-analysis/GSE145361_RAW"
+idat_folder_loc <- "/Volumes/scaucepan/methylation-analysis/GSE145361_RAW"
 source("R/extract_scandate_from_idat.R")
 scan_dates <- extract_scandate_from_idat(
     file_path = idat_folder_loc

@@ -78,3 +78,20 @@ sex_barplot <- ggplot(cohort_summary, aes(x = Sex, fill = Cohort)) +
     theme_minimal()
 
 ggsave(paste0(projects_location, "/cohort_sex_barplot.png"), sex_barplot, width = 7, height = 5, dpi = 300)
+
+# ========================================================================================================================================================================
+
+### Sample QC Summary Statistics
+
+rm(list = ls())
+gc(full = TRUE)
+
+# qc_results = qc_results,
+# bisulfite_thresholds_results = bisulfite_thresholds_results,
+# failed_samples_results = failed_samples_results
+
+library(tidyverse)
+ppmi_sample_qc <- readRDS(file.path(paste0(projects_location, "/", ppmi_project, "/qc"), "targets_after_cell_count_estimation.rds"))
+ppmi_bisulfite_qc <- readRDS(file.path(paste0(projects_location, "/", ppmi_project, "/qc"), "bisulfite_thresholds.rds"))
+gse111629_sample_qc <- readRDS(file.path(paste0(projects_location, "/", "GSE111629_20260722_083339", "/processed"), "targets_after_cell_count_estimation.rds"))
+gse145361_sample_qc <- readRDS(file.path(paste0(projects_location, "/", "GSE145361_20260714_080452", "/processed"), "targets.rds"))
