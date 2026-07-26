@@ -245,3 +245,75 @@ removed_probes_barplot <- ggplot(removed_probes_summary, aes(x = Cohort, y = n_r
     theme_minimal()
 
 ggsave(paste0(projects_location, "/cohort_removed_probes_barplot.png"), removed_probes_barplot, width = 7, height = 5, dpi = 300)
+
+# ====== Outlier Analysis Summary Statistics ======
+
+gse111629_outliers <- readRDS(file.path(paste0(projects_location, "/", "GSE111629_20260722_083339", "/qc"), "outlier_log.rds"))
+
+# ====== Cell count distribution summary statistics ======
+
+# NOTE: "targets_s_mismatch_cells_scandate.rds" for PPMI does not contain cell proportion
+# columns (CD8T, CD4T, Bcell, Neu) - using "targets_after_cell_count_estimation.rds" instead,
+# which does have them.
+ppmi_cell_counts <- readRDS(file.path(paste0(projects_location, "/", ppmi_project, "/processed"), "PPMI_harmonized_targets.rds"))
+gse111629_cell_counts <- readRDS(file.path(paste0(projects_location, "/", "GSE111629_20260722_083339", "/results"), "targets_s_mismatch_cells_scandate.rds"))
+gse145361_cell_counts <- readRDS(file.path(paste0(projects_location, "/", "GSE145361_20260714_080452", "/processed"), "GSE145361_harmonized_targets.rds"))
+
+# --- Cell type proportion density plots by cohort ---
+# CD8T, CD4T, Bcell are shared across all three cohorts.
+# Gran is only present for GSE111629 and GSE145361; Neu is PPMI-exclusive (its granulocyte estimate).
+
+ppmi_cell_counts %>% head()
+
+cell_counts_long <- bind_rows(
+    ppmi_cell_counts %>% transmute(Cohort = "PPMI", Sample_Group = Sample_Group, CD8T = CD8T, CD4T = CD4T, Bcell = Bcell, Neu = Neu),
+    gse111629_cell_counts %>% transmute(Cohort = "GSE111629", Sample_Group = Sample_Group, CD8T = CD8T, CD4T = CD4T, Bcell = Bcell, Gran = Gran),
+    gse145361_cell_counts %>% transmute(Cohort = "GSE145361", Sample_Group = Sample_Group, CD8T = CD8T, CD4T = CD4T, Bcell = Bcell, Gran = Gran)
+) %>%
+    mutate(Cohort = factor(Cohort, levels = c("PPMI", "GSE111629", "GSE145361"))) %>%
+    pivot_longer(
+        cols = c(CD8T, CD4T, Bcell, Gran, Neu),
+        names_to = "Cell_Type",
+        values_to = "Proportion"
+    ) %>%
+    filter(!is.na(Proportion))
+
+cell_type_density_plot <- function(data, cell_type) {
+    plot_data <- data %>%
+        filter(Cell_Type == cell_type) %>%
+        mutate(Cohort_Group = interaction(Cohort, Sample_Group, sep = " - "))
+    ggplot(plot_data, aes(x = Proportion, fill = Cohort_Group, color = Cohort_Group, linetype = Sample_Group)) +
+        geom_density(alpha = 0.3) +
+        labs(
+            title = paste0("Distribution of ", cell_type),
+            x = paste0(cell_type, " Proportion"), y = "Density",
+            fill = "Cohort - Sample Group", color = "Cohort - Sample Group", linetype = "Sample Group"
+        ) +
+        theme_minimal()
+}
+
+cd8t_density_plot <- cell_type_density_plot(cell_counts_long, "CD8T")
+ggsave(paste0(projects_location, "/cohort_cd8t_density_plot.png"), cd8t_density_plot, width = 7, height = 5, dpi = 300)
+
+cd4t_density_plot <- cell_type_density_plot(cell_counts_long, "CD4T")
+ggsave(paste0(projects_location, "/cohort_cd4t_density_plot.png"), cd4t_density_plot, width = 7, height = 5, dpi = 300)
+
+bcell_density_plot <- cell_type_density_plot(cell_counts_long, "Bcell")
+ggsave(paste0(projects_location, "/cohort_bcell_density_plot.png"), bcell_density_plot, width = 7, height = 5, dpi = 300)
+
+gran_density_plot <- cell_type_density_plot(cell_counts_long, "Gran")
+ggsave(paste0(projects_location, "/cohort_gran_density_plot.png"), gran_density_plot, width = 7, height = 5, dpi = 300)
+
+neu_density_plot <- cell_type_density_plot(cell_counts_long, "Neu")
+ggsave(paste0(projects_location, "/cohort_neu_density_plot.png"), neu_density_plot, width = 7, height = 5, dpi = 300)
+
+
+gse145361_cell_counts %>% head()
+
+table(gse145361_cell_counts$ScanDate, gse145361_cell_counts$Sample_Group)
+
+combat_m_values <- readRDS(file.path(paste0(projects_location, "/", "GSE145361_20260714_080452", "/results"), "GSE145361_combat_m_values.rds"))
+m_values <- readRDS(file.path(paste0(projects_location, "/", "GSE145361_20260714_080452", "/processed"), "GSE145361_harmonized_m_values.rds"))
+
+sum(combat_m_values - m_values)
+max(abs(combat_m_values - m_values))
