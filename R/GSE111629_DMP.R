@@ -75,3 +75,44 @@ ggsave(
     plot = volcano_plot,
     dpi = 300
 )
+
+beta_means <- read.csv(file.path(paste0(parent_path, sub_path), "beta_means.csv"), row.names = 1)
+
+beta_means %>%
+    rownames() %>%
+    head()
+
+annotated_results %>%
+    rownames() %>%
+    head()
+
+rownames(annotated_results) <- annotated_results$ProbeID
+
+annotated_with_beta <- merge(annotated_results, beta_means, by.x = "ProbeID", by.y = "row.names")
+annotated_with_beta <- annotated_with_beta[order(annotated_with_beta$adj.P.Val, -abs(annotated_with_beta$logFC), -abs(annotated_with_beta$delta_beta)), ]
+
+annotated_with_beta %>%
+    head()
+
+max(annotated_with_beta$delta_beta)
+min(annotated_with_beta$delta_beta)
+
+write.csv(annotated_with_beta, file.path(paste0(parent_path, sub_path), "GSE111629_dmp_annotated_with_beta_results.csv"))
+
+annotated_with_beta_filtered_delta_beta_sign <- annotated_with_beta[(annotated_with_beta$adj.P.Val < 0.05 & abs(annotated_with_beta$delta_beta) > 0.01), ]
+
+write.csv(annotated_with_beta_filtered_delta_beta_sign, file.path(paste0(parent_path, sub_path), "GSE111629_dmp_annotated_with_beta_filtered_delta_beta_sign_results.csv"))
+
+
+volcano_plot_delta_beta <- ggplot(annotated_with_beta, aes(x = delta_beta, y = -log10(adj.P.Val))) +
+    geom_point(alpha = 0.6, aes(color = (adj.P.Val < 0.05 & abs(delta_beta) > 0.01))) +
+    geom_hline(yintercept = -log10(0.05), linetype = "dashed") +
+    geom_vline(xintercept = c(-0.01, 0.01), linetype = "dashed") +
+    ggtitle("Volcano Plot of Differential Methylation (Delta Beta)") +
+    theme_minimal()
+
+ggsave(
+    filename = file.path(paste0(parent_path, sub_path), "GSE111629_dmp_volcano_plot_delta_beta.png"),
+    plot = volcano_plot_delta_beta,
+    dpi = 300
+)
