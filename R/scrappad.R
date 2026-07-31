@@ -24,8 +24,8 @@ source("R/results_container.R")
 # wget https://drive.usercontent.google.com/download?id=1PIaVMFefCEJxiW2dVaCFoMxRLFkBQCWE&export=download&authuser=0&confirm=t&uuid=535c8b79-860e-41c9-b722-b1828a528727&at=AFYLz4ORcayXZgTrw9A2li1-sDGs:1785519568230 -O pca_df_with_outliers.rds
 
 beta_matrix <- readRDS("/root/data/beta_matrix.rds")
-beta_matrix_bmiq <- readRDS("/root/data/beta_matrix_bmiq.rds")
-m_values_bmiq <- readRDS("/root/data/m_values_bmiq.rds")
+# beta_matrix_bmiq <- readRDS("/root/data/beta_matrix_bmiq.rds")
+# m_values_bmiq <- readRDS("/root/data/m_values_bmiq.rds")
 
 targets <- readRDS("/root/data/targets_s_mismatch_cells_scandate.rds")
 
@@ -34,11 +34,14 @@ pca_df_with_outliers <- readRDS("/root/data/pca_df_with_outliers.rds")
 outlier_samples <- rownames(pca_df_with_outliers)[pca_df_with_outliers$Is_Outlier]
 beta_matrix_no_outliers <- beta_matrix[, !colnames(beta_matrix) %in% outlier_samples]
 
+beta_matrix %>% dim()
+beta_matrix_no_outliers %>% dim()
+
 beta_bmiq <- matrix(NA, nrow = nrow(beta_matrix_no_outliers), ncol = ncol(beta_matrix_no_outliers))
 rownames(beta_bmiq) <- rownames(beta_matrix_no_outliers)
 colnames(beta_bmiq) <- colnames(beta_matrix_no_outliers)
 
-.get_probe_design_vector <- function(probe_names, platform) {
+.get_probe_design_vector <- function(probe_names, platform = IlluminaHumanMethylationEPICanno.ilm10b4.hg19) {
   # Returns: 1 for Type I probes, 2 for Type II probes
   anno <- getAnnotation(platform)
 
@@ -74,7 +77,7 @@ colnames(beta_bmiq) <- colnames(beta_matrix_no_outliers)
   return(probe_types)
 }
 
-design.v <- .get_probe_design_vector(rownames(beta_matrix_no_outliers), platform)
+design.v <- .get_probe_design_vector(rownames(beta_matrix_no_outliers))
 
 print(paste("Type I probes:", sum(design.v == 1)))
 print(paste("Type II probes:", sum(design.v == 2)))
@@ -83,7 +86,7 @@ beta_bmiq <- matrix(NA, nrow = nrow(beta_matrix_no_outliers), ncol = ncol(beta_m
 rownames(beta_bmiq) <- rownames(beta_matrix_no_outliers)
 colnames(beta_bmiq) <- colnames(beta_matrix_no_outliers)
 
-
+library(wateRmelon)
 for (i in 1:ncol(beta_matrix_no_outliers)) {
   print(paste("Processing sample", i, "of", ncol(beta_matrix_no_outliers)))
 
@@ -112,5 +115,37 @@ for (i in 1:ncol(beta_matrix_no_outliers)) {
   )
 }
 
+saveRDS(beta_bmiq, "/root/data/beta_matrix_bmiq_new.rds")
+
 m_bmiq <- log2(beta_bmiq / (1 - beta_bmiq))
 m_bmiq[is.infinite(m_bmiq)] <- NA
+
+m_raw <- log2(beta_matrix_no_outliers / (1 - beta_matrix_no_outliers))
+
+targets %>% dim()
+m_bmiq %>% dim()
+
+targets <- targets %>% filter(rownames(targets) %in% m_bmiq %>% colnames())
+
+m_bmiq %>%
+  colnames() %>%
+  head()
+
+targets %>%
+  pull(Sample_Name) %>%
+  head()
+
+targets_harmonized <- targets[targets$Sentrix_ID %in% colnames(m_bmiq), ]
+
+targets_harmonized %>% head()
+targets %>% head()
+
+design <- model.matrix(
+  ~ Sample_Group + Age_Group + Sex,
+  data = targets_harmonized
+)
+fit <- lmFit(m_raw, design)
+fit2 <- eBayes(fit)
+results <- topTable(fit2, coef = "Sample_GroupPD", number = Inf, adjust.method = "BH")
+
+table(results$adj.P.Val < 0.05)
