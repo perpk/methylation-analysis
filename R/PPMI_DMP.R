@@ -8,7 +8,7 @@ m_values <- readRDS(
     file.path(
         paste0(
             parent_path, sub_path,
-            "GSE111629_combat_m_values.rds"
+            "ppmi_harmonized_m_values.rds"
         )
     )
 )
@@ -17,19 +17,33 @@ targets <- readRDS(
     file.path(
         paste0(
             parent_path, sub_path,
-            "GSE111629_harmonized_targets.rds"
+            "ppmi_harmonized_targets.rds"
         )
     )
 )
+
+targets <- targets %>% filter(Sex == "Female")
+
+m_values <- m_values[, rownames(targets)]
+
+m_values %>%
+    colnames() %>%
+    head()
+
+targets %>% rownames()
+
+targets %>% dim()
+m_values %>% dim()
 
 library(ggplot2)
 library(tidyverse)
 library(limma)
 library(IlluminaHumanMethylation450kanno.ilmn12.hg19)
 
+targets %>% head()
 
 is.factor(targets$Sample_Group)
-# targets$Sample_Group <- as.factor(targets$Sample_Group)
+targets$Sample_Group <- as.factor(targets$Sample_Group)
 
 is.factor(targets$Sex)
 targets$Sex <- as.factor(make.names(targets$Sex))
@@ -37,19 +51,24 @@ targets$Sex <- as.factor(make.names(targets$Sex))
 is.factor(targets$Age_Group)
 targets$Age_Group <- as.factor(make.names(targets$Age_Group))
 
-is.factor(targets$ScanDate)
-targets$ScanDate <- as.factor(make.names(targets$ScanDate))
+# is.factor(targets$ScanDate)
+# targets$ScanDate <- as.factor(make.names(targets$ScanDate))
 
 
 design <- model.matrix(
-    ~ Sample_Group + Sex + Age_Group + CD8T + CD4T + Bcell + Mono + NK,
+    ~ Sample_Group + CD8T + CD4T + Bcell + Mono + NK,
     data = targets
 )
 
 fit <- lmFit(m_values, design)
+# cont.matrix <- makeContrasts(Parkinsons_vs_Control = Sample_GroupPD - Sample_GroupControl, levels = design)
+# fit2 <- contrasts.fit(fit, cont.matrix)
 fit2 <- eBayes(fit)
-results <- topTable(fit2, coef = "Sample_GroupPD", number = Inf)
+results <- topTable(fit2, coef = "Sample_GroupPD", number = Inf, adjust.method = "BH")
+
 table(results$adj.P.Val < 0.05)
+
+min(results$P.Value)
 
 results$ProbeID <- rownames(results)
 ann_450k <- getAnnotation(IlluminaHumanMethylation450kanno.ilmn12.hg19)
@@ -59,7 +78,7 @@ annotated_results <- annotated_results[order(annotated_results$adj.P.Val, -annot
 
 head(annotated_results)
 
-write.csv(annotated_results, file.path(paste0(parent_path, sub_path), "GSE111629_dmp_annotated_results.csv"))
+write.csv(annotated_results, file.path(paste0(parent_path, sub_path), "ppmi_dmp_annotated_results.csv"))
 
 rm(m_values)
 gc(full = TRUE)
@@ -72,7 +91,7 @@ volcano_plot <- ggplot(annotated_results, aes(x = logFC, y = -log10(adj.P.Val)))
     theme_minimal()
 
 ggsave(
-    filename = file.path(paste0(parent_path, sub_path), "GSE111629_dmp_volcano_plot.png"),
+    filename = file.path(paste0(parent_path, sub_path), "ppmi_dmp_volcano_plot.png"),
     plot = volcano_plot,
     dpi = 300
 )
@@ -98,11 +117,11 @@ annotated_with_beta %>%
 max(annotated_with_beta$delta_beta)
 min(annotated_with_beta$delta_beta)
 
-write.csv(annotated_with_beta, file.path(paste0(parent_path, sub_path), "GSE111629_dmp_annotated_with_beta_results.csv"))
+write.csv(annotated_with_beta, file.path(paste0(parent_path, sub_path), "ppmi_dmp_annotated_with_beta_results.csv"))
 
 annotated_with_beta_filtered_delta_beta_sign <- annotated_with_beta[(annotated_with_beta$adj.P.Val < 0.05 & abs(annotated_with_beta$delta_beta) > 0.01), ]
 
-write.csv(annotated_with_beta_filtered_delta_beta_sign, file.path(paste0(parent_path, sub_path), "GSE111629_dmp_annotated_with_beta_filtered_delta_beta_sign_results.csv"))
+write.csv(annotated_with_beta_filtered_delta_beta_sign, file.path(paste0(parent_path, sub_path), "ppmi_dmp_annotated_with_beta_filtered_delta_beta_sign_results.csv"))
 
 
 volcano_plot_delta_beta <- ggplot(annotated_with_beta, aes(x = delta_beta, y = -log10(adj.P.Val))) +
@@ -113,7 +132,7 @@ volcano_plot_delta_beta <- ggplot(annotated_with_beta, aes(x = delta_beta, y = -
     theme_minimal()
 
 ggsave(
-    filename = file.path(paste0(parent_path, sub_path), "GSE111629_dmp_volcano_plot_delta_beta.png"),
+    filename = file.path(paste0(parent_path, sub_path), "ppmi_dmp_volcano_plot_delta_beta.png"),
     plot = volcano_plot_delta_beta,
     dpi = 300
 )
