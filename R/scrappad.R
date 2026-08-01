@@ -23,157 +23,28 @@ source("R/results_container.R")
 # wget https://drive.usercontent.google.com/download?id=1pKEXWGd-WtXHLQc8oHGSSKQpm_kV4D4E&export=download&authuser=0&confirm=t&uuid=89cca26a-db7d-4454-abb2-4a7edb022dfc&at=AFYLz4PiJ0lNZ9F0sLFpaPhXT8mU:1785519465129 -O m_values_bmiq.rds
 # wget https://drive.usercontent.google.com/download?id=1PIaVMFefCEJxiW2dVaCFoMxRLFkBQCWE&export=download&authuser=0&confirm=t&uuid=535c8b79-860e-41c9-b722-b1828a528727&at=AFYLz4ORcayXZgTrw9A2li1-sDGs:1785519568230 -O pca_df_with_outliers.rds
 
-beta_matrix <- readRDS("/root/data/beta_matrix.rds")
-# beta_matrix_bmiq <- readRDS("/root/data/beta_matrix_bmiq.rds")
-# m_values_bmiq <- readRDS("/root/data/m_values_bmiq.rds")
 
+
+methyl_set_removed_cross_reactive <- readRDS("/root/data/methyl_set_removed_cross_reactive.rds")
 targets <- readRDS("/root/data/targets_s_mismatch_cells_scandate.rds")
 
-pca_df_with_outliers <- readRDS("/root/data/pca_df_with_outliers.rds")
-
-outlier_samples <- rownames(pca_df_with_outliers)[pca_df_with_outliers$Is_Outlier]
-beta_matrix_no_outliers <- beta_matrix[, !colnames(beta_matrix) %in% outlier_samples]
-
-beta_matrix %>% dim()
-beta_matrix_no_outliers %>% dim()
-
-beta_bmiq <- matrix(NA, nrow = nrow(beta_matrix_no_outliers), ncol = ncol(beta_matrix_no_outliers))
-rownames(beta_bmiq) <- rownames(beta_matrix_no_outliers)
-colnames(beta_bmiq) <- colnames(beta_matrix_no_outliers)
-
-.get_probe_design_vector <- function(probe_names, platform = IlluminaHumanMethylationEPICanno.ilm10b4.hg19) {
-  # Returns: 1 for Type I probes, 2 for Type II probes
-  anno <- getAnnotation(platform)
-
-  # Match probes to annotation (handle missing probes)
-  matched_probes <- intersect(probe_names, rownames(anno))
-
-  if (length(matched_probes) < length(probe_names)) {
-    warning(paste(
-      length(probe_names) - length(matched_probes),
-      "probes not found in annotation"
-    ))
-  }
-
-  # Get probe types
-  probe_types <- rep(NA, length(probe_names))
-  names(probe_types) <- probe_names
-
-  # Type I = 1, Type II = 2 (BMIQ convention)
-  probe_types[matched_probes] <- ifelse(anno[matched_probes, "Type"] == "I", 1, 2)
-
-  # Check for NAs
-  if (any(is.na(probe_types))) {
-    warning("Some probes could not be classified. Using alternative method...")
-
-    # Alternative: Use probe name patterns
-    # Type I: typically start with cg and have specific Infinium I design
-    # Type II: typically start with ch or some cg with Infinium II design
-    # This is less reliable but works as fallback
-    na_probes <- probe_names[is.na(probe_types)]
-    probe_types[na_probes] <- ifelse(grepl("^ch", na_probes), 2, 1)
-  }
-
-  return(probe_types)
-}
-
-design.v <- .get_probe_design_vector(rownames(beta_matrix_no_outliers))
-
-print(paste("Type I probes:", sum(design.v == 1)))
-print(paste("Type II probes:", sum(design.v == 2)))
-
-beta_bmiq <- matrix(NA, nrow = nrow(beta_matrix_no_outliers), ncol = ncol(beta_matrix_no_outliers))
-rownames(beta_bmiq) <- rownames(beta_matrix_no_outliers)
-colnames(beta_bmiq) <- colnames(beta_matrix_no_outliers)
-
-library(wateRmelon)
-for (i in 1:ncol(beta_matrix_no_outliers)) {
-  print(paste("Processing sample", i, "of", ncol(beta_matrix_no_outliers)))
-
-  # Extract beta values for this sample
-  beta.v <- beta_matrix_no_outliers[, i]
-
-  # Apply BMIQ to this sample
-  tryCatch(
-    {
-      bmiq_result <- BMIQ(
-        beta.v = beta.v,
-        design.v = design.v,
-        nfit = 10000,
-        plots = FALSE,
-        pri = TRUE
-      )
-      print(bmiq_result$nbeta[1:10])
-
-      # Store the normalized values
-      beta_bmiq[, i] <- bmiq_result$nbeta
-    },
-    error = function(e) {
-      warning(paste("BMIQ failed for sample", colnames(beta_matrix_no_outliers)[i], ":", e$message))
-      beta_bmiq[, i] <- beta.v # Keep original values if BMIQ fails
-    }
-  )
-}
-
-saveRDS(beta_bmiq, "/root/data/beta_matrix_bmiq_new.rds")
-
-m_bmiq <- log2(beta_bmiq / (1 - beta_bmiq))
-m_bmiq[is.infinite(m_bmiq)] <- NA
-
-m_values <- beta2m(beta_matrix)
-
-m_raw <- log2(beta_matrix_no_outliers / (1 - beta_matrix_no_outliers))
-
-targets %>% dim()
-m_bmiq %>% dim()
-
-targets <- targets %>% filter(rownames(targets) %in% m_bmiq %>% colnames())
-
-m_bmiq %>%
-  colnames() %>%
-  head()
-
-targets %>%
-  pull(Sample_Name) %>%
-  head()
-
-targets_harmonized <- targets[targets$Sentrix_ID %in% colnames(m_bmiq), ]
-
-targets_harmonized %>% head()
-targets %>% head()
+beta_matrix <- getBeta(methyl_set_removed_cross_reactive)
+m_matrix <- getM(methyl_set_removed_cross_reactive)
 
 targets %>% head()
-
-pca_df_with_outliers %>% head()
-
-ppmi_pca_df_enriched_meta <- readRDS("/root/data/ppmi_pca_df_enriched_meta.rds")
-
-ppmi_pca_df_enriched_meta %>% head()
-
-m_values <- m_values[, colnames(m_values) %in% ppmi_pca_df_enriched_meta$Row.names]
-m_values %>% dim()
-
-beta_bmiq <- readRDS("/root/data/beta_matrix_bmiq_new.rds")
-m_bmiq <- beta2m(beta_bmiq)
 
 design <- model.matrix(
-  ~ 0 + Sample_Group + PC1 + PC2,
-  data = ppmi_pca_df_enriched_meta
-) 
+  ~ 0 + Sample_Group + SEX,
+  data = targets
+)
 
-fit <- lmFit(m_values, design)
+is.factor(targets$Age_Group)
+targets$Age_Group <- as.factor(targets$Age_Group)
+
+fit <- lmFit(m_matrix, design)
 cont.matrix <- makeContrasts(Parkinsons_vs_Control = Sample_GroupPD - Sample_GroupControl, levels = design)
 fit_contrasts <- contrasts.fit(fit, cont.matrix)
 fit2 <- eBayes(fit_contrasts)
 results <- topTable(fit2, coef = "Parkinsons_vs_Control", number = Inf, adjust.method = "BH")
 
 table(results$adj.P.Val < 0.05)
-
-
-library(ChAMP)
-library(lumi)
-beta_matrix <- m2beta(m_values)
-myDMP <- champ.DMP(beta = beta_matrix, pheno = targets$Sample_Group, adjPVal = 0.05)
-table(myDMP$PD)
-
-beta_matrix %>% dim()
