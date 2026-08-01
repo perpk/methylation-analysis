@@ -142,13 +142,30 @@ targets_harmonized <- targets[targets$Sentrix_ID %in% colnames(m_bmiq), ]
 targets_harmonized %>% head()
 targets %>% head()
 
+targets %>% head()
+
+pca_df_with_outliers %>% head()
+
+ppmi_pca_df_enriched_meta <- readRDS("/root/data/ppmi_pca_df_enriched_meta.rds")
+
+ppmi_pca_df_enriched_meta %>% head()
+
+m_values <- m_values[, colnames(m_values) %in% ppmi_pca_df_enriched_meta$Row.names]
+m_values %>% dim()
+
+beta_bmiq <- readRDS("/root/data/beta_matrix_bmiq_new.rds")
+m_bmiq <- beta2m(beta_bmiq)
+
 design <- model.matrix(
-  ~ Sample_Group + Age_Group + Sex,
-  data = targets
-)
+  ~ 0 + Sample_Group + PC1 + PC2,
+  data = ppmi_pca_df_enriched_meta
+) 
+
 fit <- lmFit(m_values, design)
-fit2 <- eBayes(fit)
-results <- topTable(fit2, coef = "Sample_GroupPD", number = Inf, adjust.method = "BH")
+cont.matrix <- makeContrasts(Parkinsons_vs_Control = Sample_GroupPD - Sample_GroupControl, levels = design)
+fit_contrasts <- contrasts.fit(fit, cont.matrix)
+fit2 <- eBayes(fit_contrasts)
+results <- topTable(fit2, coef = "Parkinsons_vs_Control", number = Inf, adjust.method = "BH")
 
 table(results$adj.P.Val < 0.05)
 
