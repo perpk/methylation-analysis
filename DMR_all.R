@@ -197,6 +197,8 @@ dmr_results <- dmr(m_values_bmiq_no_outliers, targets_ppmi, design_test)
 
 dmr_results %>% dim()
 
+head(dmr_results)
+
 ppmi_pca_df_with_outliers %>% head()
 targets_ppmi %>% head()
 
