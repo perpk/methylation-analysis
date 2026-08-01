@@ -25,44 +25,67 @@ targets_peg1 <- readRDS("~/Downloads/GSE111629_harmonized_targets.rds")
 
 targets_peg1 %>% head()
 
-targets_ppmi <- readRDS("~/Downloads/ppmi_harmonized_targets.rds")
+targets_ppmi <- readRDS("/root/data/ppmi_harmonized_targets.rds")
+
+m_values_ppmi <- readRDS("/root/data/ppmi_harmonized_m_values.rds")
 
 targets_ppmi %>% head()
+
+methyl_set_ppmi <- readRDS("/root/data/ppmi_methyl_set_removed_cross_reactive.rds")
+
+m_values_ppmi <- getM(methyl_set_ppmi)
+
+m_values_ppmi %>% dim()
+targets_ppmi %>% dim()
+
+m_values_ppmi <- m_values_ppmi[, rownames(targets_ppmi)]
+m_values_ppmi %>% dim()
 
 table(targets_ppmi$Sample_Group, targets_ppmi$Age_Group)
 
 sum(is.na(targets_ppmi$Age_Group))
 
+targets_ppmi %>% dim()
+m_values_ppmi %>% dim()
+
+targets_ppmi %>% head()
 
 ### DMRcate
-targets$Sample_Group <- factor(targets$Sample_Group, levels = c("Control", "PD"))
-targets$Sex <- factor(targets$Sex)
-targets$Batch <- factor(targets$Batch) # e.g., Array slide or scan date
+targets_ppmi$Sample_Group <- factor(targets_ppmi$Sample_Group, levels = c("Control", "PD"))
+targets_ppmi$Sex <- factor(targets_ppmi$Sex)
+targets_ppmi$ScanDate <- factor(targets_ppmi$ScanDate)
+targets_ppmi$Age_Group <- factor(targets_ppmi$Age_Group)
 
-
-design <- model.matrix(~ Sample_Group + Age + Sex + CD8T + Mono + Batch, data = targets)
+#  + Age_Group + Sex + CD8T + CD4T + NK + Bcell + Mono + Neu + Mono + ScanDate
+design <- model.matrix(~ Sample_Group + Age_Group + Sex + CD8T + CD4T + NK + Bcell, data = targets_ppmi)
 
 colnames(design)
+
+library(DMRcate)
 
 # Probe-level annotation
 ppmi_annot <- cpg.annotate(
     datatype = "array",
-    object = ppmi_m_values,
+    object = m_values_ppmi,
     what = "M",
-    arraytype = "EPIC", # "450K"
+    arraytype = "EPICv1", # "450K"
     analysis.type = "differential",
     design = design,
     coef = 2, # The column index in 'design' for DiagnosisPD
-    fdr = 0.05 # FDR threshold for individual probes (tuning parameter)
+    fdr = 1 # FDR threshold for individual probes (tuning parameter)
 )
+
+ppmi_annot
 
 # Find DMRs
 dmrc_output <- dmrcate(
     ppmi_annot,
     lambda = 1000, # Bandwidth in base pairs (1000 is standard for arrays)
     C = 2, # Statistical scaling factor (2 is recommended for arrays)
-    min.cpgs = 3 # A region must have at least 3 CpGs to be considered a DMR
+    min.cpgs = 3, # A region must have at least 3 CpGs to be considered a DMR
+    pcutoff = 0.005 # FDR threshold for DMRs (tuning parameter)
 )
+dmrc_output
 
 results_ranges <- extractRanges(dmrc_output)
 
@@ -70,21 +93,71 @@ results_df <- as.data.frame(results_ranges)
 
 results_df <- results_df[order(results_df$min_smoothed_fdr), ]
 
-head(results_df)
+write.csv(results_df, file = "/root/data/ppmi_dmr_results.csv", row.names = FALSE)
+
+View(results_df)
 
 # 1. Assign colors to your phenotypes
 # We create a vector of colors corresponding to each sample's diagnosis
 # Ensure this matches the order of samples in your original matrix and targets dataframe
 pal <- c("blue", "red")
-sample_colors <- pal[as.factor(targets$Diagnosis)]
+sample_colors <- pal[as.factor(targets_ppmi$Sample_Group)]
 
 # 2. Plot the top-ranked DMR (dmr = 1)
 DMR.plot(
     ranges = results_ranges, # The GRanges object extracted from dmrcate()
     dmr = 1, # The index of the DMR to plot (1 = most significant)
-    CpGs = myannotation, # The annotated object from the cpg.annotate() step
+    CpGs = ppmi_annot, # The annotated object from the cpg.annotate() step
     phen.col = sample_colors, # The color assignments for your samples
     what = "Beta", # Plots biological proportions instead of M-values
-    arraytype = "EPIC", # Specify your array type
+    arraytype = "EPICv1", # Specify your array type
     genome = "hg19"
 ) # The reference genome your data was aligned to
+
+
+
+
+library(limma)
+
+#  + Age_Group + Sex + CD8T + CD4T + NK + Bcell + Mono + Neu + Mono + ScanDate
+design <- model.matrix(~ Sample_Group + Age_Group + Sex + CD8T + CD4T + NK + Bcell, data = targets_ppmi)
+
+# until Bcell λ=1.007
+# with Bcell and scandate at the end λ=1.055
+
+# 1. Fit the linear model
+fit <- lmFit(m_values_ppmi, design)
+
+# 2. Apply empirical Bayes smoothing (this calculates the p-values)
+fit <- eBayes(fit)
+
+# 3. Extract the full results table for your Parkinson's coefficient
+# (assuming coef=2 corresponds to DiagnosisPD, as before)
+stats <- topTable(fit, coef = 2, number = Inf, sort.by = "none")
+p_values <- stats$P.Value
+
+
+# Convert p-values to chi-squared statistics
+chisq <- qchisq(1 - p_values, 1)
+
+# Calculate Lambda
+lambda <- median(chisq, na.rm = TRUE) / qchisq(0.5, 1)
+
+print(paste("Genomic Inflation Factor (Lambda):", round(lambda, 3)))
+
+# Create the expected p-values (uniform distribution)
+expected_p <- ppoints(length(p_values))
+
+# Sort observed p-values
+observed_p <- sort(p_values)
+
+# Plot
+plot(-log10(expected_p), -log10(observed_p),
+    main = paste("QQ Plot of PD Methylation\nLambda =", round(lambda, 3)),
+    xlab = "Expected -log10(P)",
+    ylab = "Observed -log10(P)",
+    pch = 16, cex = 0.5, col = "darkblue"
+)
+
+# Add the diagonal reference line
+abline(0, 1, col = "red", lwd = 2)
