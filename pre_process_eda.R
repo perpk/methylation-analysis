@@ -284,9 +284,9 @@ pre_process_eda <- function(
     context = project_context,
     auto_clean = FALSE,
     pca = res_outlier$pca_outliers_container@object,
-    beta_matrix = bmiq_res$beta_bmiq_container@object,
+    beta_matrix = beta_matrix_container@object,
     pca_filename = res_outlier$pca_outliers_container@filename,
-    beta_matrix_filename = bmiq_res$beta_bmiq_container@filename
+    beta_matrix_filename = beta_matrix_container@filename,
   )
 
 
