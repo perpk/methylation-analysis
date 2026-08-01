@@ -120,6 +120,8 @@ saveRDS(beta_bmiq, "/root/data/beta_matrix_bmiq_new.rds")
 m_bmiq <- log2(beta_bmiq / (1 - beta_bmiq))
 m_bmiq[is.infinite(m_bmiq)] <- NA
 
+m_values <- beta2m(beta_matrix)
+
 m_raw <- log2(beta_matrix_no_outliers / (1 - beta_matrix_no_outliers))
 
 targets %>% dim()
@@ -142,10 +144,19 @@ targets %>% head()
 
 design <- model.matrix(
   ~ Sample_Group + Age_Group + Sex,
-  data = targets_harmonized
+  data = targets
 )
-fit <- lmFit(m_raw, design)
+fit <- lmFit(m_values, design)
 fit2 <- eBayes(fit)
 results <- topTable(fit2, coef = "Sample_GroupPD", number = Inf, adjust.method = "BH")
 
 table(results$adj.P.Val < 0.05)
+
+
+library(ChAMP)
+library(lumi)
+beta_matrix <- m2beta(m_values)
+myDMP <- champ.DMP(beta = beta_matrix, pheno = targets$Sample_Group, adjPVal = 0.05)
+table(myDMP$PD)
+
+beta_matrix %>% dim()
