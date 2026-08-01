@@ -1,11 +1,12 @@
 source("R/apply_BMIQ.R")
 
 outlier_remove_redo_BMIQ <- function(
-    context = NULL,
-    pca = NULL,
-    beta_matrix = NULL,
-    pca_filename = NULL,
-    beta_matrix_filename = NULL) {
+  context = NULL,
+  pca = NULL,
+  beta_matrix = NULL,
+  pca_filename = NULL,
+  beta_matrix_filename = NULL
+) {
     prog <- .create_progress_manager(4)
     prog$update(1, "Reading PCA results with outlier information")
     if (is.null(pca)) {
