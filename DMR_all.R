@@ -15,6 +15,7 @@
 # PEG1
 ## wget https://drive.usercontent.google.com/download?id=1vHhRtama9o2xSGde8bCmHWRq_spy93yc&export=download&authuser=0&confirm=t&uuid=959c754e-707a-4948-b864-ab5ca0342c4d&at=AFYLz4PM9Ezut4c1xYnKbD4CcQ1U:1785576540968 -O peg1_methyl_set_removed_cross_reactive.rds
 ## wget https://drive.usercontent.google.com/download?id=16jH7E6Io9tb3FqymrDfbsv-8_-53OAQs&export=download&authuser=0&confirm=t&uuid=25b11ad7-14d5-443a-858d-cec63d81f836&at=AFYLz4P2Pvmm3Hu8oRG25dI1UYDs:1785576678453 -O peg1_harmonized_targets.rds
+## wget https://drive.usercontent.google.com/download?id=1yZBVUPqHNHEHsEihT6ThKkFiOQHWIsFL&export=download&authuser=0&confirm=t&uuid=1adbefc9-f93a-4183-aaf8-999764f88169&at=AFYLz4OlqCDuH8dLNdbQFZcINEJ_:1785682138681 -O peg1_pca_df_with_outliers.rds
 
 # SGPD
 ## TODO
@@ -27,7 +28,7 @@ library(tidyverse)
 dmr <- function(m_values, targets, design) {
     library(DMRcate)
 
-    ppmi_annot <- cpg.annotate(
+    annot <- cpg.annotate(
         datatype = "array",
         object = m_values,
         what = "M",
@@ -39,7 +40,7 @@ dmr <- function(m_values, targets, design) {
     )
 
     dmrc_output <- dmrcate(
-        ppmi_annot,
+        annot,
         lambda = 1000, # Bandwidth in base pairs (1000 is standard for arrays)
         C = 2, # Statistical scaling factor (2 is recommended for arrays)
         min.cpgs = 3, # A region must have at least 3 CpGs to be considered a DMR
@@ -80,9 +81,9 @@ qc_dmr <- function(m_values, design) {
     abline(0, 1, col = "red", lwd = 2)
 }
 
-plot_dmr <- function(targets, results_ranges, ppmi_annot) {
+plot_dmr <- function(targets, results_ranges, annot) {
     # 1. Assign colors to your phenotypes
-    # We create a vector of colors corresponding to each sample's diagnosis
+    CpGs = annot, # The annotated object from the cpg.annotate() step   
     # Ensure this matches the order of samples in your original matrix and targets dataframe
     pal <- c("blue", "red")
     sample_colors <- pal[as.factor(targets$Sample_Group)]
@@ -91,7 +92,7 @@ plot_dmr <- function(targets, results_ranges, ppmi_annot) {
     DMR.plot(
         ranges = results_ranges, # The GRanges object extracted from dmrcate()
         dmr = 1, # The index of the DMR to plot (1 = most significant)
-        CpGs = ppmi_annot, # The annotated object from the cpg.annotate() step
+        CpGs = annot, # The annotated object from the cpg.annotate() step
         phen.col = sample_colors, # The color assignments for your samples
         what = "Beta", # Plots biological proportions instead of M-values
         arraytype = "EPICv1", # Specify your array type
@@ -139,17 +140,17 @@ plot_dmr <- function(targets, results_ranges, ppmi_annot) {
 ### ~ Sample_Group + Age_Group + Sex + CD8T + CD4T + NK + Bcell a λ = 1.007 and analysis yields 20 DMRs
 ### The ComBat dataset yields around 0.7 and is considered genetically deflated. The same set is also thought to be over-normalized (BMIQ accidentally ran twice).
 
-targets_ppmi <- readRDS("/root/data/ppmi_harmonized_targets.rds")
-methyl_set_ppmi <- readRDS("/root/data/ppmi_methyl_set_removed_cross_reactive.rds")
+targets_peg1 <- readRDS("/root/data/peg1_harmonized_targets.rds")
+methyl_set_peg1 <- readRDS("/root/data/peg1_methyl_set_removed_cross_reactive.rds")
 
-m_values_ppmi <- getM(methyl_set_ppmi)
-beta_values_ppmi <- getBeta(methyl_set_ppmi)
+m_values_peg1 <- getM(methyl_set_peg1)
+beta_values_peg1 <- getBeta(methyl_set_peg1)
 
 # Load the pca df with the outliers.
-ppmi_pca_df_with_outliers <- readRDS("/root/data/ppmi_pca_df_with_outliers.rds")
+peg1_pca_df_with_outliers <- readRDS("/root/data/peg1_pca_df_with_outliers.rds")
 
-outlier_samples <- rownames(ppmi_pca_df_with_outliers)[ppmi_pca_df_with_outliers$Is_Outlier]
-beta_matrix_no_outliers <- beta_values_ppmi[, !colnames(beta_values_ppmi) %in% outlier_samples]
+outlier_samples <- rownames(peg1_pca_df_with_outliers)[peg1_pca_df_with_outliers$Is_Outlier]
+beta_matrix_no_outliers <- beta_values_peg1[, !colnames(beta_values_peg1) %in% outlier_samples]
 
 platform <- IlluminaHumanMethylationEPICanno.ilm10b4.hg19
 
@@ -189,32 +190,32 @@ library(lumi)
 rownames(beta_bmiq) <- rownames(beta_matrix_no_outliers)
 colnames(beta_bmiq) <- colnames(beta_matrix_no_outliers)
 
-design <- model.matrix(~ Sample_Group + Age_Group + Sex + CD8T + CD4T + NK + Bcell, data = targets_ppmi)
+design <- model.matrix(~ Sample_Group + Age_Group + Sex + CD8T + CD4T + NK + Bcell, data = targets_peg1)
 
 m_values_bmiq_no_outliers <- beta2m(beta_bmiq)
 
-dmr_results <- dmr(m_values_bmiq_no_outliers, targets_ppmi, design_test)
+dmr_results <- dmr(m_values_bmiq_no_outliers, targets_peg1, design)
 
 dmr_results %>% dim()
 
 head(dmr_results)
 
-ppmi_pca_df_with_outliers %>% head()
-targets_ppmi %>% head()
+peg1_pca_df_with_outliers %>% head()
+targets_peg1 %>% head()
 
-targets_test <- targets_ppmi
+targets_test <- targets_peg1
 
 targets_test %>%
     pull(Array) %>%
     unique()
 
 
-targets_test$PC1 <- ppmi_pca_df_with_outliers[match(rownames(targets_test), rownames(ppmi_pca_df_with_outliers)), "PC1"]
-targets_test$PC2 <- ppmi_pca_df_with_outliers[match(rownames(targets_test), rownames(ppmi_pca_df_with_outliers)), "PC2"]
-targets_test$PC3 <- ppmi_pca_df_with_outliers[match(rownames(targets_test), rownames(ppmi_pca_df_with_outliers)), "PC3"]
-targets_test$PC4 <- ppmi_pca_df_with_outliers[match(rownames(targets_test), rownames(ppmi_pca_df_with_outliers)), "PC4"]
-targets_test$PC5 <- ppmi_pca_df_with_outliers[match(rownames(targets_test), rownames(ppmi_pca_df_with_outliers)), "PC5"]
-targets_test$Age <- ppmi_pca_df_with_outliers[match(rownames(targets_test), rownames(ppmi_pca_df_with_outliers)), "Age"]
+targets_test$PC1 <- peg1_pca_df_with_outliers[match(rownames(targets_test), rownames(peg1_pca_df_with_outliers)), "PC1"]
+targets_test$PC2 <- peg1_pca_df_with_outliers[match(rownames(targets_test), rownames(peg1_pca_df_with_outliers)), "PC2"]
+targets_test$PC3 <- peg1_pca_df_with_outliers[match(rownames(targets_test), rownames(peg1_pca_df_with_outliers)), "PC3"]
+targets_test$PC4 <- peg1_pca_df_with_outliers[match(rownames(targets_test), rownames(peg1_pca_df_with_outliers)), "PC4"]
+targets_test$PC5 <- peg1_pca_df_with_outliers[match(rownames(targets_test), rownames(peg1_pca_df_with_outliers)), "PC5"]
+targets_test$Age <- peg1_pca_df_with_outliers[match(rownames(targets_test), rownames(peg1_pca_df_with_outliers)), "Age"]
 
 design_test <- model.matrix(~ Sample_Group + Age + Sex + CD8T + CD4T + Bcell + Mono + NK + Neu + ScanDate + Array, data = targets_test)
 qc_dmr(m_values_bmiq_no_outliers, design_test)
