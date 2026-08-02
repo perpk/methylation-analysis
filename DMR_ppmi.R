@@ -19,72 +19,227 @@
 # SGPD
 ## TODO
 
+rm(list = ls())
+gc(full = TRUE)
+
 library(tidyverse)
 
-targets_peg1 <- readRDS("~/Downloads/GSE111629_harmonized_targets.rds")
+dmr <- function(m_values, targets, design) {
+    library(DMRcate)
 
-targets_peg1 %>% head()
+    ppmi_annot <- cpg.annotate(
+        datatype = "array",
+        object = m_values,
+        what = "M",
+        arraytype = "EPICv1", # "450K"
+        analysis.type = "differential",
+        design = design,
+        coef = 2, # The column index in 'design' for DiagnosisPD
+        fdr = 1 # FDR threshold for individual probes (tuning parameter)
+    )
 
-targets_ppmi <- readRDS("~/Downloads/ppmi_harmonized_targets.rds")
+    dmrc_output <- dmrcate(
+        ppmi_annot,
+        lambda = 1000, # Bandwidth in base pairs (1000 is standard for arrays)
+        C = 2, # Statistical scaling factor (2 is recommended for arrays)
+        min.cpgs = 3, # A region must have at least 3 CpGs to be considered a DMR
+        pcutoff = 0.005 # FDR threshold for DMRs (tuning parameter)
+    )
+    results_ranges <- extractRanges(dmrc_output)
+    results_df <- as.data.frame(results_ranges)
+    results_df <- results_df[order(results_df$min_smoothed_fdr), ]
 
-targets_ppmi %>% head()
+    (results_df)
+}
 
-table(targets_ppmi$Sample_Group, targets_ppmi$Age_Group)
+qc_dmr <- function(m_values, design) {
+    library(limma)
 
-sum(is.na(targets_ppmi$Age_Group))
+    # until Bcell λ=1.007
+    # with Bcell and scandate at the end λ=1.055
 
+    fit <- lmFit(m_values, design)
+    fit <- eBayes(fit)
+    stats <- topTable(fit, coef = 2, number = Inf, sort.by = "none")
+    p_values <- stats$P.Value
+    chisq <- qchisq(1 - p_values, 1)
+    lambda <- median(chisq, na.rm = TRUE) / qchisq(0.5, 1)
 
-### DMRcate
-targets$Sample_Group <- factor(targets$Sample_Group, levels = c("Control", "PD"))
-targets$Sex <- factor(targets$Sex)
-targets$Batch <- factor(targets$Batch) # e.g., Array slide or scan date
+    print(paste("Genomic Inflation Factor (Lambda):", round(lambda, 3)))
 
+    expected_p <- ppoints(length(p_values))
+    observed_p <- sort(p_values)
 
-design <- model.matrix(~ Sample_Group + Age + Sex + CD8T + Mono + Batch, data = targets)
+    plot(-log10(expected_p), -log10(observed_p),
+        main = paste("QQ Plot of PD Methylation\nLambda =", round(lambda, 3)),
+        xlab = "Expected -log10(P)",
+        ylab = "Observed -log10(P)",
+        pch = 16, cex = 0.5, col = "darkblue"
+    )
 
-colnames(design)
+    abline(0, 1, col = "red", lwd = 2)
+}
 
-# Probe-level annotation
-ppmi_annot <- cpg.annotate(
+plot_dmr <- function(targets, results_ranges, ppmi_annot) {
+    # 1. Assign colors to your phenotypes
+    # We create a vector of colors corresponding to each sample's diagnosis
+    # Ensure this matches the order of samples in your original matrix and targets dataframe
+    pal <- c("blue", "red")
+    sample_colors <- pal[as.factor(targets$Sample_Group)]
+
+    # 2. Plot the top-ranked DMR (dmr = 1)
+    DMR.plot(
+        ranges = results_ranges, # The GRanges object extracted from dmrcate()
+        dmr = 1, # The index of the DMR to plot (1 = most significant)
+        CpGs = ppmi_annot, # The annotated object from the cpg.annotate() step
+        phen.col = sample_colors, # The color assignments for your samples
+        what = "Beta", # Plots biological proportions instead of M-values
+        arraytype = "EPICv1", # Specify your array type
+        genome = "hg19"
+    ) # The reference genome your data was aligned to
+}
+
+.get_probe_design_vector <- function(probe_names, platform) {
+    # Returns: 1 for Type I probes, 2 for Type II probes
+    anno <- getAnnotation(platform)
+
+    # Match probes to annotation (handle missing probes)
+    matched_probes <- intersect(probe_names, rownames(anno))
+
+    if (length(matched_probes) < length(probe_names)) {
+        warning(paste(
+            length(probe_names) - length(matched_probes),
+            "probes not found in annotation"
+        ))
+    }
+
+    # Get probe types
+    probe_types <- rep(NA, length(probe_names))
+    names(probe_types) <- probe_names
+
+    # Type I = 1, Type II = 2 (BMIQ convention)
+    probe_types[matched_probes] <- ifelse(anno[matched_probes, "Type"] == "I", 1, 2)
+
+    # Check for NAs
+    if (any(is.na(probe_types))) {
+        warning("Some probes could not be classified. Using alternative method...")
+
+        # Alternative: Use probe name patterns
+        # Type I: typically start with cg and have specific Infinium I design
+        # Type II: typically start with ch or some cg with Infinium II design
+        # This is less reliable but works as fallback
+        na_probes <- probe_names[is.na(probe_types)]
+        probe_types[na_probes] <- ifelse(grepl("^ch", na_probes), 2, 1)
+    }
+
+    return(probe_types)
+}
+
+## Raw m-values from methylset (after removal of cross-reactive probes) yield with the design matrix:
+### ~ Sample_Group + Age_Group + Sex + CD8T + CD4T + NK + Bcell a λ = 1.007 and analysis yields 20 DMRs
+### The ComBat dataset yields around 0.7 and is considered genetically deflated. The same set is also thought to be over-normalized (BMIQ accidentally ran twice).
+
+targets_ppmi <- readRDS("/root/data/ppmi_harmonized_targets.rds")
+methyl_set_ppmi <- readRDS("/root/data/ppmi_methyl_set_removed_cross_reactive.rds")
+
+m_values_ppmi <- getM(methyl_set_ppmi)
+beta_values_ppmi <- getBeta(methyl_set_ppmi)
+
+# Load the pca df with the outliers.
+ppmi_pca_df_with_outliers <- readRDS("/root/data/ppmi_pca_df_with_outliers.rds")
+
+outlier_samples <- rownames(ppmi_pca_df_with_outliers)[ppmi_pca_df_with_outliers$Is_Outlier]
+beta_matrix_no_outliers <- beta_values_ppmi[, !colnames(beta_values_ppmi) %in% outlier_samples]
+
+library(IlluminaHumanMethylationEPICanno.ilm10b4.hg19)
+platform <- IlluminaHumanMethylationEPICanno.ilm10b4.hg19
+
+design.v <- .get_probe_design_vector(rownames(beta_matrix_no_outliers), platform)
+beta_bmiq <- matrix(NA, nrow = nrow(beta_matrix_no_outliers), ncol = ncol(beta_matrix_no_outliers))
+
+library(wateRmelon)
+for (i in 1:ncol(beta_matrix_no_outliers)) {
+    print(paste("Processing sample", i, "of", ncol(beta_matrix_no_outliers)))
+    beta.v <- beta_matrix_no_outliers[, i]
+
+    tryCatch(
+        {
+            bmiq_result <- BMIQ(
+                beta.v = beta.v,
+                design.v = design.v,
+                nfit = 10000,
+                plots = FALSE,
+                pri = TRUE
+            )
+            print(bmiq_result$nbeta[1:10])
+
+            # Store the normalized values
+            beta_bmiq[, i] <- bmiq_result$nbeta
+        },
+        error = function(e) {
+            error_message <- paste("BMIQ failed for sample", colnames(beta_matrix_no_outliers)[i], ":", e$message)
+            print(error_message)
+            warning(error_message)
+            beta_bmiq[, i] <- beta.v # Keep original values if BMIQ fails
+        }
+    )
+}
+
+library(lumi)
+
+rownames(beta_bmiq) <- rownames(beta_matrix_no_outliers)
+colnames(beta_bmiq) <- colnames(beta_matrix_no_outliers)
+
+design <- model.matrix(~ Sample_Group + Age + Sex + CD8T + CD4T + Bcell + Mono + NK + Neu + ScanDate + Array, data = targets_test)
+
+m_values_bmiq_no_outliers <- beta2m(beta_bmiq)
+
+dmr_results <- dmr(m_values_bmiq_no_outliers, targets_ppmi, design)
+
+dmr_results %>% dim()
+
+plot_dmr(targets_ppmi, results_ranges = dmr_results, ppmi_annot = cpg.annotate(
     datatype = "array",
-    object = ppmi_m_values,
+    object = m_values_bmiq_no_outliers,
     what = "M",
-    arraytype = "EPIC", # "450K"
+    arraytype = "EPICv1", # "450K"
     analysis.type = "differential",
     design = design,
     coef = 2, # The column index in 'design' for DiagnosisPD
-    fdr = 0.05 # FDR threshold for individual probes (tuning parameter)
-)
+    fdr = 1 # FDR threshold for individual probes (tuning parameter)
+))
 
-# Find DMRs
-dmrc_output <- dmrcate(
-    ppmi_annot,
-    lambda = 1000, # Bandwidth in base pairs (1000 is standard for arrays)
-    C = 2, # Statistical scaling factor (2 is recommended for arrays)
-    min.cpgs = 3 # A region must have at least 3 CpGs to be considered a DMR
-)
+head(dmr_results)
 
-results_ranges <- extractRanges(dmrc_output)
+write.csv(dmr_results, file = "/root/data/ppmi_dmr_results.csv", row.names = TRUE)
 
-results_df <- as.data.frame(results_ranges)
+ppmi_pca_df_with_outliers %>% head()
+targets_ppmi %>% head()
 
-results_df <- results_df[order(results_df$min_smoothed_fdr), ]
+targets_test <- targets_ppmi
 
-head(results_df)
+targets_test %>%
+    pull(Array) %>%
+    unique()
 
-# 1. Assign colors to your phenotypes
-# We create a vector of colors corresponding to each sample's diagnosis
-# Ensure this matches the order of samples in your original matrix and targets dataframe
-pal <- c("blue", "red")
-sample_colors <- pal[as.factor(targets$Diagnosis)]
 
-# 2. Plot the top-ranked DMR (dmr = 1)
-DMR.plot(
-    ranges = results_ranges, # The GRanges object extracted from dmrcate()
-    dmr = 1, # The index of the DMR to plot (1 = most significant)
-    CpGs = myannotation, # The annotated object from the cpg.annotate() step
-    phen.col = sample_colors, # The color assignments for your samples
-    what = "Beta", # Plots biological proportions instead of M-values
-    arraytype = "EPIC", # Specify your array type
-    genome = "hg19"
-) # The reference genome your data was aligned to
+targets_test$PC1 <- ppmi_pca_df_with_outliers[match(rownames(targets_test), rownames(ppmi_pca_df_with_outliers)), "PC1"]
+targets_test$PC2 <- ppmi_pca_df_with_outliers[match(rownames(targets_test), rownames(ppmi_pca_df_with_outliers)), "PC2"]
+targets_test$PC3 <- ppmi_pca_df_with_outliers[match(rownames(targets_test), rownames(ppmi_pca_df_with_outliers)), "PC3"]
+targets_test$PC4 <- ppmi_pca_df_with_outliers[match(rownames(targets_test), rownames(ppmi_pca_df_with_outliers)), "PC4"]
+targets_test$PC5 <- ppmi_pca_df_with_outliers[match(rownames(targets_test), rownames(ppmi_pca_df_with_outliers)), "PC5"]
+targets_test$Age <- ppmi_pca_df_with_outliers[match(rownames(targets_test), rownames(ppmi_pca_df_with_outliers)), "Age"]
+
+design_test <- model.matrix(~ Sample_Group + Age + Sex + CD8T + CD4T + Bcell + Mono + NK + Neu + ScanDate + Array, data = targets_test)
+qc_dmr(m_values_bmiq_no_outliers, design_test)
+
+library(sva)
+
+mod <- model.matrix(~ Sample_Group + Age + Sex + CD8T + CD4T + Bcell + Mono + NK + Neu + ScanDate, data = targets_test)
+mod0 <- model.matrix(~ Age + Sex + CD8T + CD4T + Bcell + Mono + NK + Neu + ScanDate, data = targets_test)
+
+n.sv <- num.sv(m_values_bmiq_no_outliers, mod, method = "leek")
+svobj <- sva(m_values_bmiq_no_outliers, mod, mod0, n.sv = n.sv)
+
+design_sva <- cbind(mod, svobj$sv)
+colnames(design_sva) <- make.names(colnames(design_sva))

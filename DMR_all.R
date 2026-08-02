@@ -24,6 +24,7 @@ rm(list = ls())
 gc(full = TRUE)
 
 library(tidyverse)
+library(minfi)
 
 dmr <- function(m_values, targets, design) {
     library(DMRcate)
@@ -32,7 +33,7 @@ dmr <- function(m_values, targets, design) {
         datatype = "array",
         object = m_values,
         what = "M",
-        arraytype = "EPICv1", # "450K"
+        arraytype = "450K", # "450K"
         analysis.type = "differential",
         design = design,
         coef = 2, # The column index in 'design' for DiagnosisPD
@@ -83,7 +84,7 @@ qc_dmr <- function(m_values, design) {
 
 plot_dmr <- function(targets, results_ranges, annot) {
     # 1. Assign colors to your phenotypes
-    CpGs = annot, # The annotated object from the cpg.annotate() step   
+    CpGs <- annot # The annotated object from the cpg.annotate() step
     # Ensure this matches the order of samples in your original matrix and targets dataframe
     pal <- c("blue", "red")
     sample_colors <- pal[as.factor(targets$Sample_Group)]
@@ -95,7 +96,7 @@ plot_dmr <- function(targets, results_ranges, annot) {
         CpGs = annot, # The annotated object from the cpg.annotate() step
         phen.col = sample_colors, # The color assignments for your samples
         what = "Beta", # Plots biological proportions instead of M-values
-        arraytype = "EPICv1", # Specify your array type
+        arraytype = "450K", # Specify your array type
         genome = "hg19"
     ) # The reference genome your data was aligned to
 }
@@ -152,7 +153,8 @@ peg1_pca_df_with_outliers <- readRDS("/root/data/peg1_pca_df_with_outliers.rds")
 outlier_samples <- rownames(peg1_pca_df_with_outliers)[peg1_pca_df_with_outliers$Is_Outlier]
 beta_matrix_no_outliers <- beta_values_peg1[, !colnames(beta_values_peg1) %in% outlier_samples]
 
-platform <- IlluminaHumanMethylationEPICanno.ilm10b4.hg19
+library(IlluminaHumanMethylation450kanno.ilmn12.hg19)
+platform <- IlluminaHumanMethylation450kanno.ilmn12.hg19
 
 design.v <- .get_probe_design_vector(rownames(beta_matrix_no_outliers), platform)
 beta_bmiq <- matrix(NA, nrow = nrow(beta_matrix_no_outliers), ncol = ncol(beta_matrix_no_outliers))
@@ -190,15 +192,22 @@ library(lumi)
 rownames(beta_bmiq) <- rownames(beta_matrix_no_outliers)
 colnames(beta_bmiq) <- colnames(beta_matrix_no_outliers)
 
-design <- model.matrix(~ Sample_Group + Age_Group + Sex + CD8T + CD4T + NK + Bcell, data = targets_peg1)
+# design <- model.matrix(~ Sample_Group + Age_Group + Sex + CD8T + CD4T + NK + Bcell, data = targets_peg1)
 
 m_values_bmiq_no_outliers <- beta2m(beta_bmiq)
+
+design <- model.matrix(~ Sample_Group + Age + Sex + CD8T + CD4T + Bcell + Mono + NK + Gran + ScanDate + Array + PC2 + PC4, data = targets_test)
 
 dmr_results <- dmr(m_values_bmiq_no_outliers, targets_peg1, design)
 
 dmr_results %>% dim()
 
 head(dmr_results)
+View(dmr_results)
+
+write.csv(dmr_results, file = "peg1_dmr_results.csv", row.names = TRUE)
+
+plot_dmr(targets_peg1, dmr_results, getAnnotation(platform))
 
 peg1_pca_df_with_outliers %>% head()
 targets_peg1 %>% head()
@@ -217,9 +226,58 @@ targets_test$PC4 <- peg1_pca_df_with_outliers[match(rownames(targets_test), rown
 targets_test$PC5 <- peg1_pca_df_with_outliers[match(rownames(targets_test), rownames(peg1_pca_df_with_outliers)), "PC5"]
 targets_test$Age <- peg1_pca_df_with_outliers[match(rownames(targets_test), rownames(peg1_pca_df_with_outliers)), "Age"]
 
-design_test <- model.matrix(~ Sample_Group + Age + Sex + CD8T + CD4T + Bcell + Mono + NK + Neu + ScanDate + Array, data = targets_test)
-qc_dmr(m_values_bmiq_no_outliers, design_test)
+targets_test$Slide <- targets_test$Sentrix_ID %>%
+    strsplit(split = "_") %>%
+    sapply(function(x) x[1])
 
+targets_test$Array <- targets_test$Sentrix_ID %>%
+    strsplit(split = "_") %>%
+    sapply(function(x) x[2])
+
+targets_test$Slide
+
+
+design_test <- model.matrix(~ Sample_Group + Age + Sex + CD8T + CD4T + Bcell + Mono + NK + Gran + ScanDate + Array, data = targets_test)
+design_pca <- model.matrix(~ Sample_Group + Age + Sex + CD8T + CD4T + Bcell + Mono + NK + Gran + ScanDate + Array + PC2 + PC4, data = targets_test)
+qc_dmr(m_values_bmiq_no_outliers, design_pca)
+
+# 1.052 all PCs + Age + Sex
+
+pc_pvalues <- sapply(1:5, function(i) {
+    pc_col <- paste0("PC", i)
+
+    # Run a t-test comparing the PC scores of PD vs Control
+    test_result <- t.test(targets_test[[pc_col]] ~ targets_test$Sample_Group)
+
+    return(test_result$p.value)
+})
+
+# Set up a 2x3 grid for plotting multiple charts at once
+par(mfrow = c(2, 3))
+
+# Plot a boxplot for each of the first 5 PCs
+for (i in 1:5) {
+    pc_col <- paste0("PC", i)
+    boxplot(targets_test[[pc_col]] ~ targets_test$Sample_Group,
+        main = paste(pc_col, "vs Sample Group"),
+        ylab = "PC Score",
+        xlab = "",
+        col = c("lightblue", "lightcoral")
+    )
+}
+
+# Reset the plotting grid
+par(mfrow = c(1, 1))
+
+names(pc_pvalues) <- paste0("PC", 1:5)
+
+print(pc_pvalues)
+
+table(targets_test$Sample_Group, targets_test$Array)
+table(targets_test$Sample_Group, targets_test$ScanDate)
+
+
+## SVA if necessary (λ doesn't improve with covariates)
 library(sva)
 
 mod <- model.matrix(~ Sample_Group + Age + Sex + CD8T + CD4T + Bcell + Mono + NK + Neu + ScanDate, data = targets_test)
