@@ -1,6 +1,7 @@
 intermediate_data_proxy <- function(pipeline_function, auto_clean = FALSE, project_context, ...) {
     library(mirai)
     source("R/project_context.R")
+    source("R/results_container.R")
 
     results <- pipeline_function(project_context, ...)
 

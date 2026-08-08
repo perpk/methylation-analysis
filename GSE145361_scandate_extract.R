@@ -4,7 +4,7 @@ gc(full = TRUE)
 source("R/progress_mgr.R")
 source("R/project_context.R")
 
-project_to_load <- "GSE145361_20260714_080452"
+project_to_load <- "GSE145361_20260804_162813"
 project_location <- "/root/workspace/methyl-pipe-out"
 platform <- "450k"
 
@@ -14,8 +14,8 @@ cohorts <- list(
 
 project_context <- .load_methylation_project(project_location, project_to_load, platform = platform, cohorts = cohorts)
 
-targets <- readRDS(file.path(project_context$paths$processed, "targets_after_bio_gender_mismatch.rds"))
-targets_cells <- readRDS(file.path(project_context$paths$processed, "targets_s_mismatch_cells.rds"))
+targets <- readRDS(file.path(project_context$paths$processed, "targets_remove_mismatch.rds"))
+targets_cells <- readRDS(file.path(project_context$paths$qc, "targets_s_mismatch_cells.rds"))
 
 dim(targets)
 dim(targets_cells)
@@ -51,7 +51,7 @@ merged <- merged %>% mutate(Sample_Group = case_when(is.na(Sample_Group) ~ "Cont
 head(merged)
 
 dim(merged)
-View(merged)
+# View(merged)
 
 merged[, c("CD8T", "CD4T", "NK", "Bcell", "Mono", "Gran")] %>%
     is.na() %>%
@@ -64,9 +64,8 @@ merged$Sentrix_ID %>%
     is.na() %>%
     sum()
 merged$Sentrix_ID
-scan_dates$SentrixID
 
-idat_folder_loc <- "/workspace/methylation-analysis/GSE145361_RAW"
+idat_folder_loc <- "/root/workspace/methyl-pipe-out/GSE145361_RAW"
 source("R/extract_scandate_from_idat.R")
 scan_dates <- extract_scandate_from_idat(
     file_path = idat_folder_loc, format = "%d/%m/%Y"
@@ -115,10 +114,10 @@ scan_dates$ScanDate %>%
     sum()
 dim(enriched_targets)
 dim(merged)
-View(targets)
-View(enriched_targets)
+# View(targets)
+# View(enriched_targets)
 
-m_values <- readRDS(file.path(project_context$paths$results, "m_values_bmiq.rds"))
+m_values <- readRDS(file.path(project_context$paths$results, "m_values_bmiq_no_outliers.rds"))
 dim(m_values)
 
 m_values_samples <- colnames(m_values)
@@ -126,7 +125,7 @@ m_values_samples <- colnames(m_values)
 duplicates <- enriched_targets$Basename %>%
     str_extract("GSM\\d{7}_\\d{12}_R\\d{2}C\\d{2}") %>%
     duplicated()
-View(enriched_targets[duplicates, ])
+# View(enriched_targets[duplicates, ])
 
 dim(enriched_targets[enriched_targets$Basename %>% str_extract("GSM\\d{7}_\\d{12}_R\\d{2}C\\d{2}"), ])
 

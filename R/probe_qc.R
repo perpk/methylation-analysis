@@ -1,5 +1,5 @@
 library(minfi)
-
+source("R/results_container.R")
 probe_qc <- function(
     context = NULL,
     rg_set = NULL,
