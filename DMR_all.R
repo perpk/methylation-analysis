@@ -18,7 +18,7 @@
 ## wget https://drive.usercontent.google.com/download?id=1yZBVUPqHNHEHsEihT6ThKkFiOQHWIsFL&export=download&authuser=0&confirm=t&uuid=1adbefc9-f93a-4183-aaf8-999764f88169&at=AFYLz4OlqCDuH8dLNdbQFZcINEJ_:1785682138681 -O peg1_pca_df_with_outliers.rds
 
 # SGPD
-## TODO
+## TODO see SGPD_Batch_Investigation.R
 
 rm(list = ls())
 gc(full = TRUE)
@@ -72,6 +72,8 @@ qc_dmr <- function(m_values, design) {
     expected_p <- ppoints(length(p_values))
     observed_p <- sort(p_values)
 
+    png(file.path("/root/workspace/data/", "GSE111629_QQ_plot.png"), width = 800, height = 800)
+
     plot(-log10(expected_p), -log10(observed_p),
         main = paste("QQ Plot of PD Methylation\nLambda =", round(lambda, 3)),
         xlab = "Expected -log10(P)",
@@ -80,6 +82,7 @@ qc_dmr <- function(m_values, design) {
     )
 
     abline(0, 1, col = "red", lwd = 2)
+    dev.off()
 }
 
 plot_dmr <- function(targets, results_ranges, annot) {
@@ -141,14 +144,14 @@ plot_dmr <- function(targets, results_ranges, annot) {
 ### ~ Sample_Group + Age_Group + Sex + CD8T + CD4T + NK + Bcell a λ = 1.007 and analysis yields 20 DMRs
 ### The ComBat dataset yields around 0.7 and is considered genetically deflated. The same set is also thought to be over-normalized (BMIQ accidentally ran twice).
 
-targets_peg1 <- readRDS("/root/data/peg1_harmonized_targets.rds")
-methyl_set_peg1 <- readRDS("/root/data/peg1_methyl_set_removed_cross_reactive.rds")
+targets_peg1 <- readRDS("/root/workspace/data/peg1_harmonized_targets.rds")
+methyl_set_peg1 <- readRDS("/root/workspace/data/peg1_methyl_set_removed_cross_reactive.rds")
 
 m_values_peg1 <- getM(methyl_set_peg1)
 beta_values_peg1 <- getBeta(methyl_set_peg1)
 
 # Load the pca df with the outliers.
-peg1_pca_df_with_outliers <- readRDS("/root/data/peg1_pca_df_with_outliers.rds")
+peg1_pca_df_with_outliers <- readRDS("/root/workspace/data/peg1_pca_df_with_outliers.rds")
 
 outlier_samples <- rownames(peg1_pca_df_with_outliers)[peg1_pca_df_with_outliers$Is_Outlier]
 beta_matrix_no_outliers <- beta_values_peg1[, !colnames(beta_values_peg1) %in% outlier_samples]
@@ -241,6 +244,41 @@ design_test <- model.matrix(~ Sample_Group + Age + Sex + CD8T + CD4T + Bcell + M
 design_pca <- model.matrix(~ Sample_Group + Age + Sex + CD8T + CD4T + Bcell + Mono + NK + Gran + ScanDate + Array + PC2 + PC4, data = targets_test)
 qc_dmr(m_values_bmiq_no_outliers, design_pca)
 
+# Remove batch effects via limma
+dd <- model.matrix(~Sample_Group, data = targets_test)
+cell_types <- as.matrix(targets_test[, c("CD8T", "CD4T", "Bcell", "Mono", "NK", "Gran", "PC2", "PC4")])
+m_matrix_clean <- removeBatchEffect(
+    x = m_values_bmiq_no_outliers,
+    batch = targets_test$Array,
+    covariates = cell_types,
+    design = dd
+)
+
+saveRDS(
+    m_matrix_clean,
+    file.path("/root/workspace/data", "GSE111629_harmonized_m_values_cleaned.rds")
+)
+
+library(arrow)
+
+all(rownames(targets_test) %in% colnames(m_matrix_clean))
+
+all(colnames(m_matrix_clean) %in% rownames(targets_test))
+
+combined <- cbind(targets_test, t(m_matrix_clean))
+dim(combined)
+write_parquet(combined, write_statistics = FALSE, use_dictionary = FALSE, file.path("/root/workspace/data", "GSE111629_data_test.parquet"))
+
+library(lumi)
+beta_matrix_clean <- m2beta(m_matrix_clean)
+
+saveRDS(
+    beta_matrix_clean,
+    file.path("/root/workspace/data", "GSE111629_harmonized_beta_values_cleaned.rds")
+)
+
+
+
 # 1.052 all PCs + Age + Sex
 
 pc_pvalues <- sapply(1:5, function(i) {
@@ -252,6 +290,7 @@ pc_pvalues <- sapply(1:5, function(i) {
     return(test_result$p.value)
 })
 
+png(file.path("/root/workspace/data/", "GSE111629_PC_boxplots.png"), width = 1200, height = 800)
 # Set up a 2x3 grid for plotting multiple charts at once
 par(mfrow = c(2, 3))
 
@@ -265,6 +304,7 @@ for (i in 1:5) {
         col = c("lightblue", "lightcoral")
     )
 }
+dev.off()
 
 # Reset the plotting grid
 par(mfrow = c(1, 1))
