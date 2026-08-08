@@ -209,3 +209,8 @@ pca_pairplot(pca_df_enriched_meta, color_by = "NK", n_pcs = 5, prefix = "GSE1453
 pca_pairplot(pca_df_enriched_meta, color_by = "Bcell", n_pcs = 5, prefix = "GSE145361_pca_pairplot_cleaned_")
 pca_pairplot(pca_df_enriched_meta, color_by = "Mono", n_pcs = 5, prefix = "GSE145361_pca_pairplot_cleaned_")
 pca_pairplot(pca_df_enriched_meta, color_by = "Gran", n_pcs = 5, prefix = "GSE145361_pca_pairplot_cleaned_")
+
+saveRDS(
+    m_matrix_clean,
+    file.path(data_dir, "processed/GSE145361_harmonized_m_values_cleaned.rds")
+)
