@@ -43,7 +43,9 @@ remove_cross_reactive_probes <- function(
   prog$complete()
 
   methyl_set_cross_reactive_clean_path <- file.path(context$paths$processed, "methyl_set_removed_cross_reactive.rds")
-  methyl_set_cross_reactive_clean_container <- new("ResultsContainer", filename = methyl_set_cross_reactive_clean_path, object = methyl_set, future = NULL)   
+  methyl_set_cross_reactive_clean_container <- new("ResultsContainer", filename = methyl_set_cross_reactive_clean_path, object = methyl_set, future = NULL)
+
+  saveRDS(methyl_set, file = methyl_set_cross_reactive_clean_path)
 
   return(
     list(

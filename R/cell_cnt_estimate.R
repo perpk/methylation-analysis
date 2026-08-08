@@ -5,7 +5,10 @@ cell_cnt_estimate <- function(
   rg_set_filename = NULL
 ) {
   if (is.null(rg_set)) {
-    rg_set <- readRDS(rg_set_filename)
+    rg_set <- readRDS(file.path(context$paths$raw_data, rg_set_filename))
+  }
+  if (is.null(targets)) {
+    targets <- readRDS(file.path(context$paths$processed, "targets.rds"))
   }
 
   print("Estimating cell counts")

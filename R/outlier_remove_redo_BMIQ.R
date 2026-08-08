@@ -24,11 +24,11 @@ outlier_remove_redo_BMIQ <- function(
 
     beta_matrix_no_outliers_filepath <- file.path(context$paths$results, "beta_matrix_no_outliers.rds")
     if (context$mode == results_mode()$disk_only || context$mode == results_mode()$disk_and_memory) {
-        prog$update(3, paste("Saving beta-matrix without outliers to", beta_matrix_no_outliers_filepath))
+        # prog$update(3, paste("Saving beta-matrix without outliers to", beta_matrix_no_outliers_filepath))
+        saveRDS(beta_matrix_no_outliers, beta_matrix_no_outliers_filepath)
     }
-    saveRDS(beta_matrix_no_outliers, beta_matrix_no_outliers_filepath)
 
-    prog$update(4, "Re-running BMIQ normalization without outliers")
+    # prog$update(4, "Re-running BMIQ normalization without outliers")
     res <- apply_BMIQ(context, beta_matrix = beta_matrix_no_outliers, beta_matrix_file = beta_matrix_no_outliers_filepath, plot = FALSE)
     saveRDS(res$beta_bmiq_container@object, file.path(context$paths$results, "beta_matrix_bmiq_no_outliers.rds"))
     saveRDS(res$m_bmiq_container@object, file.path(context$paths$results, "m_values_bmiq_no_outliers.rds"))

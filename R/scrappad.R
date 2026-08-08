@@ -25,26 +25,46 @@ source("R/results_container.R")
 
 
 
-methyl_set_removed_cross_reactive <- readRDS("/root/data/methyl_set_removed_cross_reactive.rds")
-targets <- readRDS("/root/data/targets_s_mismatch_cells_scandate.rds")
+# methyl_set_removed_cross_reactive <- readRDS("/root/data/methyl_set_removed_cross_reactive.rds")
+# targets <- readRDS("/root/data/targets_s_mismatch_cells_scandate.rds")
 
-beta_matrix <- getBeta(methyl_set_removed_cross_reactive)
-m_matrix <- getM(methyl_set_removed_cross_reactive)
+# beta_matrix <- getBeta(methyl_set_removed_cross_reactive)
+# m_matrix <- getM(methyl_set_removed_cross_reactive)
 
-targets %>% head()
+# targets %>% head()
 
-design <- model.matrix(
-  ~ 0 + Sample_Group + SEX,
-  data = targets
+# design <- model.matrix(
+#   ~ 0 + Sample_Group + SEX,
+#   data = targets
+# )
+
+# is.factor(targets$Age_Group)
+# targets$Age_Group <- as.factor(targets$Age_Group)
+
+# fit <- lmFit(m_matrix, design)
+# cont.matrix <- makeContrasts(Parkinsons_vs_Control = Sample_GroupPD - Sample_GroupControl, levels = design)
+# fit_contrasts <- contrasts.fit(fit, cont.matrix)
+# fit2 <- eBayes(fit_contrasts)
+# results <- topTable(fit2, coef = "Parkinsons_vs_Control", number = Inf, adjust.method = "BH")
+
+# table(results$adj.P.Val < 0.05)
+
+project_to_load <- "GSE145361_20260804_162813"
+project_location <- "/root/workspace/methyl-pipe-out"
+
+cohorts <- list(
+    PD_vs_Control = c("PD", "Control")
 )
 
-is.factor(targets$Age_Group)
-targets$Age_Group <- as.factor(targets$Age_Group)
+source("R/project_context.R")
+project_context <- .load_methylation_project(project_location, project_to_load, platform = "450k", cohorts = cohorts)
 
-fit <- lmFit(m_matrix, design)
-cont.matrix <- makeContrasts(Parkinsons_vs_Control = Sample_GroupPD - Sample_GroupControl, levels = design)
-fit_contrasts <- contrasts.fit(fit, cont.matrix)
-fit2 <- eBayes(fit_contrasts)
-results <- topTable(fit2, coef = "Parkinsons_vs_Control", number = Inf, adjust.method = "BH")
 
-table(results$adj.P.Val < 0.05)
+source("R/outlier_remove_redo_BMIQ.R")
+outlier_removed_bmiq_res <- outlier_remove_redo_BMIQ(
+  context = project_context,
+  pca = NULL,
+  beta_matrix = NULL,
+  pca_filename = file.path(project_context$paths$results, "pca_df.rds"),
+  beta_matrix_filename = file.path(project_context$paths$results, "beta_matrix.rds")
+)
