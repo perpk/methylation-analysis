@@ -189,28 +189,55 @@ m_matrix_clean <- removeBatchEffect(
     design = dd
 )
 
+m_matrix_clean <- readRDS(file.path(data_dir, "processed/GSE145361_harmonized_m_values_cleaned.rds"))
+
 pca <- prcomp(t(m_matrix_clean))
 
-pca_df <- data.frame(matrix(NA, nrow = ncol(m_matrix_clean), ncol = 10))
-colnames(pca_df) <- sapply(1:10, function(i) paste0("PC", i))
-rownames(pca_df) <- colnames(m_matrix_clean)
+pca_df_clean <- data.frame(matrix(NA, nrow = ncol(m_matrix_clean), ncol = 10))
+colnames(pca_df_clean) <- sapply(1:10, function(i) paste0("PC", i))
+rownames(pca_df_clean) <- colnames(m_matrix_clean)
 for (index in 1:10) {
-    pca_df[[paste0("PC", index)]] <- pca$x[, index]
+    pca_df_clean[[paste0("PC", index)]] <- pca$x[, index]
 }
 
-pca_pairplot(pca_df_enriched_meta, color_by = "ScanDate", n_pcs = 5, prefix = "GSE145361_pca_pairplot_cleaned_")
+targets_for_pca <- targets[, c("Sample_Group", "CD8T", "CD4T", "NK", "Bcell", "Mono", "Gran", "Sex", "ScanDate", "Sample_Name", "Slide", "Array")]
+
+pca_df_enriched_meta_clean <- merge(
+    x = pca_df_clean,
+    y = targets_for_pca,
+    by.x = "row.names",
+    by.y = "row.names",
+    all = FALSE
+)
+
+library(ggplot2)
+library(stringr)
+library(patchwork)
+
+pca_pairplot(pca_df_enriched_meta_clean, color_by = "ScanDate", n_pcs = 5, prefix = "GSE145361_pca_pairplot_cleaned_")
 # pca_pairplot(pca_df_enriched_meta, color_by = "Slide_num", n_pcs = 5)
-pca_pairplot(pca_df_enriched_meta, color_by = "Array", n_pcs = 5, prefix = "GSE145361_pca_pairplot_cleaned_")
-pca_pairplot(pca_df_enriched_meta, color_by = "Sex", n_pcs = 5, prefix = "GSE145361_pca_pairplot_cleaned_")
-pca_pairplot(pca_df_enriched_meta, color_by = "Sample_Group", n_pcs = 5, prefix = "GSE145361_pca_pairplot_cleaned_")
-pca_pairplot(pca_df_enriched_meta, color_by = "CD8T", n_pcs = 5, prefix = "GSE145361_pca_pairplot_cleaned_")
-pca_pairplot(pca_df_enriched_meta, color_by = "CD4T", n_pcs = 5, prefix = "GSE145361_pca_pairplot_cleaned_")
-pca_pairplot(pca_df_enriched_meta, color_by = "NK", n_pcs = 5, prefix = "GSE145361_pca_pairplot_cleaned_")
-pca_pairplot(pca_df_enriched_meta, color_by = "Bcell", n_pcs = 5, prefix = "GSE145361_pca_pairplot_cleaned_")
-pca_pairplot(pca_df_enriched_meta, color_by = "Mono", n_pcs = 5, prefix = "GSE145361_pca_pairplot_cleaned_")
-pca_pairplot(pca_df_enriched_meta, color_by = "Gran", n_pcs = 5, prefix = "GSE145361_pca_pairplot_cleaned_")
+pca_pairplot(pca_df_enriched_meta_clean, color_by = "Array", n_pcs = 5, prefix = "GSE145361_pca_pairplot_cleaned_")
+pca_pairplot(pca_df_enriched_meta_clean, color_by = "Sex", n_pcs = 5, prefix = "GSE145361_pca_pairplot_cleaned_")
+pca_pairplot(pca_df_enriched_meta_clean, color_by = "Sample_Group", n_pcs = 5, prefix = "GSE145361_pca_pairplot_cleaned_")
+pca_pairplot(pca_df_enriched_meta_clean, color_by = "CD8T", n_pcs = 5, prefix = "GSE145361_pca_pairplot_cleaned_")
+pca_pairplot(pca_df_enriched_meta_clean, color_by = "CD4T", n_pcs = 5, prefix = "GSE145361_pca_pairplot_cleaned_")
+pca_pairplot(pca_df_enriched_meta_clean, color_by = "NK", n_pcs = 5, prefix = "GSE145361_pca_pairplot_cleaned_")
+pca_pairplot(pca_df_enriched_meta_clean, color_by = "Bcell", n_pcs = 5, prefix = "GSE145361_pca_pairplot_cleaned_")
+pca_pairplot(pca_df_enriched_meta_clean, color_by = "Mono", n_pcs = 5, prefix = "GSE145361_pca_pairplot_cleaned_")
+pca_pairplot(pca_df_enriched_meta_clean, color_by = "Gran", n_pcs = 5, prefix = "GSE145361_pca_pairplot_cleaned_")
 
 saveRDS(
     m_matrix_clean,
     file.path(data_dir, "processed/GSE145361_harmonized_m_values_cleaned.rds")
 )
+
+
+library(arrow)
+
+all(rownames(targets) %in% colnames(m_matrix_clean))
+
+all(colnames(m_matrix_clean) %in% rownames(targets))
+
+combined <- cbind(targets, t(m_matrix_clean))
+dim(combined)
+write_parquet(combined, write_statistics = FALSE, use_dictionary = FALSE, file.path(data_dir, "processed/GSE145361_data.parquet"))
