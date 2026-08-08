@@ -241,3 +241,11 @@ all(colnames(m_matrix_clean) %in% rownames(targets))
 combined <- cbind(targets, t(m_matrix_clean))
 dim(combined)
 write_parquet(combined, write_statistics = FALSE, use_dictionary = FALSE, file.path(data_dir, "processed/GSE145361_data.parquet"))
+
+library(lumi)
+beta_matrix_clean <- m2beta(m_matrix_clean)
+
+saveRDS(
+    beta_matrix_clean,
+    file.path(data_dir, "processed/GSE145361_harmonized_beta_values_cleaned.rds")
+)
