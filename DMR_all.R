@@ -246,13 +246,19 @@ qc_dmr(m_values_bmiq_no_outliers, design_pca)
 
 # Remove batch effects via limma
 dd <- model.matrix(~Sample_Group, data = targets_test)
-cell_types <- as.matrix(targets_test[, c("CD8T", "CD4T", "Bcell", "Mono", "NK", "Gran", "PC2", "PC4")])
+peg1_covariates <- as.matrix(targets_test[, c("CD8T", "CD4T", "Bcell", "Mono", "NK", "Gran", "PC2", "PC4")])
+sex_numeric <- as.numeric(as.factor(targets_test$Sex)) - 1
+age_numeric <- as.numeric(targets_test$Age)
+peg1_covariates <- cbind(peg1_covariates, Sex = sex_numeric)
+peg1_covariates <- cbind(peg1_covariates, Age = age_numeric)
 m_matrix_clean <- removeBatchEffect(
     x = m_values_bmiq_no_outliers,
-    batch = targets_test$Array,
-    covariates = cell_types,
+    batch = targets_test$ScanDate,
+    batch2 = targets_test$Array,
+    covariates = peg1_covariates,
     design = dd
 )
+
 
 saveRDS(
     m_matrix_clean,
@@ -277,7 +283,10 @@ saveRDS(
     file.path("/root/workspace/data", "GSE111629_harmonized_beta_values_cleaned.rds")
 )
 
-
+saveRDS(
+    m_values_bmiq_no_outliers,
+    file.path("/root/workspace/methyl-pipe-out", "peg1_m_values_bmiq_no_outliers.rds")
+)
 
 # 1.052 all PCs + Age + Sex
 
