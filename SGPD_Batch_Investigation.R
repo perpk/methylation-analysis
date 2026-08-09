@@ -181,13 +181,40 @@ pca_pairplot(pca_df_enriched_meta, color_by = "Gran", n_pcs = 5)
 
 # Remove batch effects via limma
 dd <- model.matrix(~Sample_Group, data = targets)
-cell_types <- as.matrix(targets[, c("CD8T", "CD4T", "Bcell", "Mono", "NK", "Gran")])
+# design <- model.matrix(~ Sample_Group + Sex + CD8T + CD4T + Bcell + Mono + NK + Gran + Array, data = targets)
+sgpd_covariates <- as.matrix(targets[, c("CD8T", "CD4T", "Bcell", "Mono", "NK", "Gran")])
+sex_numeric <- as.numeric(as.factor(targets$Sex)) - 1
+sgpd_covariates <- cbind(sgpd_covariates, Sex = sex_numeric)
 m_matrix_clean <- removeBatchEffect(
     x = m_values_bmiq_no_outliers,
     batch = targets$Array,
-    covariates = cell_types,
+    covariates = sgpd_covariates,
     design = dd
 )
+
+saveRDS(
+    m_matrix_clean,
+    file.path(data_dir, "processed/GSE145361_harmonized_m_values_cleaned.rds")
+)
+
+library(arrow)
+
+all(rownames(targets) %in% colnames(m_matrix_clean))
+
+all(colnames(m_matrix_clean) %in% rownames(targets))
+
+combined <- cbind(targets, t(m_matrix_clean))
+dim(combined)
+write_parquet(combined, write_statistics = FALSE, use_dictionary = FALSE, file.path(data_dir, "processed/GSE145361_data_test.parquet"))
+
+library(lumi)
+beta_matrix_clean <- m2beta(m_matrix_clean)
+
+saveRDS(
+    beta_matrix_clean,
+    file.path(data_dir, "processed/GSE145361_harmonized_beta_values_cleaned.rds")
+)
+
 
 m_matrix_clean <- readRDS(file.path(data_dir, "processed/GSE145361_harmonized_m_values_cleaned.rds"))
 

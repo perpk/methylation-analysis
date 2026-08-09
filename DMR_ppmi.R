@@ -11,6 +11,7 @@
 # PPMI
 ## wget https://drive.usercontent.google.com/download?id=107zGQw0RH24365Z4WPPMdFATrc4Cr4dZ&export=download&authuser=0&confirm=t&uuid=af61a6c5-47b6-43a2-899c-ec2b50f5604f&at=AFYLz4M7uoIsJDIKyLenfcTXmpOC:1785576419974 -O ppmi_methyl_set_removed_cross_reactive.rds
 ## wget https://drive.usercontent.google.com/download?id=1OsaZ_Pqu0RXZ3H2VGsZoTRj87Io5rv1v&export=download&authuser=0&confirm=t&uuid=a1b4d8ac-bbe5-4b5d-88ed-d14f6ddb26ae&at=AFYLz4MqvQESEao_7nEDGsWxs2ad:1785576747081 -O ppmi_harmonized_targets.rds
+## wget https://drive.usercontent.google.com/download?id=1PIaVMFefCEJxiW2dVaCFoMxRLFkBQCWE&export=download&authuser=0&confirm=t&uuid=93ebaf6d-e67e-4a09-a4ae-18571de2bcf1&at=AFYLz4OcFQMvDnTb0MgWknT8I61X:1786282868617 -O ppmi_pca_df_with_outliers.rds
 
 # PEG1
 ## wget https://drive.usercontent.google.com/download?id=1vHhRtama9o2xSGde8bCmHWRq_spy93yc&export=download&authuser=0&confirm=t&uuid=959c754e-707a-4948-b864-ab5ca0342c4d&at=AFYLz4PM9Ezut4c1xYnKbD4CcQ1U:1785576540968 -O peg1_methyl_set_removed_cross_reactive.rds
@@ -70,6 +71,8 @@ qc_dmr <- function(m_values, design) {
     expected_p <- ppoints(length(p_values))
     observed_p <- sort(p_values)
 
+    png(file.path("/root/workspace/data/", "PPMI_QQ_plot.png"), width = 800, height = 800)
+
     plot(-log10(expected_p), -log10(observed_p),
         main = paste("QQ Plot of PD Methylation\nLambda =", round(lambda, 3)),
         xlab = "Expected -log10(P)",
@@ -78,6 +81,7 @@ qc_dmr <- function(m_values, design) {
     )
 
     abline(0, 1, col = "red", lwd = 2)
+    dev.off()
 }
 
 plot_dmr <- function(targets, results_ranges, ppmi_annot) {
@@ -139,14 +143,15 @@ plot_dmr <- function(targets, results_ranges, ppmi_annot) {
 ### ~ Sample_Group + Age_Group + Sex + CD8T + CD4T + NK + Bcell a λ = 1.007 and analysis yields 20 DMRs
 ### The ComBat dataset yields around 0.7 and is considered genetically deflated. The same set is also thought to be over-normalized (BMIQ accidentally ran twice).
 
-targets_ppmi <- readRDS("/root/data/ppmi_harmonized_targets.rds")
-methyl_set_ppmi <- readRDS("/root/data/ppmi_methyl_set_removed_cross_reactive.rds")
+targets_ppmi <- readRDS("/root/workspace/data/ppmi_harmonized_targets.rds")
+methyl_set_ppmi <- readRDS("/root/workspace/data/ppmi_methyl_set_removed_cross_reactive.rds")
 
+library(minfi)
 m_values_ppmi <- getM(methyl_set_ppmi)
 beta_values_ppmi <- getBeta(methyl_set_ppmi)
 
 # Load the pca df with the outliers.
-ppmi_pca_df_with_outliers <- readRDS("/root/data/ppmi_pca_df_with_outliers.rds")
+ppmi_pca_df_with_outliers <- readRDS("/root/workspace/data/ppmi_pca_df_with_outliers.rds")
 
 outlier_samples <- rownames(ppmi_pca_df_with_outliers)[ppmi_pca_df_with_outliers$Is_Outlier]
 beta_matrix_no_outliers <- beta_values_ppmi[, !colnames(beta_values_ppmi) %in% outlier_samples]
@@ -186,12 +191,93 @@ for (i in 1:ncol(beta_matrix_no_outliers)) {
 }
 
 library(lumi)
-
 rownames(beta_bmiq) <- rownames(beta_matrix_no_outliers)
 colnames(beta_bmiq) <- colnames(beta_matrix_no_outliers)
+m_values_bmiq_no_outliers <- beta2m(beta_bmiq)
 
-design <- model.matrix(~ Sample_Group + Age + Sex + CD8T + CD4T + Bcell + Mono + NK + Neu + ScanDate + Array, data = targets_test)
+### Batch analysis
+library(tidyverse)
 
+targets_ppmi %>% head()
+
+targets_ppmi$Slide <- targets_ppmi$Sentrix_ID %>%
+    strsplit(split = "_") %>%
+    sapply(function(x) x[1])
+
+targets_ppmi$Array <- targets_ppmi$Sentrix_ID %>%
+    strsplit(split = "_") %>%
+    sapply(function(x) x[2])
+
+targets_ppmi %>% head()
+
+targets_original_ppmi <- readRDS("/root/workspace/data/targets_original_ppmi.rds")
+targets_original_ppmi %>% head()
+
+targets_test <- merge(
+    targets_ppmi,
+    targets_original_ppmi %>% select(Sample_Name, ENROLL_AGE),
+    by = "Sample_Name",
+)
+targets_test %>% head()
+
+m_values_bmiq_no_outliers <- readRDS("/root/workspace/methyl-pipe-out/ppmi_m_values_bmiq_no_outliers.rds")
+# design <- model.matrix(~ Sample_Group + Age + Sex + CD8T + CD4T + Bcell + Mono + NK + Neu + ScanDate + Array, data = targets_ppmi)
+design <- model.matrix(~ Sample_Group + ENROLL_AGE.y + Sex + CD8T + CD4T + Bcell + Mono + NK + Neu + ScanDate + Array, data = targets_test)
+qc_dmr(m_values_bmiq_no_outliers, design)
+
+### remove batch effects via limma
+
+table(targets_test$Array, targets_test$ScanDate)
+
+dd <- model.matrix(~Sample_Group, data = targets_test)
+ppmi_covariates <- as.matrix(targets_test[, c("CD8T", "CD4T", "Bcell", "Mono", "NK", "Neu")])
+sex_numeric <- as.numeric(as.factor(targets_test$Sex)) - 1
+age_numeric <- as.numeric(targets_test$ENROLL_AGE.y)
+ppmi_covariates <- cbind(ppmi_covariates, Sex = sex_numeric)
+ppmi_covariates <- cbind(ppmi_covariates, Age = age_numeric)
+
+m_matrix_clean <- removeBatchEffect(
+    x = m_values_bmiq_no_outliers,
+    batch = targets_test$ScanDate,
+    batch2 = targets_test$Array,
+    covariates = ppmi_covariates,
+    design = dd
+)
+
+saveRDS(
+    m_matrix_clean,
+    file.path("/root/workspace/data", "PPMI_harmonized_m_values_cleaned.rds")
+)
+
+library(arrow)
+
+targets_test %>% dim()
+m_matrix_clean %>% dim()
+
+rownames(targets_test) <- colnames(m_matrix_clean)
+
+all(rownames(targets_test) %in% colnames(m_matrix_clean))
+
+all(colnames(m_matrix_clean) %in% rownames(targets_test))
+
+combined <- cbind(targets_test, t(m_matrix_clean))
+dim(combined)
+write_parquet(combined, write_statistics = FALSE, use_dictionary = FALSE, file.path("/root/workspace/methyl-pipe-out", "ppmi_data_test.parquet"))
+
+library(lumi)
+beta_matrix_clean <- m2beta(m_matrix_clean)
+
+saveRDS(
+    beta_matrix_clean,
+    file.path("/root/workspace/methyl-pipe-out", "ppmi_harmonized_beta_values_cleaned.rds")
+)
+
+saveRDS(
+    m_values_bmiq_no_outliers,
+    file.path("/root/workspace/methyl-pipe-out", "ppmi_m_values_bmiq_no_outliers.rds")
+)
+
+### end batch investigation
 m_values_bmiq_no_outliers <- beta2m(beta_bmiq)
 
 dmr_results <- dmr(m_values_bmiq_no_outliers, targets_ppmi, design)
@@ -211,7 +297,7 @@ plot_dmr(targets_ppmi, results_ranges = dmr_results, ppmi_annot = cpg.annotate(
 
 head(dmr_results)
 
-write.csv(dmr_results, file = "/root/data/ppmi_dmr_results.csv", row.names = TRUE)
+write.csv(dmr_results, file = "/root/workspace/data/ppmi_dmr_results.csv", row.names = TRUE)
 
 ppmi_pca_df_with_outliers %>% head()
 targets_ppmi %>% head()
