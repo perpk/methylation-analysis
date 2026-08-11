@@ -52,49 +52,39 @@ targets$Sex <- targets$`gender:ch1`
 design <- model.matrix(~ Sample_Group + Sex + CD8T + CD4T + Bcell + Mono + NK + Gran + Array, data = targets)
 dmr_results <- dmr(m_values_bmiq_no_outliers, targets, design)
 
-dmr_results %>% head()
-
 write.csv(dmr_results$results_df, file.path(data_dir, "results/GSE145361_DMR_results.csv"), row.names = FALSE)
-
-plot_dmr <- function(targets, results_ranges, annot) {
-    # 1. Assign colors to your phenotypes
-    # Ensure this matches the order of samples in your original matrix and targets dataframe
-    pal <- c("blue", "red")
-    sample_colors <- pal[as.factor(targets$Sample_Group)]
-
-    # 2. Plot the top-ranked DMR (dmr = 1)
-    DMR.plot(
-        ranges = results_ranges, # The GRanges object extracted from dmrcate()
-        dmr = 1, # The index of the DMR to plot (1 = most significant)
-        CpGs = annot, # The annotated object from the cpg.annotate() step
-        phen.col = sample_colors, # The color assignments for your samples
-        what = "Beta", # Plots biological proportions instead of M-values
-        arraytype = "450K", # Specify your array type
-        genome = "hg19"
-    ) # The reference genome your data was aligned to
-}
-
-library(IlluminaHumanMethylation450kanno.ilmn12.hg19)
-platform <- IlluminaHumanMethylation450kanno.ilmn12.hg19
-plot_dmr(targets, dmr_results$results_ranges, getAnnotation(platform))
+saveRDS(dmr_results$results_ranges, file.path(data_dir, "results/GSE145361_DMR_results_ranges.rds"))
 
 pal <- c("blue", "red")
+
 sample_colors <- pal[as.factor(targets$Sample_Group)]
-names(sample_colors) <- targets$Sample_Group
+names(sample_colors) <- rownames(targets)
 
 dmr_ranges <- dmr_results$results_ranges
 
 library(lumi)
 beta <- m2beta(m_values_bmiq_no_outliers)
 
-png(file = file.path(data_dir, "results/SGPD_Top_DMR.png"), width = 30, height = 24, units = "in", res = 300)
+pd_samples <- targets[targets$Sample_Group == "PD", ]
+control_samples <- targets[targets$Sample_Group == "Control", ]
+
+pd_samples$Sample_Name <- rownames(pd_samples)
+control_samples$Sample_Name <- rownames(control_samples)
+
+pd_means <- rowMeans(beta[, pd_samples$Sample_Name], na.rm = TRUE)
+control_means <- rowMeans(beta[, control_samples$Sample_Name], na.rm = TRUE)
+
+beta_aggregated <- cbind(PD = pd_means, Control = control_means)
+
+png(file = file.path(data_dir, "results/SGPD_Top_DMR.png"), width = 10, height = 8, units = "in", res = 300)
+
 DMR.plot(
-    ranges = dmr_ranges, # The GRanges object extracted from dmrcate()
-    dmr = 1, # The index of the DMR to plot (1 = most significant)
-    CpGs = beta, # The annotated object from the cpg.annotate() step
-    phen.col = sample_colors, # The color assignments for your samples
-    what = "Beta", # Plots biological proportions instead of M-values
-    arraytype = "450K", # Specify your array type
+    ranges = dmr_ranges,
+    dmr = 1,
+    CpGs = beta_aggregated,
+    phen.col = c("PD" = "#1f77b4", "Control" = "#d62728"),
+    what = "Beta",
+    arraytype = "450K",
     genome = "hg19"
 )
 
@@ -103,12 +93,12 @@ dev.off()
 png(file = file.path(data_dir, "results/SGPD_Top_DMR2.png"), width = 10, height = 8, units = "in", res = 300)
 
 DMR.plot(
-    ranges = dmr_ranges, # The GRanges object extracted from dmrcate()
-    dmr = 2, # The index of the DMR to plot (1 = most significant)
-    CpGs = beta, # The annotated object from the cpg.annotate() step
-    phen.col = sample_colors, # The color assignments for your samples
-    what = "Beta", # Plots biological proportions instead of M-values
-    arraytype = "450K", # Specify your array type
+    ranges = dmr_ranges,
+    dmr = 2,
+    CpGs = beta_aggregated,
+    phen.col = c("PD" = "#1f77b4", "Control" = "#d62728"),
+    what = "Beta",
+    arraytype = "450K",
     genome = "hg19"
 )
 
@@ -117,12 +107,12 @@ dev.off()
 png(file = file.path(data_dir, "results/SGPD_Top_DMR3.png"), width = 10, height = 8, units = "in", res = 300)
 
 DMR.plot(
-    ranges = dmr_ranges, # The GRanges object extracted from dmrcate()
-    dmr = 3, # The index of the DMR to plot (1 = most significant)
-    CpGs = beta, # The annotated object from the cpg.annotate() step
-    phen.col = sample_colors, # The color assignments for your samples
-    what = "Beta", # Plots biological proportions instead of M-values
-    arraytype = "450K", # Specify your array type
+    ranges = dmr_ranges,
+    dmr = 3,
+    CpGs = beta_aggregated,
+    phen.col = c("PD" = "#1f77b4", "Control" = "#d62728"),
+    what = "Beta",
+    arraytype = "450K",
     genome = "hg19"
 )
 
@@ -131,20 +121,86 @@ dev.off()
 png(file = file.path(data_dir, "results/SGPD_Top_DMR4.png"), width = 10, height = 8, units = "in", res = 300)
 
 DMR.plot(
-    ranges = dmr_ranges, # The GRanges object extracted from dmrcate()
-    dmr = 4, # The index of the DMR to plot (1 = most significant)
-    CpGs = beta, # The annotated object from the cpg.annotate() step
-    phen.col = sample_colors, # The color assignments for your samples
-    what = "Beta", # Plots biological proportions instead of M-values
-    arraytype = "450K", # Specify your array type
+    ranges = dmr_ranges,
+    dmr = 4,
+    CpGs = beta_aggregated,
+    phen.col = c("PD" = "#1f77b4", "Control" = "#d62728"),
+    what = "Beta",
+    arraytype = "450K",
     genome = "hg19"
 )
 
 dev.off()
 
-View(dmr_results$results_df)
+png(file = file.path(data_dir, "results/SGPD_Top_DMR5.png"), width = 10, height = 8, units = "in", res = 300)
+
+DMR.plot(
+    ranges = dmr_ranges,
+    dmr = 5,
+    CpGs = beta_aggregated,
+    phen.col = c("PD" = "#1f77b4", "Control" = "#d62728"),
+    what = "Beta",
+    arraytype = "450K",
+    genome = "hg19"
+)
+
+dev.off()
+
+png(file = file.path(data_dir, "results/SGPD_Top_DMR6.png"), width = 10, height = 8, units = "in", res = 300)
+
+DMR.plot(
+    ranges = dmr_ranges,
+    dmr = 6,
+    CpGs = beta_aggregated,
+    phen.col = c("PD" = "#1f77b4", "Control" = "#d62728"),
+    what = "Beta",
+    arraytype = "450K",
+    genome = "hg19"
+)
+
+dev.off()
 
 
+calculate_effect_size_all_dmrs <- function(dmr_ranges, beta, targets) {
+    dmr_ranges_df <- as.data.frame(dmr_ranges)
+
+    dmr_effect_sizes <- lapply(seq_along(dmr_ranges), function(index) {
+        valid_dmr_probes <- dmr_probes(dmr_ranges[index], beta)
+
+        if (length(valid_dmr_probes) == 0) {
+            delta_beta <- NA_real_
+        } else {
+            dmr_beta_subset <- beta[valid_dmr_probes, , drop = FALSE]
+
+            pd_samples <- rownames(targets[targets$Sample_Group == "PD", , drop = FALSE])
+            control_samples <- rownames(targets[targets$Sample_Group == "Control", , drop = FALSE])
+
+            mean_pd <- mean(dmr_beta_subset[, pd_samples, drop = FALSE], na.rm = TRUE)
+            mean_control <- mean(dmr_beta_subset[, control_samples, drop = FALSE], na.rm = TRUE)
+            delta_beta <- mean_pd - mean_control
+        }
+
+        data.frame(
+            dmr_index = index,
+            deltabeta = delta_beta,
+            FDR = dmr_ranges_df$min_smoothed_fdr[index],
+            genes = dmr_ranges_df$overlapping.genes[index],
+            chromosome = as.character(seqnames(dmr_ranges[index])),
+            stringsAsFactors = FALSE
+        )
+    })
+
+    bind_rows(dmr_effect_sizes)
+}
+
+dmr_effect_sizes <- calculate_effect_size_all_dmrs(dmr_ranges, beta, targets)
+
+dmr_effect_sizes <- dmr_effect_sizes[order(-abs(dmr_effect_sizes$deltabeta)), ]
+dmr_effect_sizes %>% head()
+
+write.csv(dmr_effect_sizes, file.path(data_dir, "results/SGPD_DMR_Effect_Sizes.csv"), row.names = FALSE)
+
+## ==== No...
 library(GenomicRanges)
 library(IlluminaHumanMethylation450kanno.ilmn12.hg19) # Or EPIC, depending on the cohort
 
