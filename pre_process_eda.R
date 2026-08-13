@@ -12,16 +12,17 @@ source("R/results_container.R")
 source("R/intermediate_data_proxy.R")
 
 pre_process_eda <- function(
-    project_name = NULL,
-    project_to_load = NULL,
-    targets = NULL,
-    data_folder = NULL,
-    project_location = NULL,
-    var_mapping = NULL,
-    platform = NULL,
-    qc_threshold = 10.5,
-    cohorts = NULL,
-    mode = results_mode()$disk_only) {
+  project_name = NULL,
+  project_to_load = NULL,
+  targets = NULL,
+  data_folder = NULL,
+  project_location = NULL,
+  var_mapping = NULL,
+  platform = NULL,
+  qc_threshold = 10.5,
+  cohorts = NULL,
+  mode = results_mode()$disk_only
+) {
   if (is.null(platform)) {
     stop("Platform must be specified as '450K' or 'EPIC'")
   }
@@ -41,254 +42,253 @@ pre_process_eda <- function(
     }
   }
 
-  # print(paste("Saving initial targets to", file.path(project_context$paths$processed, "targets.rds")))
-  # saveRDS(targets, file.path(project_context$paths$processed, "targets.rds"))
+  print(paste("Saving initial targets to", file.path(project_context$paths$processed, "targets.rds")))
+  saveRDS(targets, file.path(project_context$paths$processed, "targets.rds"))
 
-  # ### Read raw data and write to disk
-  # #### Returns a list with:
-  # #### - rg_set_container: A ResultsContainer object containing the raw RG set
-  # #### - m_set_container: A ResultsContainer object containing the raw methylation set
-  # source("R/extract_methyl_set.R")
-  # res_extract_methyl_set <- intermediate_data_proxy(
-  #   extract_methyl_set,
-  #   auto_clean = TRUE,
-  #   project_context,
-  #   targets = targets
-  # )
+  ### Read raw data and write to disk
+  #### Returns a list with:
+  #### - rg_set_container: A ResultsContainer object containing the raw RG set
+  #### - m_set_container: A ResultsContainer object containing the raw methylation set
+  source("R/extract_methyl_set.R")
+  res_extract_methyl_set <- intermediate_data_proxy(
+    extract_methyl_set,
+    auto_clean = TRUE,
+    project_context,
+    targets = targets
+  )
 
-  # ### Sample QC - Outlier detection and removal: Here samples are removed based on the median methylated and unmethylated signal intensities. Samples with a median methylated or unmethylated signal intensity below the specified threshold (default: 10.5) are flagged as outliers and removed from the dataset.
-  # #### It is crucial to do this step alongside cleaning up the data from problematic samples in order to not have outliers skewing the normalization and thus the downstream analyses. It is also important to do this step before the biological gender mismatch analysis since the outliers can
-  # #### Returns a list with ResultsContainer objects containing the filtered RG set and methylation set after sample QC:
-  # #### - qc_results: A ResultsContainer object containing the filtered RG set and methylation set after sample QC
-  # #### - rg_set_results: A ResultsContainer object containing the filtered RG set
-  # #### - targets_results: A ResultsContainer object containing the filtered targets data frame
-  # #### - methyl_set_results: A ResultsContainer object containing the filtered methylation set
-  # #### - bisulfite_thresholds_results: A ResultsContainer object containing the bisulfite conversion control thresholds
-  # source("R/qc.R")
-  # res_qc <- intermediate_data_proxy(
-  #   qc,
-  #   auto_clean = TRUE,
-  #   project_context,
-  #   targets = targets,
-  #   rg_set = res_extract_methyl_set$rg_set_container@object,
-  #   methyl_set = res_extract_methyl_set$m_set_container@object,
-  #   rg_set_filename = res_extract_methyl_set$rg_set_container@filename,
-  #   methyl_set_filename = res_extract_methyl_set$m_set_container@filename,
-  #   qc_threshold = qc_threshold
-  # )
+  ### Sample QC - Outlier detection and removal: Here samples are removed based on the median methylated and unmethylated signal intensities. Samples with a median methylated or unmethylated signal intensity below the specified threshold (default: 10.5) are flagged as outliers and removed from the dataset.
+  #### It is crucial to do this step alongside cleaning up the data from problematic samples in order to not have outliers skewing the normalization and thus the downstream analyses. It is also important to do this step before the biological gender mismatch analysis since the outliers can
+  #### Returns a list with ResultsContainer objects containing the filtered RG set and methylation set after sample QC:
+  #### - qc_results: A ResultsContainer object containing the filtered RG set and methylation set after sample QC
+  #### - rg_set_results: A ResultsContainer object containing the filtered RG set
+  #### - targets_results: A ResultsContainer object containing the filtered targets data frame
+  #### - methyl_set_results: A ResultsContainer object containing the filtered methylation set
+  #### - bisulfite_thresholds_results: A ResultsContainer object containing the bisulfite conversion control thresholds
+  source("R/qc.R")
+  res_qc <- intermediate_data_proxy(
+    qc,
+    auto_clean = TRUE,
+    project_context,
+    targets = targets,
+    rg_set = res_extract_methyl_set$rg_set_container@object,
+    methyl_set = res_extract_methyl_set$m_set_container@object,
+    rg_set_filename = res_extract_methyl_set$rg_set_container@filename,
+    methyl_set_filename = res_extract_methyl_set$m_set_container@filename,
+    qc_threshold = qc_threshold
+  )
 
-  # if (project_context$mode == results_mode()$memory_only) {
-  #   print(paste("Saving targets after sample QC to", file.path(project_context$paths$processed, "targets_after_qc.rds")))
-  #   saveRDS(res_qc$targets_results@object, file.path(project_context$paths$processed, "targets_after_qc.rds"))
-  # }
+  if (project_context$mode == results_mode()$memory_only) {
+    print(paste("Saving targets after sample QC to", file.path(project_context$paths$processed, "targets_after_qc.rds")))
+    saveRDS(res_qc$targets_results@object, file.path(project_context$paths$processed, "targets_after_qc.rds"))
+  }
 
-  # ### Perform background correction and dye-bias normalization on rg_set and extract new methyl_set & beta-matrix based on the filtered rg_set from previous step
-  # ### Here, preprocessNoob is used and by doing so on the rgset, the methyl_set emerges.
-  # #### Returns a list with ResultsContainer objects containing the normalized methylation set and RG set:
-  # #### - methyl_set_container: A ResultsContainer object containing the normalized methylation set
-  # #### - rg_set_container: A ResultsContainer object containing the normalized RG set
-  # source("R/bg_correction_dye_bias_norm.R")
-  # res_bg_corr <- intermediate_data_proxy(
-  #   bg_correction_dye_bias_norm,
-  #   auto_clean = TRUE,
-  #   project_context,
-  #   rg_set = res_qc$rg_set_results@object,
-  #   rg_set_filename = res_qc$rg_set_results@filename
-  # )
+  ### Perform background correction and dye-bias normalization on rg_set and extract new methyl_set & beta-matrix based on the filtered rg_set from previous step
+  ### Here, preprocessNoob is used and by doing so on the rgset, the methyl_set emerges.
+  #### Returns a list with ResultsContainer objects containing the normalized methylation set and RG set:
+  #### - methyl_set_container: A ResultsContainer object containing the normalized methylation set
+  #### - rg_set_container: A ResultsContainer object containing the normalized RG set
+  source("R/bg_correction_dye_bias_norm.R")
+  res_bg_corr <- intermediate_data_proxy(
+    bg_correction_dye_bias_norm,
+    auto_clean = TRUE,
+    project_context,
+    rg_set = res_qc$rg_set_results@object,
+    rg_set_filename = res_qc$rg_set_results@filename
+  )
 
   # Probe QC - Detection p-value based probe filtering
   # This is performed on the rg_set and is done after normalization since the probes are necessary to provide an unbiased normalization
   # Respectively the probes are removed from methyl_set as well and a new, filtered version gets persisted to the filesystem.
   # The new filename for the filtered methyl_set is "methyl_set_probe_qc.rds"
-  ## Returns a list with ResultsContainer objects containing the candidate probes to remove and a summary of the probe QC results:
-  ## - removed_probes_container: A ResultsContainer object containing the candidate probes to remove based on detection p-values
-  ## - qc_summary_container: A ResultsContainer object containing a summary of the probe QC results
+  # Returns a list with ResultsContainer objects containing the candidate probes to remove and a summary of the probe QC results:
+  # - removed_probes_container: A ResultsContainer object containing the candidate probes to remove based on detection p-values
+  # - qc_summary_container: A ResultsContainer object containing a summary of the probe QC results
 
-  # source("R/probe_qc.R")
-  # res_probe_qc <- intermediate_data_proxy(
-  #   probe_qc,
-  #   auto_clean = FALSE,
-  #   project_context,
-  #   rg_set = NULL,
-  # )
+  source("R/probe_qc.R")
+  res_probe_qc <- intermediate_data_proxy(
+    probe_qc,
+    auto_clean = FALSE,
+    project_context,
+    rg_set = NULL,
+  )
 
-  ### Remove sex-mismatched samples
-  ### This operation is performed on the methyl_set. Also, the mismatched probes are removed from the rgset as well.
-  #### Returns a list with ResultsContainer objects containing the filtered methylation set and RG set after removing sex-mismatched samples:
-  #### - methyl_set_container: A ResultsContainer object containing the filtered methylation set after removing sex-mismatched samples
-  #### - rg_set_container: A ResultsContainer object containing the filtered RG set after removing sex-mismatched samples
-  #### - targets_container: A ResultsContainer object containing the filtered targets data frame after removing sex-mismatched samples
-  # source("R/biological_gender_mismatch_analysis.R")
-  # res_bio_gender_mismatch <- intermediate_data_proxy(
-  #   biological_gender_mismatch_analysis,
-  #   auto_clean = TRUE,
-  #   project_context,
-  #   recorded_sex_col = var_mapping$gender_var
-  #   # ,
-  #   # methyl_set = res_bg_corr$methyl_set_container@object,
-  #   # rg_set = res_bg_corr$rg_set_container@object,
-  #   # targets = res_qc$targets_results@object,
-  # )
+  ## Remove sex-mismatched samples
+  ## This operation is performed on the methyl_set. Also, the mismatched probes are removed from the rgset as well.
+  ### Returns a list with ResultsContainer objects containing the filtered methylation set and RG set after removing sex-mismatched samples:
+  ### - methyl_set_container: A ResultsContainer object containing the filtered methylation set after removing sex-mismatched samples
+  ### - rg_set_container: A ResultsContainer object containing the filtered RG set after removing sex-mismatched samples
+  ### - targets_container: A ResultsContainer object containing the filtered targets data frame after removing sex-mismatched samples
+  source("R/biological_gender_mismatch_analysis.R")
+  res_bio_gender_mismatch <- intermediate_data_proxy(
+    biological_gender_mismatch_analysis,
+    auto_clean = TRUE,
+    project_context,
+    recorded_sex_col = var_mapping$gender_var
+    # ,
+    # methyl_set = res_bg_corr$methyl_set_container@object,
+    # rg_set = res_bg_corr$rg_set_container@object,
+    # targets = res_qc$targets_results@object,
+  )
 
-  # if (project_context$mode == results_mode()$memory_only) {
-  #   print(paste("Saving targets after biological gender mismatch analysis to", file.path(project_context$paths$processed, "targets_after_bio_gender_mismatch.rds")))
-  #   saveRDS(res_bio_gender_mismatch$targets_container@object, file.path(project_context$paths$processed, "targets_after_bio_gender_mismatch.rds"))
-  # }
+  if (project_context$mode == results_mode()$memory_only) {
+    print(paste("Saving targets after biological gender mismatch analysis to", file.path(project_context$paths$processed, "targets_after_bio_gender_mismatch.rds")))
+    saveRDS(res_bio_gender_mismatch$targets_container@object, file.path(project_context$paths$processed, "targets_after_bio_gender_mismatch.rds"))
+  }
 
-  # removed_pdp <- NULL #res_probe_qc$removed_probes_container@object
-  # if (is.null(removed_pdp)) {
-  #   removed_pdp <- readRDS(file.path(project_context$paths$qc, "removed_probes_detection_p.rds"))
-  # }
-  # rg_set <- NULL
-  # if (is.null(rg_set)) {
-  #   rg_set <- readRDS(file.path(project_context$paths$processed, "rg_set_remove_mismatch.rds"))
-  # }
-  # m_set <- NULL
-  # if (is.null(m_set)) {
-  #   m_set <- readRDS(file.path(project_context$paths$processed, "methyl_set_remove_mismatch.rds"))
-  # }
+  removed_pdp <- NULL # res_probe_qc$removed_probes_container@object
+  if (is.null(removed_pdp)) {
+    removed_pdp <- readRDS(file.path(project_context$paths$qc, "removed_probes_detection_p.rds"))
+  }
+  rg_set <- NULL
+  if (is.null(rg_set)) {
+    rg_set <- readRDS(file.path(project_context$paths$processed, "rg_set_remove_mismatch.rds"))
+  }
+  m_set <- NULL
+  if (is.null(m_set)) {
+    m_set <- readRDS(file.path(project_context$paths$processed, "methyl_set_remove_mismatch.rds"))
+  }
 
-  # rg_set <- rg_set[!rownames(rg_set) %in% removed_pdp[["probe_id"]], ]
-  # m_set <- m_set[!rownames(m_set) %in% rownames(removed_pdp), ]
+  rg_set <- rg_set[!rownames(rg_set) %in% removed_pdp[["probe_id"]], ]
+  m_set <- m_set[!rownames(m_set) %in% rownames(removed_pdp), ]
 
-  # if (project_context$mode == results_mode()$disk_only ||
-  #   project_context$mode == results_mode()$disk_and_memory) {
-  #   saveRDS(rg_set, file.path(project_context$paths$processed, "rg_set_remove_probe_qc.rds"))
-  #   saveRDS(m_set, file.path(project_context$paths$processed, "methyl_set_remove_probe_qc.rds"))
-  # }
+  if (project_context$mode == results_mode()$disk_only ||
+    project_context$mode == results_mode()$disk_and_memory) {
+    saveRDS(rg_set, file.path(project_context$paths$processed, "rg_set_remove_probe_qc.rds"))
+    saveRDS(m_set, file.path(project_context$paths$processed, "methyl_set_remove_probe_qc.rds"))
+  }
 
   # Remove cross-reactive probes, sex-chromosome related probes and single nucleotide polymorphisms (SNPs)
   # Order matters, firstly SNPs must be removed then probes on XY chromosomes and thus keeping only those on autosomal and finally filtering of cross-reactive probes.
   # All of the following, enumerated operations are performed on the methyl_set.
-  ## 1. Single Nucleotide Polymorphisms
-  # source("R/remove_snp.R")
-  # res_snp <- intermediate_data_proxy(
-  #   remove_snp,
-  #   auto_clean = TRUE,
-  #   project_context,
-  #   methyl_set = m_set,
-  #   methyl_set_file =
-  #     file.path(
-  #       project_context$paths$processed,
-  #       "methyl_set_remove_probe_qc.rds"
-  #     )
-  # )
+  # 1. Single Nucleotide Polymorphisms
+  source("R/remove_snp.R")
+  res_snp <- intermediate_data_proxy(
+    remove_snp,
+    auto_clean = TRUE,
+    project_context,
+    methyl_set = m_set,
+    methyl_set_file =
+      file.path(
+        project_context$paths$processed,
+        "methyl_set_remove_probe_qc.rds"
+      )
+  )
 
-  ### 2. Sex-Chromosome Probe filtering
-  # source("R/remove_sex_chromosome_probes.R")
-  # res_sex_chromosome <- intermediate_data_proxy(
-  #   remove_sex_chromosome_probes,
-  #   auto_clean = TRUE,
-  #   project_context,
-  #   methyl_set = res_snp$methyl_set_removed_snps_container@object,
-  #   methyl_set_filename = res_snp$methyl_set_removed_snps_container@filename
-  # )
+  ## 2. Sex-Chromosome Probe filtering
+  source("R/remove_sex_chromosome_probes.R")
+  res_sex_chromosome <- intermediate_data_proxy(
+    remove_sex_chromosome_probes,
+    auto_clean = TRUE,
+    project_context,
+    methyl_set = res_snp$methyl_set_removed_snps_container@object,
+    methyl_set_filename = res_snp$methyl_set_removed_snps_container@filename
+  )
 
-  #### 3. Cross Reactive Probes
-  # source("R/remove_cross_reactive_probes.R")
-  # res_cross_reactive <- intermediate_data_proxy(
-  #   remove_cross_reactive_probes,
-  #   auto_clean = FALSE,
-  #   project_context
-  #   ,
-  #   # methyl_set = res_sex_chromosome$mismatch_container@object,
-  #   methyl_set_filename = file.path(project_context$paths$processed, "methyl_set_filtered_chrom.rds")
-  # )
+  ### 3. Cross Reactive Probes
+  source("R/remove_cross_reactive_probes.R")
+  res_cross_reactive <- intermediate_data_proxy(
+    remove_cross_reactive_probes,
+    auto_clean = FALSE,
+    project_context,
+    # methyl_set = res_sex_chromosome$mismatch_container@object,
+    methyl_set_filename = file.path(project_context$paths$processed, "methyl_set_filtered_chrom.rds")
+  )
 
-  # remove_cross_reactive_probes(
-  #   context = project_context,
-  #   methyl_set_filename = file.path(project_context$paths$processed, "methyl_set_filtered_chrom.rds")
-  # )
+  remove_cross_reactive_probes(
+    context = project_context,
+    methyl_set_filename = file.path(project_context$paths$processed, "methyl_set_filtered_chrom.rds")
+  )
 
-  # methyl_set_final <- NULL #res_cross_reactive$methyl_set_cross_reactive_clean_container@object
-  # if (is.null(methyl_set_final)) {
-  #   methyl_set_final <- readRDS(file.path(project_context$paths$processed, "methyl_set_removed_cross_reactive.rds"))
-  # }
+  methyl_set_final <- NULL # res_cross_reactive$methyl_set_cross_reactive_clean_container@object
+  if (is.null(methyl_set_final)) {
+    methyl_set_final <- readRDS(file.path(project_context$paths$processed, "methyl_set_removed_cross_reactive.rds"))
+  }
 
-  # ### The filtering of the dataset is complete and beta & m-values are now extracted from the methyl_set and written to disk as "beta_matrix.rds" and "m_matrix.rds" respectively.
-  # beta_matrix <- getBeta(methyl_set_final)
-  # m_matrix <- getM(methyl_set_final)
+  ### The filtering of the dataset is complete and beta & m-values are now extracted from the methyl_set and written to disk as "beta_matrix.rds" and "m_matrix.rds" respectively.
+  beta_matrix <- getBeta(methyl_set_final)
+  m_matrix <- getM(methyl_set_final)
 
-  # saveRDS(beta_matrix, file.path(project_context$paths$results, "beta_matrix.rds"))
-  # saveRDS(m_matrix, file.path(project_context$paths$results, "m_matrix.rds"))
+  saveRDS(beta_matrix, file.path(project_context$paths$results, "beta_matrix.rds"))
+  saveRDS(m_matrix, file.path(project_context$paths$results, "m_matrix.rds"))
 
-  # beta_matrix_filepath <- NULL
-  # m_matrix_filepath <- NULL
-  # if (project_context$mode == results_mode()$disk_only ||
-  #   project_context$mode == results_mode()$disk_and_memory) {
-  #   beta_matrix_filepath <- file.path(project_context$paths$results, "beta_matrix.rds")
-  #   m_matrix_filepath <- file.path(project_context$paths$results, "m_matrix.rds")
-  #   saveRDS(beta_matrix, beta_matrix_filepath)
-  #   saveRDS(m_matrix, m_matrix_filepath)
-  # }
+  beta_matrix_filepath <- NULL
+  m_matrix_filepath <- NULL
+  if (project_context$mode == results_mode()$disk_only ||
+    project_context$mode == results_mode()$disk_and_memory) {
+    beta_matrix_filepath <- file.path(project_context$paths$results, "beta_matrix.rds")
+    m_matrix_filepath <- file.path(project_context$paths$results, "m_matrix.rds")
+    saveRDS(beta_matrix, beta_matrix_filepath)
+    saveRDS(m_matrix, m_matrix_filepath)
+  }
 
-  # beta_matrix_container <- new("ResultsContainer", filename = beta_matrix_filepath, object = beta_matrix, future = NULL)
-  # m_matrix_container <- new("ResultsContainer", filename = m_matrix_filepath, object = m_matrix, future = NULL)
+  beta_matrix_container <- new("ResultsContainer", filename = beta_matrix_filepath, object = beta_matrix, future = NULL)
+  m_matrix_container <- new("ResultsContainer", filename = m_matrix_filepath, object = m_matrix, future = NULL)
 
-  # # Beta-Mixture Quantile (BMIQ) Normalization
-  # source("R/apply_BMIQ.R")
-  # bmiq_res <- intermediate_data_proxy(
-  #   apply_BMIQ,
-  #   auto_clean = FALSE,
-  #   project_context,
-  #   beta_matrix = beta_matrix_container@object,
-  #   beta_matrix_file = beta_matrix_container@filename,
-  #   plot = FALSE
-  # )
+  # Beta-Mixture Quantile (BMIQ) Normalization
+  source("R/apply_BMIQ.R")
+  bmiq_res <- intermediate_data_proxy(
+    apply_BMIQ,
+    auto_clean = FALSE,
+    project_context,
+    beta_matrix = beta_matrix_container@object,
+    beta_matrix_file = beta_matrix_container@filename,
+    plot = FALSE
+  )
 
 
-  # # Principal Component Analysis
-  # source("R/principal_component_analysis.R")
-  # col_map <- list()
-  # col_map[["Sample_Group"]] <- "Sample_Group"
-  # col_map[["Gender"]] <- var_mapping$gender_var
-  # col_map[["Age"]] <- var_mapping$age_var
-  # keys <- c("Sample_Group", "Gender", "Age")
+  # Principal Component Analysis
+  source("R/principal_component_analysis.R")
+  col_map <- list()
+  col_map[["Sample_Group"]] <- "Sample_Group"
+  col_map[["Gender"]] <- var_mapping$gender_var
+  col_map[["Age"]] <- var_mapping$age_var
+  keys <- c("Sample_Group", "Gender", "Age")
 
-  # res_pca <- intermediate_data_proxy(
-  #   principal_component_analysis,
-  #   auto_clean = FALSE,
-  #   project_context,
-  #   m_values = bmiq_res$m_bmiq_container@object,
-  #   m_values_filename = bmiq_res$m_bmiq_container@filename,
-  #   targets = NULL,
-  #   targets_filename = file.path(project_context$paths$processed, "targets_remove_mismatch.rds"),
-  #   col_maps = col_map,
-  #   keys = keys,
-  #   npc = 5
-  # )
+  res_pca <- intermediate_data_proxy(
+    principal_component_analysis,
+    auto_clean = FALSE,
+    project_context,
+    m_values = bmiq_res$m_bmiq_container@object,
+    m_values_filename = bmiq_res$m_bmiq_container@filename,
+    targets = NULL,
+    targets_filename = file.path(project_context$paths$processed, "targets_remove_mismatch.rds"),
+    col_maps = col_map,
+    keys = keys,
+    npc = 5
+  )
 
-  #### Plot PCA
-  # source("R/plot_PCA.R")
-  # pca_vars <- c("Sample_Group" = "By Diagnosis", "Gender" = "By Biological Gender", "Age" = "By Age")
-  # convert_f <- function(df) {
-  #   (transform(df, Age = as.numeric(Age)))
-  # }
-  # plot_PCA(
-  #   context = project_context,
-  #   pca_df = res_pca$pca_df_container@object,
-  #   pca_results_rds_filename = res_pca$pca_df_container@filename,
-  #   pca_vars = pca_vars,
-  #   convert_fun = convert_f,
-  #   continuously_scaled = c("Age"),
-  #   "pca_plot_",
-  #   pairplot_color_by = "Age"
-  # )
+  ### Plot PCA
+  source("R/plot_PCA.R")
+  pca_vars <- c("Sample_Group" = "By Diagnosis", "Gender" = "By Biological Gender", "Age" = "By Age")
+  convert_f <- function(df) {
+    (transform(df, Age = as.numeric(Age)))
+  }
+  plot_PCA(
+    context = project_context,
+    pca_df = res_pca$pca_df_container@object,
+    pca_results_rds_filename = res_pca$pca_df_container@filename,
+    pca_vars = pca_vars,
+    convert_fun = convert_f,
+    continuously_scaled = c("Age"),
+    "pca_plot_",
+    pairplot_color_by = "Age"
+  )
 
-  ## Outlier detection from PCA
-  # source("R/outlier_analysis.R")
+  # Outlier detection from PCA
+  source("R/outlier_analysis.R")
 
-  # res_outlier <- intermediate_data_proxy(
-  #   outlier_analysis,
-  #   auto_clean = FALSE,
-  #   project_context,
-  #   pca = NULL,
-  #   pca_filename = "pca_df.rds",
-  #   targets = NULL,
-  #   targets_filename = "targets_remove_mismatch.rds",
-  #   beta_bmiq = NULL,
-  #   beta_bmiq_filename = "beta_matrix_bmiq.rds"
-  # )
+  res_outlier <- intermediate_data_proxy(
+    outlier_analysis,
+    auto_clean = FALSE,
+    project_context,
+    pca = NULL,
+    pca_filename = "pca_df.rds",
+    targets = NULL,
+    targets_filename = "targets_remove_mismatch.rds",
+    beta_bmiq = NULL,
+    beta_bmiq_filename = "beta_matrix_bmiq.rds"
+  )
 
   source("R/outlier_remove_redo_BMIQ.R")
   outlier_removed_bmiq_res <- outlier_remove_redo_BMIQ(
