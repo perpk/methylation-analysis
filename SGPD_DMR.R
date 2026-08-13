@@ -7,6 +7,7 @@ data_dir <- "/root/workspace/methyl-pipe-out/GSE145361_20260804_162813/"
 
 m_values_bmiq_no_outliers <- readRDS(file.path(data_dir, "processed/GSE145361_harmonized_m_values.rds"))
 targets <- readRDS(file.path(data_dir, "processed/GSE145361_harmonized_targets.rds"))
+dmr_results_ranges <- readRDS(file.path(data_dir, "results/GSE145361_DMR_results_ranges.rds"))
 
 dmr <- function(m_values, targets, design) {
     library(DMRcate)
@@ -76,6 +77,7 @@ control_means <- rowMeans(beta[, control_samples$Sample_Name], na.rm = TRUE)
 
 beta_aggregated <- cbind(PD = pd_means, Control = control_means)
 
+dmr_ranges <- dmr_results_ranges
 png(file = file.path(data_dir, "results/SGPD_Top_DMR.png"), width = 10, height = 8, units = "in", res = 300)
 
 DMR.plot(
@@ -160,6 +162,148 @@ DMR.plot(
 
 dev.off()
 
+png(file = file.path(data_dir, "results/SGPD_Top_DMR17.png"), width = 10, height = 8, units = "in", res = 300)
+library(DMRcate)
+DMR.plot(
+    ranges = dmr_ranges,
+    dmr = 17,
+    CpGs = beta_aggregated,
+    phen.col = c("PD" = "#1f77b4", "Control" = "#d62728"),
+    what = "Beta",
+    arraytype = "450K",
+    genome = "hg19"
+)
+
+dev.off()
+
+png(file = file.path(data_dir, "results/SGPD_Top_DMR11.png"), width = 10, height = 8, units = "in", res = 300)
+
+DMR.plot(
+    ranges = dmr_ranges,
+    dmr = 11,
+    CpGs = beta_aggregated,
+    phen.col = c("PD" = "#1f77b4", "Control" = "#d62728"),
+    what = "Beta",
+    arraytype = "450K",
+    genome = "hg19"
+)
+
+dev.off()
+
+png(file = file.path(data_dir, "results/SGPD_Top_DMR9.png"), width = 10, height = 8, units = "in", res = 300)
+
+DMR.plot(
+    ranges = dmr_ranges,
+    dmr = 9,
+    CpGs = beta_aggregated,
+    phen.col = c("PD" = "#1f77b4", "Control" = "#d62728"),
+    what = "Beta",
+    arraytype = "450K",
+    genome = "hg19"
+)
+
+dev.off()
+
+png(file = file.path(data_dir, "results/SGPD_Top_DMR24.png"), width = 10, height = 8, units = "in", res = 300)
+
+DMR.plot(
+    ranges = dmr_ranges,
+    dmr = 24,
+    CpGs = beta_aggregated,
+    phen.col = c("PD" = "#1f77b4", "Control" = "#d62728"),
+    what = "Beta",
+    arraytype = "450K",
+    genome = "hg19"
+)
+
+dev.off()
+
+png(file = file.path(data_dir, "results/SGPD_Top_DMR8.png"), width = 10, height = 8, units = "in", res = 300)
+
+DMR.plot(
+    ranges = dmr_ranges,
+    dmr = 8,
+    CpGs = beta_aggregated,
+    phen.col = c("PD" = "#1f77b4", "Control" = "#d62728"),
+    what = "Beta",
+    arraytype = "450K",
+    genome = "hg19"
+)
+
+dev.off()
+
+png(file = file.path(data_dir, "results/SGPD_Top_DMR21.png"), width = 10, height = 8, units = "in", res = 300)
+
+DMR.plot(
+    ranges = dmr_ranges,
+    dmr = 21,
+    CpGs = beta_aggregated,
+    phen.col = c("PD" = "#1f77b4", "Control" = "#d62728"),
+    what = "Beta",
+    arraytype = "450K",
+    genome = "hg19"
+)
+
+dev.off()
+
+png(file = file.path(data_dir, "results/SGPD_Top_DMR18.png"), width = 10, height = 8, units = "in", res = 300)
+
+DMR.plot(
+    ranges = dmr_ranges,
+    dmr = 18,
+    CpGs = beta_aggregated,
+    phen.col = c("PD" = "#1f77b4", "Control" = "#d62728"),
+    what = "Beta",
+    arraytype = "450K",
+    genome = "hg19"
+)
+
+dev.off()
+
+library(GenomicRanges)
+library(IlluminaHumanMethylation450kanno.ilmn12.hg19)
+
+# Map probes to genomic position once, reused for every DMR boxplot below
+ann <- getAnnotation(IlluminaHumanMethylation450kanno.ilmn12.hg19)
+ann_gr <- GRanges(
+    seqnames = ann$chr,
+    ranges = IRanges(start = ann$pos, end = ann$pos),
+    strand = ann$strand,
+    probe_id = rownames(ann)
+)
+
+plot_dmr_boxplot <- function(dmr_index, dmr_ranges, beta, targets, ann_gr, out_dir) {
+    overlaps <- findOverlaps(ann_gr, dmr_ranges[dmr_index])
+    # Some annotated probes may have been filtered out of beta during QC
+    dmr_cpg_probes <- intersect(ann_gr$probe_id[queryHits(overlaps)], rownames(beta))
+
+    plot_data <- beta[dmr_cpg_probes, , drop = FALSE] %>%
+        as.data.frame() %>%
+        rownames_to_column("probe_id") %>%
+        pivot_longer(cols = -probe_id, names_to = "Sample_Name", values_to = "Beta") %>%
+        left_join(rownames_to_column(targets["Sample_Group"], "Sample_Name"), by = "Sample_Name")
+
+    dmr_boxplot <- ggplot(plot_data, aes(x = Sample_Group, y = Beta, fill = Sample_Group)) +
+        geom_boxplot(outlier.alpha = 0.4) +
+        geom_jitter(width = 0.15, alpha = 0.3, size = 0.8) +
+        scale_fill_manual(values = c("PD" = "#1f77b4", "Control" = "#d62728")) +
+        labs(
+            title = paste("DMR", dmr_index, "Beta Value Distribution"),
+            x = "Sample Group",
+            y = "Beta Value"
+        ) +
+        theme_minimal() +
+        theme(legend.position = "none")
+
+    png(file = file.path(out_dir, paste0("SGPD_DMR", dmr_index, "_Boxplot.png")), width = 6, height = 6, units = "in", res = 300)
+    print(dmr_boxplot)
+    dev.off()
+}
+
+dmr_boxplot_indices <- c(5, 17, 1, 11, 24, 8, 21, 18, 6)
+for (dmr_index in dmr_boxplot_indices) {
+    plot_dmr_boxplot(dmr_index, dmr_ranges, beta, targets, ann_gr, file.path(data_dir, "results"))
+}
 
 calculate_effect_size_all_dmrs <- function(dmr_ranges, beta, targets) {
     dmr_ranges_df <- as.data.frame(dmr_ranges)
