@@ -58,6 +58,146 @@ targets$Sex <- targets$`gender:ch1`
 
 targets %>% head()
 
+library(sva)
+
+mod <- model.matrix(~ Sample_Group + Sex + CD8T + CD4T + Bcell + Mono + NK + Gran + Array, data = targets)
+mod0 <- model.matrix(~ Sex + CD8T + CD4T + Bcell + Mono + NK + Gran + Array, data = targets)
+sva_results <- sva(m_values_bmiq_no_outliers, mod, mod0)
+
+sva_results$n.sv
+
+sv_matrix <- sva_results$sv
+
+colnames(sv_matrix) <- paste0("SV", 1:ncol(sv_matrix))
+
+sv_matrix %>% head()
+
+
+## Re-do DMR with SVAs in covariate list (all of them!!!)
+design <- model.matrix(~ Sample_Group + Sex + CD8T + CD4T + Bcell + Mono + NK + Gran + Array, data = targets)
+design_sva_full <- cbind(design, sv_matrix)
+
+qc_dmr(m_values_bmiq_no_outliers, design_sva_full)
+
+dmr <- function(m_values, targets, design) {
+    library(DMRcate)
+
+    annot <- cpg.annotate(
+        datatype = "array",
+        object = m_values,
+        what = "M",
+        arraytype = "450K", # "450K"
+        analysis.type = "differential",
+        design = design,
+        coef = 2, # The column index in 'design' for DiagnosisPD
+        fdr = 1 # FDR threshold for individual probes (tuning parameter)
+    )
+
+    dmrc_output <- dmrcate(
+        annot,
+        lambda = 1000, # Bandwidth in base pairs (1000 is standard for arrays)
+        C = 2, # Statistical scaling factor (2 is recommended for arrays)
+        min.cpgs = 3, # A region must have at least 3 CpGs to be considered a DMR
+        pcutoff = 0.005 # FDR threshold for DMRs (tuning parameter)
+    )
+    results_ranges <- extractRanges(dmrc_output)
+    results_df <- as.data.frame(results_ranges)
+    results_df <- results_df[order(results_df$min_smoothed_fdr), ]
+
+    results <- list(
+        results_ranges = results_ranges,
+        results_df = results_df
+    )
+    return(results)
+}
+
+saveRDS(sv_matrix, file.path(data_dir, "processed/GSE145361_sv_matrix.rds"))
+
+dmr_results <- dmr(m_values_bmiq_no_outliers, targets, design_sva_full)
+
+library(lumi)
+
+beta <- m2beta(m_values_bmiq_no_outliers)
+
+
+library(IlluminaHumanMethylation450kanno.ilmn12.hg19)
+ann <- getAnnotation(IlluminaHumanMethylation450kanno.ilmn12.hg19)
+ann_gr <- GRanges(
+    seqnames = ann$chr,
+    ranges = IRanges(start = ann$pos, end = ann$pos),
+    strand = ann$strand,
+    probe_id = rownames(ann)
+)
+
+top_dmr <- dmr_results$results_ranges[1]
+overlaps <- findOverlaps(ann_gr, top_dmr)
+top_dmr_probes <- ann_gr$probe_id[queryHits(overlaps)]
+
+get_dmr_probes <- function(dmr_range, beta) {
+    overlaps <- findOverlaps(ann_gr, dmr_range)
+    probe_ids <- ann_gr$probe_id[queryHits(overlaps)]
+    intersect(rownames(beta), probe_ids)
+}
+calculate_effect_size_all_dmrs <- function(dmr_ranges, beta, targets) {
+    dmr_ranges_df <- as.data.frame(dmr_ranges)
+
+    dmr_effect_sizes <- lapply(seq_along(dmr_ranges), function(index) {
+        valid_dmr_probes <- get_dmr_probes(dmr_ranges[index], beta)
+
+        if (length(valid_dmr_probes) == 0) {
+            delta_beta <- NA_real_
+        } else {
+            dmr_beta_subset <- beta[valid_dmr_probes, , drop = FALSE]
+
+            pd_samples <- rownames(targets[targets$Sample_Group == "PD", , drop = FALSE])
+            control_samples <- rownames(targets[targets$Sample_Group == "Control", , drop = FALSE])
+
+            mean_pd <- mean(dmr_beta_subset[, pd_samples, drop = FALSE], na.rm = TRUE)
+            mean_control <- mean(dmr_beta_subset[, control_samples, drop = FALSE], na.rm = TRUE)
+            delta_beta <- mean_pd - mean_control
+        }
+
+        data.frame(
+            dmr_index = index,
+            deltabeta = delta_beta,
+            FDR = dmr_ranges_df$min_smoothed_fdr[index],
+            genes = dmr_ranges_df$overlapping.genes[index],
+            chromosome = as.character(seqnames(dmr_ranges[index])),
+            stringsAsFactors = FALSE
+        )
+    })
+
+    bind_rows(dmr_effect_sizes)
+}
+
+dmr_effect_sizes <- calculate_effect_size_all_dmrs(dmr_results$results_ranges, beta, targets)
+dmr_effect_sizes %>% dim()
+dmr_effect_sizes %>%
+    filter(deltabeta < 0) %>%
+    dim()
+dmr_effect_sizes %>%
+    filter(deltabeta > 0) %>%
+    dim()
+
+9 / 22
+13 / 22
+
+### here we achieve a more balanced number of DMRs with positive and negative effect sizes, which is important for downstream analyses and interpretations.
+
+# Remove batch effects via limma
+dd <- model.matrix(~Sample_Group, data = targets)
+# design <- model.matrix(~ Sample_Group + Sex + CD8T + CD4T + Bcell + Mono + NK + Gran + Array, data = targets)
+sgpd_covariates <- as.matrix(targets[, c("CD8T", "CD4T", "Bcell", "Mono", "NK", "Gran")])
+sex_numeric <- as.numeric(as.factor(targets$Sex)) - 1
+sgpd_covariates <- cbind(sgpd_covariates, Sex = sex_numeric)
+m_matrix_clean <- removeBatchEffect(
+    x = m_values_bmiq_no_outliers,
+    batch = targets$Array,
+    covariates = sgpd_covariates,
+    design = dd
+)
+
+
 # design <- model.matrix(~ Sample_Group + Sex + CD8T + CD4T + Bcell + Mono + NK + Gran + ScanDate + Array, data = targets)
 design <- model.matrix(~ Sample_Group + Sex + CD8T + CD4T + Bcell + Mono + NK + Gran + Array, data = targets)
 qc_dmr(m_values_bmiq_no_outliers, design)
