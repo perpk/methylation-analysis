@@ -181,15 +181,165 @@ dmr_effect_sizes %>%
 
 9 / 22
 13 / 22
-
 ### here we achieve a more balanced number of DMRs with positive and negative effect sizes, which is important for downstream analyses and interpretations.
+
+write.csv(dmr_effect_sizes, file.path(data_dir, "processed/GSE145361_dmr_effect_sizes_corrected.csv"), row.names = FALSE)
+saveRDS(dmr_results$results_ranges, file.path(data_dir, "processed/GSE145361_dmr_ranges_corrected.rds"))
+write.csv(dmr_results$results_df, file.path(data_dir, "processed/GSE145361_dmr_results_corrected.csv"), row.names = FALSE)
+
+##
+
+pd_samples <- targets[targets$Sample_Group == "PD", ]
+control_samples <- targets[targets$Sample_Group == "Control", ]
+
+pd_samples$Sample_Name <- rownames(pd_samples)
+control_samples$Sample_Name <- rownames(control_samples)
+
+pd_means <- rowMeans(beta[, pd_samples$Sample_Name], na.rm = TRUE)
+control_means <- rowMeans(beta[, control_samples$Sample_Name], na.rm = TRUE)
+
+beta_aggregated <- cbind(PD = pd_means, Control = control_means)
+
+dmr_ranges <- dmr_results$results_ranges
+
+# 14., 13, 1, 7; 8, 21, 12, 22
+
+png(file = file.path(data_dir, "results/SGPD_Top_DMR14_corrected.png"), width = 10, height = 8, units = "in", res = 300)
+
+DMR.plot(
+    ranges = dmr_ranges,
+    dmr = 14,
+    CpGs = beta_aggregated,
+    phen.col = c("PD" = "#1f77b4", "Control" = "#d62728"),
+    what = "Beta",
+    arraytype = "450K",
+    genome = "hg19"
+)
+
+dev.off()
+
+# 14., 13., 1, 7; 8, 21, 12, 22
+
+png(file = file.path(data_dir, "results/SGPD_Top_DMR13_corrected.png"), width = 10, height = 8, units = "in", res = 300)
+
+DMR.plot(
+    ranges = dmr_ranges,
+    dmr = 13,
+    CpGs = beta_aggregated,
+    phen.col = c("PD" = "#1f77b4", "Control" = "#d62728"),
+    what = "Beta",
+    arraytype = "450K",
+    genome = "hg19"
+)
+
+dev.off()
+
+# 14., 13., 1., 7; 8, 21, 12, 22
+
+png(file = file.path(data_dir, "results/SGPD_Top_DMR1_corrected.png"), width = 10, height = 8, units = "in", res = 300)
+
+DMR.plot(
+    ranges = dmr_ranges,
+    dmr = 1,
+    CpGs = beta_aggregated,
+    phen.col = c("PD" = "#1f77b4", "Control" = "#d62728"),
+    what = "Beta",
+    arraytype = "450K",
+    genome = "hg19"
+)
+
+dev.off()
+
+# 14., 13., 1., 7.; 8, 21, 12, 22
+
+png(file = file.path(data_dir, "results/SGPD_Top_DMR7_corrected.png"), width = 10, height = 8, units = "in", res = 300)
+
+DMR.plot(
+    ranges = dmr_ranges,
+    dmr = 7,
+    CpGs = beta_aggregated,
+    phen.col = c("PD" = "#1f77b4", "Control" = "#d62728"),
+    what = "Beta",
+    arraytype = "450K",
+    genome = "hg19"
+)
+
+dev.off()
+
+# 14., 13., 1., 7.; 8., 21, 12, 22
+
+png(file = file.path(data_dir, "results/SGPD_Top_DMR8_corrected.png"), width = 10, height = 8, units = "in", res = 300)
+
+DMR.plot(
+    ranges = dmr_ranges,
+    dmr = 8,
+    CpGs = beta_aggregated,
+    phen.col = c("PD" = "#1f77b4", "Control" = "#d62728"),
+    what = "Beta",
+    arraytype = "450K",
+    genome = "hg19"
+)
+
+dev.off()
+
+# 14., 13., 1., 7.; 8., 21., 12, 22
+
+png(file = file.path(data_dir, "results/SGPD_Top_DMR21_corrected.png"), width = 10, height = 8, units = "in", res = 300)
+
+DMR.plot(
+    ranges = dmr_ranges,
+    dmr = 21,
+    CpGs = beta_aggregated,
+    phen.col = c("PD" = "#1f77b4", "Control" = "#d62728"),
+    what = "Beta",
+    arraytype = "450K",
+    genome = "hg19"
+)
+
+dev.off()
+
+# 14., 13., 1., 7.; 8., 21., 12., 22
+
+png(file = file.path(data_dir, "results/SGPD_Top_DMR12_corrected.png"), width = 10, height = 8, units = "in", res = 300)
+
+DMR.plot(
+    ranges = dmr_ranges,
+    dmr = 12,
+    CpGs = beta_aggregated,
+    phen.col = c("PD" = "#1f77b4", "Control" = "#d62728"),
+    what = "Beta",
+    arraytype = "450K",
+    genome = "hg19"
+)
+
+dev.off()
+
+# 14., 13., 1., 7.; 8., 21., 12., 22
+
+png(file = file.path(data_dir, "results/SGPD_Top_DMR22_corrected.png"), width = 10, height = 8, units = "in", res = 300)
+
+DMR.plot(
+    ranges = dmr_ranges,
+    dmr = 22,
+    CpGs = beta_aggregated,
+    phen.col = c("PD" = "#1f77b4", "Control" = "#d62728"),
+    what = "Beta",
+    arraytype = "450K",
+    genome = "hg19"
+)
+
+dev.off()
+
+sv_matrix <- sva_results$sv
+colnames(sv_matrix) <- paste0("SV", 1:ncol(sv_matrix))
 
 # Remove batch effects via limma
 dd <- model.matrix(~Sample_Group, data = targets)
 # design <- model.matrix(~ Sample_Group + Sex + CD8T + CD4T + Bcell + Mono + NK + Gran + Array, data = targets)
 sgpd_covariates <- as.matrix(targets[, c("CD8T", "CD4T", "Bcell", "Mono", "NK", "Gran")])
 sex_numeric <- as.numeric(as.factor(targets$Sex)) - 1
-sgpd_covariates <- cbind(sgpd_covariates, Sex = sex_numeric)
+sgpd_covariates <- cbind(sgpd_covariates, Sex = sex_numeric, sv_matrix)
+
 m_matrix_clean <- removeBatchEffect(
     x = m_values_bmiq_no_outliers,
     batch = targets$Array,
@@ -197,6 +347,28 @@ m_matrix_clean <- removeBatchEffect(
     design = dd
 )
 
+saveRDS(
+    m_matrix_clean,
+    file.path(data_dir, "processed/GSE145361_harmonized_m_values_cleaned_corrected.rds")
+)
+
+library(arrow)
+
+all(rownames(targets) %in% colnames(m_matrix_clean))
+
+all(colnames(m_matrix_clean) %in% rownames(targets))
+
+combined <- cbind(targets, t(m_matrix_clean))
+dim(combined)
+write_parquet(combined, write_statistics = FALSE, use_dictionary = FALSE, file.path(data_dir, "processed/GSE145361_data_test.parquet"))
+
+library(lumi)
+beta_matrix_clean <- m2beta(m_matrix_clean)
+
+saveRDS(
+    beta_matrix_clean,
+    file.path(data_dir, "processed/GSE145361_harmonized_beta_values_cleaned.rds")
+)
 
 # design <- model.matrix(~ Sample_Group + Sex + CD8T + CD4T + Bcell + Mono + NK + Gran + ScanDate + Array, data = targets)
 design <- model.matrix(~ Sample_Group + Sex + CD8T + CD4T + Bcell + Mono + NK + Gran + Array, data = targets)
