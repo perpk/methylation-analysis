@@ -187,6 +187,62 @@ write.csv(dmr_effect_sizes, file.path(data_dir, "processed/GSE145361_dmr_effect_
 saveRDS(dmr_results$results_ranges, file.path(data_dir, "processed/GSE145361_dmr_ranges_corrected.rds"))
 write.csv(dmr_results$results_df, file.path(data_dir, "processed/GSE145361_dmr_results_corrected.csv"), row.names = FALSE)
 
+## Spearman correlation between DMRs, based on each DMR's mean M-value per sample
+calculate_dmr_mean_m_matrix <- function(dmr_ranges, m_values) {
+    dmr_m_list <- lapply(seq_along(dmr_ranges), function(index) {
+        valid_dmr_probes <- get_dmr_probes(dmr_ranges[index], m_values)
+
+        if (length(valid_dmr_probes) == 0) {
+            rep(NA_real_, ncol(m_values))
+        } else {
+            colMeans(m_values[valid_dmr_probes, , drop = FALSE], na.rm = TRUE)
+        }
+    })
+
+    dmr_m_matrix <- do.call(rbind, dmr_m_list)
+    rownames(dmr_m_matrix) <- paste0("DMR", seq_along(dmr_ranges))
+    colnames(dmr_m_matrix) <- colnames(m_values)
+    dmr_m_matrix
+}
+
+dmr_m_matrix <- calculate_dmr_mean_m_matrix(dmr_results$results_ranges, m_values_bmiq_no_outliers)
+# Drop DMRs with no overlapping probes left after QC filtering
+dmr_m_matrix <- dmr_m_matrix[complete.cases(dmr_m_matrix), , drop = FALSE]
+
+dmr_spearman_cor <- cor(t(dmr_m_matrix), method = "spearman")
+
+write.csv(dmr_spearman_cor, file.path(data_dir, "processed/GSE145361_dmr_spearman_correlation_corrected.csv"), row.names = TRUE)
+
+library(pheatmap)
+library(viridis)
+
+png(file = file.path(data_dir, "plots/GSE145361_DMR_spearman_correlation_heatmap.png"), width = 10, height = 10, units = "in", res = 300)
+
+pheatmap(
+    dmr_spearman_cor,
+    main = "Spearman Correlation Between DMRs (Mean M-value per Sample)",
+    color = viridis(100),
+    breaks = seq(-1, 1, length.out = 101)
+)
+
+dev.off()
+
+# Hierarchical clustering of DMRs from correlation-derived distance (1 - Spearman r)
+dmr_dist <- as.dist(1 - dmr_spearman_cor)
+dmr_hclust <- hclust(dmr_dist, method = "average")
+
+png(file = file.path(data_dir, "plots/GSE145361_DMR_spearman_dendrogram.png"), width = 10, height = 8, units = "in", res = 300)
+
+plot(
+    dmr_hclust,
+    main = "Hierarchical Clustering of DMRs (1 - Spearman Correlation)",
+    xlab = "DMR",
+    sub = "",
+    hang = -1
+)
+
+dev.off()
+
 ##
 
 pd_samples <- targets[targets$Sample_Group == "PD", ]
@@ -360,15 +416,17 @@ all(colnames(m_matrix_clean) %in% rownames(targets))
 
 combined <- cbind(targets, t(m_matrix_clean))
 dim(combined)
-write_parquet(combined, write_statistics = FALSE, use_dictionary = FALSE, file.path(data_dir, "processed/GSE145361_data_test.parquet"))
+write_parquet(combined, write_statistics = FALSE, use_dictionary = FALSE, file.path(data_dir, "processed/GSE145361_data_corrected.parquet"))
 
 library(lumi)
 beta_matrix_clean <- m2beta(m_matrix_clean)
 
 saveRDS(
     beta_matrix_clean,
-    file.path(data_dir, "processed/GSE145361_harmonized_beta_values_cleaned.rds")
+    file.path(data_dir, "processed/GSE145361_harmonized_beta_values_cleaned_corrected.rds")
 )
+
+
 
 # design <- model.matrix(~ Sample_Group + Sex + CD8T + CD4T + Bcell + Mono + NK + Gran + ScanDate + Array, data = targets)
 design <- model.matrix(~ Sample_Group + Sex + CD8T + CD4T + Bcell + Mono + NK + Gran + Array, data = targets)
