@@ -13,7 +13,7 @@ suppressPackageStartupMessages({
 csv_paths <- c(
     "/Volumes/saucepan/methylation-project/ppmi_20260721_075730/results/PPMI_DMR_effect_sizes.csv",
     "/Volumes/saucepan/methylation-project/GSE111629_20260722_083339/results/PEG1_DMR_Effect_Sizes.csv",
-    "/Volumes/saucepan/methylation-project/GSE145361_20260804_162813/GSE145361_20260804_162813/results/SGPD_DMR_Effect_Sizes.csv"
+    "/Volumes/saucepan/methylation-project/GSE145361_20260804_162813/GSE145361_20260804_162813/processed/SGPD_DMR_Effect_Sizes_corrected.csv"
 )
 
 # Saves plot under: <project-root>/documentation/stats/plots
@@ -114,7 +114,7 @@ suppressPackageStartupMessages({
 csv_paths <- c(
     "/Volumes/saucepan/methylation-project/ppmi_20260721_075730/results/PPMI_DMR_effect_sizes.csv",
     "/Volumes/saucepan/methylation-project/GSE111629_20260722_083339/results/PEG1_DMR_Effect_Sizes.csv",
-    "/Volumes/saucepan/methylation-project/GSE145361_20260804_162813/GSE145361_20260804_162813/results/SGPD_DMR_Effect_Sizes.csv"
+    "/Volumes/saucepan/methylation-project/GSE145361_20260804_162813/GSE145361_20260804_162813/processed/SGPD_DMR_Effect_Sizes_corrected.csv"
 )
 
 # Create pie charts for percentages
@@ -177,10 +177,10 @@ for (cohort in cohorts) {
     subset_data <- all_pie_data[all_pie_data$Cohort == cohort, ]
     counts <- subset_data$Count
     labels <- subset_data$Sign
-    
+
     total <- sum(counts)
     percentages <- (counts / total) * 100
-    
+
     pie(counts,
         labels = sprintf("%s\n(%.1f%%)", labels, percentages),
         main = cohort,
@@ -192,4 +192,3 @@ for (cohort in cohorts) {
 dev.off()
 
 print("Pie charts saved.")
-
