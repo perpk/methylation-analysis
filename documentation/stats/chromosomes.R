@@ -1,84 +1,131 @@
-rm(list = ls())
-gc(full = TRUE)
+# ============================================================
+# Cohort x Chromosome DeltaBeta Heatmap
+# ============================================================
+# Reads DMR effect-size CSVs from multiple cohorts, extracts
+# chromosome + deltabeta, aggregates per chromosome per cohort,
+# and plots a heatmap (cohorts vs chromosomes, fill = deltabeta)
+# using a viridis color gradient.
+# ============================================================
 
+# ---- 0. Packages -------------------------------------------------
+required_pkgs <- c("readr", "dplyr", "tidyr", "stringr", "ggplot2", "viridis", "forcats")
+missing_pkgs  <- required_pkgs[!required_pkgs %in% installed.packages()[, "Package"]]
+if (length(missing_pkgs) > 0) install.packages(missing_pkgs)
+
+library(readr)
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(ggplot2)
+library(viridis)
+library(forcats)
+
+# ---- 1. Inputs -----------------------------------------------------
 csv_paths <- c(
-    "/Volumes/saucepan/methylation-project/ppmi_20260721_075730/results/PPMI_DMR_effect_sizes.csv",
-    "/Volumes/saucepan/methylation-project/GSE111629_20260722_083339/results/PEG1_DMR_Effect_Sizes.csv",
-    "/Volumes/saucepan/methylation-project/GSE145361_20260804_162813/GSE145361_20260804_162813/processed/SGPD_DMR_Effect_Sizes_corrected.csv"
+  "/Volumes/saucepan/methylation-project/ppmi_20260721_075730/results/PPMI_DMR_effect_sizes.csv",
+  "/Volumes/saucepan/methylation-project/GSE111629_20260722_083339/results/PEG1_DMR_Effect_Sizes.csv",
+  "/Volumes/saucepan/methylation-project/GSE145361_20260804_162813/GSE145361_20260804_162813/processed/SGPD_DMR_Effect_Sizes_corrected.csv"
 )
 
-# Load and combine all CSV files
-data_list <- lapply(csv_paths, read.csv)
+# How to collapse multiple DMRs per chromosome into one value per cell.
+# Change to "median", "sum", "max", or "min" if preferred.
+agg_fun <- "mean"
 
-# Add dataset identifier and standardize column names
-shape_map <- c("PPMI" = 16, "PEG1" = 17, "SGPD" = 18)
-for (i in seq_along(csv_paths)) {
-    data_list[[i]]$dataset <- basename(dirname(csv_paths[i]))
-    # Extract cohort prefix from CSV filename
-    filename <- basename(csv_paths[i])
-    cohort <- ifelse(grepl("PPMI", filename), "PPMI",
-                 ifelse(grepl("PEG1", filename), "PEG1",
-                    ifelse(grepl("SGPD", filename), "SGPD", NA)))
-    data_list[[i]]$cohort <- cohort
-    data_list[[i]]$shape <- shape_map[cohort]
-    # Standardize column names to lowercase
-    names(data_list[[i]]) <- tolower(names(data_list[[i]]))
+# ---- 2. Helper: flexible column finder ------------------------------
+# Finds a column whose name matches a pattern, ignoring case/underscores.
+find_col <- function(df, patterns) {
+  clean_names <- names(df) |> str_to_lower() |> str_remove_all("[^a-z0-9]")
+  for (p in patterns) {
+    p_clean <- str_remove_all(str_to_lower(p), "[^a-z0-9]")
+    hit <- which(clean_names == p_clean)
+    if (length(hit) > 0) return(names(df)[hit[1]])
+    hit <- which(str_detect(clean_names, p_clean))
+    if (length(hit) > 0) return(names(df)[hit[1]])
+  }
+  NA_character_
 }
 
-# Ensure all dataframes have the same columns before combining
-all_cols <- Reduce(union, lapply(data_list, names))
-data_list <- lapply(data_list, function(df) {
-    missing_cols <- setdiff(all_cols, names(df))
-    for (col in missing_cols) {
-        df[[col]] <- NA
-    }
-    df[, all_cols]
-})
+# ---- 3. Read + standardize each cohort file --------------------------
+read_cohort_file <- function(path) {
+  cohort <- str_split_fixed(basename(path), "_", 2)[, 1]
 
-data_combined <- do.call(rbind, data_list)
+  df <- read_csv(path, show_col_types = FALSE)
 
-# Prepare data for plotting
-data_combined$color <- ifelse(data_combined$deltabeta < 0, "blue", "red")
-data_combined$size <- abs(data_combined$deltabeta)
-plot_dir <- file.path(getwd(), "documentation", "stats", "plots")
+  chr_col   <- find_col(df, c("chromosome", "chr", "seqnames"))
+  delta_col <- find_col(df, c("deltabeta", "delta_beta", "dbeta", "meandiff", "effectsize"))
 
-# Create scatterplot per cohort
-cohorts <- unique(data_combined$cohort)
-for (cohort in cohorts) {
-    cohort_data <- data_combined[data_combined$cohort == cohort, ]
-    
-    png(file.path(plot_dir, paste0("chromosome_effect_sizes_", cohort, ".png")), width = 14, height = 8, units = "in", res = 300)
-    par(mar = c(5, 5, 4, 2))
-    
-    plot(as.numeric(factor(cohort_data$chromosome)),
-        seq_len(nrow(cohort_data)),
-        col = cohort_data$color,
-        cex = 1 + 4 * (cohort_data$size / max(cohort_data$size)),
-        pch = 16,
-        xlab = "Chromosome",
-        ylab = "Region Index",
-        main = paste("DMR Effect Sizes Distribution by Chromosome -", cohort),
-        xaxt = "n"
+  if (is.na(chr_col))   stop(sprintf("Could not find a chromosome column in: %s", path))
+  if (is.na(delta_col)) stop(sprintf("Could not find a deltabeta column in: %s", path))
+
+  df |>
+    transmute(
+      cohort      = cohort,
+      chromosome  = as.character(.data[[chr_col]]),
+      deltabeta   = as.numeric(.data[[delta_col]])
     )
-    
-    axis(1,
-        at = 1:length(unique(cohort_data$chromosome)),
-        labels = sort(unique(cohort_data$chromosome))
-    )
-    
-    legend("topright",
-        legend = c("Δβ < 0", "Δβ > 0"),
-        col = c("blue", "red"),
-        pch = 16,
-        title = "Effect Direction"
-    )
-    
-    dev.off()
 }
 
-# Summary statistics by chromosome
-summary_stats <- aggregate(deltabeta ~ chromosome,
-    data = data_combined,
-    FUN = function(x) c(mean = mean(x), sd = sd(x), n = length(x))
-)
-print(summary_stats)
+all_data <- bind_rows(lapply(csv_paths, read_cohort_file))
+
+# ---- 4. Normalize chromosome labels & order ---------------------------
+normalize_chr <- function(x) {
+  x <- str_trim(x)
+  x <- str_remove(x, regex("^chr", ignore_case = TRUE))
+  x <- str_to_upper(x)
+  paste0("chr", x)
+}
+
+chr_levels <- c(paste0("chr", 1:22), "chrX", "chrY", "chrM")
+
+all_data <- all_data |>
+  filter(!is.na(chromosome), !is.na(deltabeta)) |>
+  mutate(
+    chromosome = normalize_chr(chromosome),
+    chromosome = factor(chromosome, levels = chr_levels)
+  ) |>
+  filter(!is.na(chromosome))  # drops anything not matching chr1-22/X/Y/M
+
+# ---- 5. Aggregate: one value per cohort x chromosome -------------------
+agg_data <- all_data |>
+  group_by(cohort, chromosome) |>
+  summarise(
+    deltabeta = match.fun(agg_fun)(deltabeta, na.rm = TRUE),
+    n_dmrs    = n(),
+    .groups = "drop"
+  ) |>
+  complete(cohort, chromosome)  # fill missing combos with NA so grid is complete
+
+# ---- 6. Plot heatmap ----------------------------------------------------
+p <- ggplot(agg_data, aes(x = chromosome, y = fct_rev(cohort), fill = deltabeta)) +
+  geom_tile(color = "white", linewidth = 0.4) +
+  scale_fill_viridis_c(
+    option    = "viridis",
+    name      = paste0(str_to_title(agg_fun), " \u0394\u03B2"),
+    na.value  = "grey90"
+  ) +
+  scale_x_discrete(drop = FALSE) +
+  labs(
+    title = "Cohort \u00d7 Chromosome Δβ Association",
+    x     = "Chromosome",
+    y     = "Cohort"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    axis.text.x     = element_text(angle = 45, hjust = 1),
+    panel.grid      = element_blank(),
+    plot.title      = element_text(face = "bold", hjust = 0.5)
+  )
+
+print(p)
+
+# ---- 7. Save output -------------------------------------------------
+out_dir <- "documentation/stats/plots"
+if (!dir.exists(out_dir)) dir.create(out_dir)
+
+ggsave(file.path(out_dir, "cohort_chromosome_deltabeta_heatmap.png"),
+       plot = p, width = 10, height = 4.5, dpi = 300)
+
+# also save the underlying aggregated table for reference
+write_csv(agg_data, file.path(out_dir, "cohort_chromosome_deltabeta_summary.csv"))
+
+message("Done. Heatmap saved to: ", file.path(out_dir, "cohort_chromosome_deltabeta_heatmap.png"))
