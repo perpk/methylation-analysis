@@ -48,6 +48,9 @@ on:
           - dockerhub
           - gcp
 
+permissions:
+  contents: read
+
 jobs:
   build_python_image:
     if: ${{ github.event.inputs.image_track == 'python' && github.event.inputs.image_strategy == 'build_new' }}
@@ -79,6 +82,11 @@ jobs:
 
       - name: Deploy Interactive VM
         run: |
+          if [ "${{ github.event.inputs.image_strategy }}" == "build_new" ] && [ "${{ github.event.inputs.build_registry }}" != "both" ] && [ "${{ github.event.inputs.build_registry }}" != "${{ github.event.inputs.image_source_registry }}" ]; then
+            echo "ERROR: image_source_registry must match build_registry (or build_registry must be both) when image_strategy=build_new."
+            exit 1
+          fi
+
           # 1. Determine the exact image to deploy
           if [ "${{ github.event.inputs.image_track }}" == "python" ]; then
             if [ "${{ github.event.inputs.image_source_registry }}" == "gcp" ]; then
@@ -92,11 +100,6 @@ jobs:
             else
               IMAGE_NAME="${{ secrets.DOCKERHUB_USERNAME }}/vast-r-env:latest"
             fi
-          fi
-
-          if [ "${{ github.event.inputs.image_strategy }}" == "build_new" ] && [ "${{ github.event.inputs.build_registry }}" != "both" ] && [ "${{ github.event.inputs.build_registry }}" != "${{ github.event.inputs.image_source_registry }}" ]; then
-            echo "ERROR: build_registry must include image_source_registry when image_strategy=build_new."
-            exit 1
           fi
 
           # 2. Generate the startup script
