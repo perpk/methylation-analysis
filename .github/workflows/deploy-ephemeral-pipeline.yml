@@ -22,8 +22,16 @@ on:
         options:
           - python
           - r-lang
-      docker_registry:
-        description: 'Target Docker Registry'
+      image_strategy:
+        description: 'Image source strategy'
+        required: true
+        default: 'build_new'
+        type: choice
+        options:
+          - build_new
+          - use_existing
+      build_registry:
+        description: 'Target registry when building a new image'
         required: true
         default: 'gcp'
         type: choice
@@ -31,20 +39,28 @@ on:
           - dockerhub
           - gcp
           - both
+      image_source_registry:
+        description: 'Registry to pull the deployment image from'
+        required: true
+        default: 'gcp'
+        type: choice
+        options:
+          - dockerhub
+          - gcp
 
 jobs:
   build_python_image:
-    if: ${{ github.event.inputs.image_track == 'python' }}
+    if: ${{ github.event.inputs.image_track == 'python' && github.event.inputs.image_strategy == 'build_new' }}
     uses: ./.github/workflows/build-vast-image.yml
     with:
-      registry: ${{ github.event.inputs.docker_registry }}
+      registry: ${{ github.event.inputs.build_registry }}
     secrets: inherit
 
   build_r_image:
-    if: ${{ github.event.inputs.image_track == 'r-lang' }}
+    if: ${{ github.event.inputs.image_track == 'r-lang' && github.event.inputs.image_strategy == 'build_new' }}
     uses: ./.github/workflows/build-R-lang-image.yml
     with:
-      registry: ${{ github.event.inputs.docker_registry }}
+      registry: ${{ github.event.inputs.build_registry }}
     secrets: inherit
 
   deploy_and_run:
@@ -63,21 +79,27 @@ jobs:
 
       - name: Deploy Interactive VM
         run: |
-          # 1. Map the 'gcp' dropdown option to your actual registry URL
-          if [ "${{ github.event.inputs.docker_registry }}" == "gcp" ]; then
-            REGISTRY_URL="europe-west1-docker.pkg.dev/pd-methylation/iou-projects-repo"
-          else
-            REGISTRY_URL="${{ github.event.inputs.docker_registry }}"
-          fi
-
-          # 2. Determine the exact image tag
+          # 1. Determine the exact image to deploy
           if [ "${{ github.event.inputs.image_track }}" == "python" ]; then
-            IMAGE_NAME="$REGISTRY_URL/vast-python-env:latest"
+            if [ "${{ github.event.inputs.image_source_registry }}" == "gcp" ]; then
+              IMAGE_NAME="europe-west1-docker.pkg.dev/pd-methylation/iou-projects-repo/kpax-vastai-cuda-12.4.1:latest"
+            else
+              IMAGE_NAME="${{ secrets.DOCKERHUB_USERNAME }}/kpax-vastai-cuda-12.4.1:latest"
+            fi
           else
-            IMAGE_NAME="$REGISTRY_URL/vast-r-env:v1"
+            if [ "${{ github.event.inputs.image_source_registry }}" == "gcp" ]; then
+              IMAGE_NAME="europe-west1-docker.pkg.dev/pd-methylation/iou-projects-repo/vast-r-env:latest"
+            else
+              IMAGE_NAME="${{ secrets.DOCKERHUB_USERNAME }}/vast-r-env:latest"
+            fi
           fi
 
-          # 3. Generate the startup script
+          if [ "${{ github.event.inputs.image_strategy }}" == "build_new" ] && [ "${{ github.event.inputs.build_registry }}" != "both" ] && [ "${{ github.event.inputs.build_registry }}" != "${{ github.event.inputs.image_source_registry }}" ]; then
+            echo "ERROR: build_registry must include image_source_registry when image_strategy=build_new."
+            exit 1
+          fi
+
+          # 2. Generate the startup script
           cat << EOF > startup-script.sh
           #!/bin/bash
           set -e
@@ -101,9 +123,11 @@ jobs:
           curl -fsSL https://get.docker.com -o get-docker.sh
           sh get-docker.sh
 
-          # 2. Authenticate Docker for GCP Artifact Registry
-          echo "Authenticating Artifact Registry..."
-          gcloud auth configure-docker europe-west1-docker.pkg.dev --quiet
+          # 2. Authenticate Docker for GCP Artifact Registry (when needed)
+          if [ "${{ github.event.inputs.image_source_registry }}" == "gcp" ]; then
+            echo "Authenticating Artifact Registry..."
+            gcloud auth configure-docker europe-west1-docker.pkg.dev --quiet
+          fi
 
           # 3. Setup Ops Agent and Host Directories
           echo "Setting up logging agent..."
