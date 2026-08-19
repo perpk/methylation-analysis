@@ -79,6 +79,10 @@ targets_ppmi$Age <- targets_ppmi$ENROLL_AGE %>% round()
 targets_ppmi$Sex <- targets_ppmi$SEX
 targets_ppmi_reduced <- targets_ppmi[, !colnames(targets_ppmi) %in% c("ENROLL_AGE", "ScanDate", "SEX")]
 
+targets_ppmi_reduced$Gran <- targets_ppmi$Neu
+targets_peg1_reduced$Gran <- targets_peg1$Gran
+targets_sgpd_reduced$Gran <- targets_sgpd$Gran
+
 targets_common_cols <- Reduce(intersect, list(colnames(targets_sgpd_reduced), colnames(targets_peg1_reduced), colnames(targets_ppmi_reduced)))
 targets_common_cols %>% length()
 targets_common_cols
@@ -95,5 +99,5 @@ targets_combined <- rbind(targets_sgpd_reduced, targets_peg1_reduced, targets_pp
 
 targets_combined %>% head()
 
-saveRDS(m_values_combined, file = "/workspace/results/consolidated_m_values.rds")
-saveRDS(targets_combined, file = "/workspace/results/consolidated_targets.rds")
+saveRDS(m_values_combined, "/workspace/results/consolidated_m_values.rds")
+saveRDS(targets_combined, "/workspace/results/consolidated_targets.rds")
