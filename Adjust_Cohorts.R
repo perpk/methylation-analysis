@@ -26,21 +26,26 @@ m_values_combat_corr <- ComBat(
 pca_prev <- prcomp(t(m_values_combined), center = TRUE, scale. = TRUE)
 pca_df_before <- data.frame(pca_prev$x[, 1:2], Cohort = targets_combined$Cohort, Group = targets_combined$Sample_Group)
 
-ggplot(pca_df_before, aes(x = PC1, y = PC2, color = Cohort)) +
+plot_before_combat <- ggplot(pca_df_before, aes(x = PC1, y = PC2, color = Cohort)) +
     geom_point(alpha = 0.7) +
     theme_minimal() +
     labs(
         title = "PCA of M-Values Before ComBat Harmonization"
     )
+print(plot_before_combat)
+
+ggsave(plot_before_combat, filename = "/workspace/results/pca_before_combat.png", width = 8, height = 6, dpi = 300)
 
 pca_after <- prcomp(t(m_values_combat_corr), center = TRUE, scale. = TRUE)
 pca_df_after <- data.frame(pca_after$x[, 1:2], Cohort = targets_combined$Cohort, Group = targets_combined$Sample_Group)
 
-ggplot(pca_df_after, aes(x = PC1, y = PC2, color = Cohort)) +
+plot_after_combat <- ggplot(pca_df_after, aes(x = PC1, y = PC2, color = Cohort)) +
     geom_point(alpha = 0.7) +
     theme_minimal() +
     labs(
         title = "PCA of M-Values After ComBat Harmonization"
     )
+print(plot_after_combat)
+ggsave(plot_after_combat, filename = "/workspace/results/pca_after_combat.png", width = 8, height = 6, dpi = 300)
 
 saveRDS(m_values_combat_corr, "/workspace/results/combat_corrected_m_values.rds")
