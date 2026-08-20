@@ -48,4 +48,23 @@ plot_after_combat <- ggplot(pca_df_after, aes(x = PC1, y = PC2, color = Cohort))
 print(plot_after_combat)
 ggsave(plot_after_combat, filename = "/workspace/results/pca_after_combat.png", width = 8, height = 6, dpi = 300)
 
-saveRDS(m_values_combat_corr, "/workspace/results/combat_corrected_m_values.rds")
+
+m_values_combat_corr_sgpd <- ComBat(
+    dat = m_values_combined,
+    batch = targets_combined$Cohort,
+    mod = design,
+    par.prior = TRUE,
+    ref.batch = "SGPD",
+    prior.plots = FALSE
+)
+saveRDS(m_values_combat_corr_sgpd, "/workspace/results/combat_corrected_m_values_sgpd.rds")
+
+m_values_combat_corr_ppmi <- ComBat(
+    dat = m_values_combined,
+    batch = targets_combined$Cohort,
+    mod = design,
+    par.prior = TRUE,
+    ref.batch = "PPMI",
+    prior.plots = FALSE
+)
+saveRDS(m_values_combat_corr_ppmi, "/workspace/results/combat_corrected_m_values_ppmi.rds")
