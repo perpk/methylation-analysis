@@ -21,6 +21,7 @@ RUN apt-get update && apt-get install -y \
     nvtop \
     wget \
     bzip2 \
+    openssh-server \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
@@ -57,8 +58,30 @@ RUN apt-get update && apt-get install -y htop lsof && \
 
 RUN git clone https://github.com/perpk/methylation-analysis.git
 
-# 10. Expose the Jupyter port
-EXPOSE 8080
+# 10. Configure SSH server for key-based access
+RUN mkdir -p /var/run/sshd /root/.ssh && \
+        chmod 700 /root/.ssh && \
+        touch /root/.ssh/authorized_keys && \
+        chmod 600 /root/.ssh/authorized_keys && \
+        ssh-keygen -A && \
+        sed -i 's/^#\?PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config && \
+        sed -i 's/^#\?PermitRootLogin.*/PermitRootLogin prohibit-password/' /etc/ssh/sshd_config && \
+        sed -i 's/^#\?PubkeyAuthentication.*/PubkeyAuthentication yes/' /etc/ssh/sshd_config
 
-# 11. Launch Jupyter Lab within the RAPIDS environment when the container starts
-CMD ["sh", "-c", "conda run --no-capture-output -n rapids-env jupyter lab --ip=0.0.0.0 --port=8080 --no-browser --allow-root --ServerApp.password=\"$JUPYTER_PASSWORD_HASH\""]
+# 11. Startup script: run sshd in background and keep JupyterLab in foreground
+RUN printf '%s\n' \
+    '#!/bin/sh' \
+    'set -e' \
+    '' \
+    '/usr/sbin/sshd' \
+    '' \
+    'exec conda run --no-capture-output -n rapids-env \' \
+    '    jupyter lab --ip=0.0.0.0 --port=8080 --no-browser --allow-root \' \
+    '    --ServerApp.password="$JUPYTER_PASSWORD_HASH"' \
+    > /usr/local/bin/start-services.sh && chmod +x /usr/local/bin/start-services.sh
+
+# 12. Expose Jupyter and SSH ports
+EXPOSE 8080 22
+
+# 13. Launch services when the container starts
+CMD ["/usr/local/bin/start-services.sh"]
