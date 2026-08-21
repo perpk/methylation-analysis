@@ -47,6 +47,14 @@ on:
         options:
           - dockerhub
           - gcp
+      gcp_zone_source:
+        description: 'Zone source for VM provisioning'
+        required: true
+        default: 'europe-west1-b'
+        type: choice
+        options:
+          - europe-west1-b
+          - global
 
 permissions:
   contents: read
@@ -182,8 +190,19 @@ jobs:
           fi
           EOF
 
+          # 3. Determine deployment zone (default or repository/global variable)
+          if [ "${{ github.event.inputs.gcp_zone_source }}" == "global" ]; then
+            if [ -z "${{ vars.GCP_ZONE }}" ]; then
+              echo "ERROR: gcp_zone_source=global was selected, but repository/environment variable GCP_ZONE is not set."
+              exit 1
+            fi
+            DEPLOY_ZONE="${{ vars.GCP_ZONE }}"
+          else
+            DEPLOY_ZONE="europe-west1-b"
+          fi
+
           # Provision the VM
           gcloud compute instances create ephemeral-pipeline-vm \
             --source-instance-template=${{ github.event.inputs.vm_template }} \
-            --zone=europe-west1-b \
+            --zone="$DEPLOY_ZONE" \
             --metadata-from-file=startup-script=startup-script.sh
