@@ -27,3 +27,22 @@ Regarding QC, probes with p-value > 0.01 in more than 5% of the samples are remo
 After outlier removal and BMIQ normalization the scandates are retrieved from each experiments' idat files and used for batch correction. Batch-corrected m-values are then consolidated with the respective metadata (targets) for downstream analysis.
 
 ![](./data-wrapup.png)
+
+## 2. GitHub Actions Deployment
+
+The workflow [.github/workflows/deploy-ephemeral-pipeline.yml](.github/workflows/deploy-ephemeral-pipeline.yml) now accepts a free-text `gcp_zone` input for VM provisioning.
+
+- Default value: `europe-west1-b`
+- Validation: the job checks the supplied value against `gcloud compute zones list`
+
+Example use:
+
+1. Run the Deploy Interactive Pipeline workflow.
+2. Enter a valid GCP zone such as `europe-west1-b`.
+3. The job validates the zone before calling `gcloud compute instances create`.
+
+To see available zones in your project, run:
+
+```bash
+gcloud compute zones list --format="value(name)"
+```

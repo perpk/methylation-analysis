@@ -47,14 +47,11 @@ on:
         options:
           - dockerhub
           - gcp
-      gcp_zone_source:
-        description: 'Zone source for VM provisioning'
+      gcp_zone:
+        description: 'GCP zone for VM provisioning (for example, europe-west1-b)'
         required: true
         default: 'europe-west1-b'
-        type: choice
-        options:
-          - europe-west1-b
-          - global
+        type: string
 
 permissions:
   contents: read
@@ -190,15 +187,12 @@ jobs:
           fi
           EOF
 
-          # 3. Determine deployment zone (default or repository/global variable)
-          if [ "${{ github.event.inputs.gcp_zone_source }}" == "global" ]; then
-            if [ -z "${{ vars.GCP_ZONE }}" ]; then
-              echo "ERROR: gcp_zone_source=global was selected, but repository/environment variable GCP_ZONE is not set."
-              exit 1
-            fi
-            DEPLOY_ZONE="${{ vars.GCP_ZONE }}"
-          else
-            DEPLOY_ZONE="europe-west1-b"
+          # 3. Determine and validate deployment zone
+          DEPLOY_ZONE="${{ github.event.inputs.gcp_zone }}"
+
+          if ! gcloud compute zones list --format="value(name)" | grep -qx "$DEPLOY_ZONE"; then
+            echo "ERROR: gcp_zone must be a valid GCP zone. Example: europe-west1-b"
+            exit 1
           fi
 
           # Provision the VM
