@@ -49,7 +49,14 @@ RUN conda tos accept --override-channels --channel https://repo.anaconda.com/pkg
 
 RUN /opt/conda/envs/rapids-env/bin/python -m ipykernel install --sys-prefix --name rapids-env --display-name "Python 3.13 (RAPIDS)"
 
-# 9. Ensure the conda environment activates automatically when you SSH/exec into Zsh
+# 9. Install GPU-enabled PyTorch via pip (matches cuda-version=12.4 from step 8).
+#    conda's pytorch/pytorch-cuda solves against the CPU-only build here because the
+#    rapidsai/conda-forge channel mix takes priority, so pip with the official CUDA
+#    wheel index is used instead to guarantee a CUDA-enabled build.
+RUN /opt/conda/envs/rapids-env/bin/pip install torch torchvision torchaudio \
+    --index-url https://download.pytorch.org/whl/cu124
+
+# 10. Ensure the conda environment activates automatically when you SSH/exec into Zsh
 RUN echo "conda activate rapids-env" >> ~/.zshrc
 
 RUN apt-get update && apt-get install -y htop lsof && \
@@ -58,7 +65,7 @@ RUN apt-get update && apt-get install -y htop lsof && \
 
 RUN git clone https://github.com/perpk/methylation-analysis.git
 
-# 10. Configure SSH server for key-based access
+# 11. Configure SSH server for key-based access
 RUN mkdir -p /var/run/sshd /root/.ssh && \
         chmod 700 /root/.ssh && \
         touch /root/.ssh/authorized_keys && \
@@ -68,7 +75,7 @@ RUN mkdir -p /var/run/sshd /root/.ssh && \
         sed -i 's/^#\?PermitRootLogin.*/PermitRootLogin prohibit-password/' /etc/ssh/sshd_config && \
         sed -i 's/^#\?PubkeyAuthentication.*/PubkeyAuthentication yes/' /etc/ssh/sshd_config
 
-# 11. Startup script: run sshd in background and keep JupyterLab in foreground
+# 12. Startup script: run sshd in background and keep JupyterLab in foreground
 RUN printf '%s\n' \
     '#!/bin/sh' \
     'set -e' \
@@ -80,8 +87,8 @@ RUN printf '%s\n' \
     '    --ServerApp.password="$JUPYTER_PASSWORD_HASH"' \
     > /usr/local/bin/start-services.sh && chmod +x /usr/local/bin/start-services.sh
 
-# 12. Expose Jupyter and SSH ports
+# 13. Expose Jupyter and SSH ports
 EXPOSE 8080 22
 
-# 13. Launch services when the container starts
+# 14. Launch services when the container starts
 CMD ["/usr/local/bin/start-services.sh"]
