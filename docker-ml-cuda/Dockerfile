@@ -56,6 +56,9 @@ RUN /opt/conda/envs/rapids-env/bin/python -m ipykernel install --sys-prefix --na
 RUN /opt/conda/envs/rapids-env/bin/pip install torch torchvision torchaudio \
     --index-url https://download.pytorch.org/whl/cu124
 
+# 9b. safetensors: secure (non-pickle) tensor serialization used to persist patient graphs
+RUN /opt/conda/envs/rapids-env/bin/pip install safetensors
+
 # 10. Ensure the conda environment activates automatically when you SSH/exec into Zsh
 RUN echo "conda activate rapids-env" >> ~/.zshrc
 
