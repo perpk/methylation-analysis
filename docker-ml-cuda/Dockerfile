@@ -59,6 +59,10 @@ RUN /opt/conda/envs/rapids-env/bin/pip install torch torchvision torchaudio \
 # 9b. safetensors: secure (non-pickle) tensor serialization used to persist patient graphs
 RUN /opt/conda/envs/rapids-env/bin/pip install safetensors
 
+# 9c. PyG utilities used by graph-construction notebooks (e.g., add_self_loops)
+RUN /opt/conda/envs/rapids-env/bin/pip install torch-geometric && \
+    /opt/conda/envs/rapids-env/bin/python -c "from torch_geometric.utils import add_self_loops"
+
 # 10. Ensure the conda environment activates automatically when you SSH/exec into Zsh
 RUN echo "conda activate rapids-env" >> ~/.zshrc
 
