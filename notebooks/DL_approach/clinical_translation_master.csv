@@ -1,0 +1,494 @@
+cpg_id,target_gene,distance_bp,Direction,Delta_Beta,P_Value,FDR_q_val,Enriched_Pathways
+cg21895314,CRYAA,788,Hypomethylated,-0.013063620926718075,0.000892598722326885,0.27048887935785393,Proteins Involved in Cataract | Diabetes Induced Cataract | Age-Related Cataract
+cg22669624,RRP1,3946,Hypermethylated,0.007934010054259422,0.0015056518097615367,0.27048887935785393,No Significant Pathway
+cg23256367,WDR4,2585,Hypermethylated,0.012115923431913922,0.0016459769534960685,0.27048887935785393,No Significant Pathway
+cg20545330,USP25,1886,Hypermethylated,0.002224814941016451,0.0030796146898718862,0.2943462107875627,SP1 (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human)
+cg25940392,SIM2,6715,Hypermethylated,0.010020977065628572,0.003822281546186074,0.2943462107875627,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human)
+cg06279535,PDXK,3010,Hypermethylated,0.008036524556326752,0.004417065308934693,0.2943462107875627,Pyridoxal Phosphate Binding (GO:0030170) | Vitamin B6 Binding (GO:0070279) | TEAD4 (human)
+cg08823554,PTTG1IP,308,Hypomethylated,-0.0027358948965567897,0.004511908470588965,0.2943462107875627,"Negative Regulation of DNA Damage Response, Signal Transduction by P53 Class Mediator (GO:0043518)"
+cg06230839,RIPK4,2680,Hypomethylated,-0.02966439492130457,0.005184318452283347,0.2943462107875627,No Significant Pathway
+cg02579389,LINC00163,2774,Hypermethylated,0.008443483413295816,0.005373460237501145,0.2943462107875627,No Significant Pathway
+cg03239638,DOP1B,0,Hypomethylated,-0.011237618117270032,0.007430693317897805,0.3363166886230108,No Significant Pathway
+cg10010393,RIPK4,11415,Hypomethylated,-0.004095373612296262,0.007716142658567067,0.3363166886230108,No Significant Pathway
+cg04289033,WDR4,8983,Hypomethylated,-0.010342238870930998,0.008186207430986064,0.3363166886230108,No Significant Pathway
+cg26883837,COL18A1,26835,Hypomethylated,-0.00531074610334481,0.009691615131657517,0.3436562253851886,Collagen Chain Trimerization R-HSA-8948216 | Assembly Of Collagen Fibrils And Other Multimeric Structures R-HSA-2022090 | Integrin Cell Surface Interactions R-HSA-216083 | Collagen Biosynthesis And Modifying Enzymes R-HSA-1650814 | Integrin Cell Surface Interactions | Collagen Chain Trimerization | Assembly of Collagen Fibrils and Other Multimeric Structures | Collagen Degradation | Collagen Biosynthesis and Modifying Enzymes | SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human) | Proteins Involved in Cataract
+cg11852796,PDE9A,11547,Hypomethylated,-0.010177519356923015,0.009912202187540334,0.3436562253851886,SP1 (human) | TCFAP2A (human) | PCBP1 (human)
+cg00254426,RWDD2B,2676,Hypermethylated,0.00041757068782477536,0.010796014675161173,0.3436562253851886,No Significant Pathway
+cg09112190,LINC00322,19230,Hypermethylated,0.0025674045283133884,0.011153143217369203,0.3436562253851886,No Significant Pathway
+cg05181597,UBE2G2,22434,Hypomethylated,-0.0033791325770832215,0.012754556161121445,0.36480080258691094,No Significant Pathway
+cg14179031,FAM3B,8905,Hypomethylated,-0.01147369308308177,0.013319299080252327,0.36480080258691094,No Significant Pathway
+cg00495860,SIM2,5890,Hypermethylated,0.00486231628317136,0.016671113720619437,0.432571529698178,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human)
+cg01256260,TFF3,2119,Hypomethylated,-0.009848726633501004,0.018426670781520983,0.44879877950392627,No Significant Pathway
+cg18017082,LIPI,25934,Hypermethylated,0.011596987106289425,0.019117189390633775,0.44879877950392627,No Significant Pathway
+cg25795774,BACH1,3842,Hypomethylated,-0.0015615048739744397,0.02175175403459018,0.4874370335933163,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human)
+cg20602417,LINC00163,0,Hypermethylated,0.0006046810423832039,0.02552249048826376,0.5470690352484363,No Significant Pathway
+cg11500660,LINC01671,1487,Hypermethylated,0.0009946415209458846,0.030271086694967232,0.6218185725257852,No Significant Pathway
+cg19387359,SIM2,9426,Hypomethylated,-0.0030799371650835905,0.033152510448930424,0.653767506052908,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human)
+cg25360059,LINC01671,4964,Hypomethylated,-0.003749889129882611,0.03500000769977231,0.6603464822625793,No Significant Pathway
+cg15514380,DYRK1A,631,Hypomethylated,-0.00943951171882082,0.037163897829555245,0.6603464822625793,"Negative Regulation of Heterochromatin Formation (GO:0031452) | Regulation of Amyloid-Beta Formation (GO:1902003) | Negative Regulation of DNA Damage Response, Signal Transduction by P53 Class Mediator (GO:0043518) | Regulation of Amyloid Precursor Protein Catabolic Process (GO:1902991) | SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human)"
+cg07391141,LINC01671,0,Hypermethylated,0.006351943669630433,0.03889647418892225,0.6603464822625793,No Significant Pathway
+cg02477557,TRPM2,3093,Hypermethylated,0.010928188949064194,0.03996796256463822,0.6603464822625793,Ligand-gated Calcium Channel Activity (GO:0099604)
+cg23804585,MRPL39,4165,Hypomethylated,-0.0008211681612344535,0.040183355918615375,0.6603464822625793,SP1 (human)
+cg11774346,COL18A1,27180,Hypermethylated,0.0017221255521778778,0.04157729430473519,0.6612130997494984,Collagen Chain Trimerization R-HSA-8948216 | Assembly Of Collagen Fibrils And Other Multimeric Structures R-HSA-2022090 | Integrin Cell Surface Interactions R-HSA-216083 | Collagen Biosynthesis And Modifying Enzymes R-HSA-1650814 | Integrin Cell Surface Interactions | Collagen Chain Trimerization | Assembly of Collagen Fibrils and Other Multimeric Structures | Collagen Degradation | Collagen Biosynthesis and Modifying Enzymes | SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human) | Proteins Involved in Cataract
+cg09254980,LINC01694,3461,Hypermethylated,0.008140500590879202,0.04390480007613341,0.6669886655411996,No Significant Pathway
+cg18192155,WDR4,4891,Hypermethylated,0.0003752345349345987,0.045283178256315115,0.6669886655411996,No Significant Pathway
+cg06486129,LINC01678,5245,Hypomethylated,-0.00662487739666362,0.04599921831318618,0.6669886655411996,No Significant Pathway
+cg14627805,CRYAA,12525,Hypermethylated,0.007897781667919657,0.049503399695280746,0.6972907442792402,Proteins Involved in Cataract | Diabetes Induced Cataract | Age-Related Cataract
+cg05707788,PCBP3,0,Hypermethylated,0.005954260753947893,0.05107672441351883,0.6994673648851328,No Significant Pathway
+cg09546220,ERG,2783,Hypermethylated,0.004463648849987956,0.055078960272874115,0.7187939327897968,Genes Targeted By miRNAs In Adipocytes WP1992 | Genes Targeted By miRNAs In Adipocytes WP1992
+cg27305917,LOC101928796,1906,Hypomethylated,-0.015208703497863907,0.05540399481949752,0.7187939327897968,No Significant Pathway
+cg08136416,PDE9A,12897,Hypomethylated,-0.006336553765430408,0.057451569004631636,0.7194829226941658,SP1 (human) | TCFAP2A (human) | PCBP1 (human)
+cg00740547,PICSAR,14594,Hypermethylated,0.010968892608543501,0.059396328048416394,0.7194829226941658,No Significant Pathway
+cg01619490,HMGN1,3228,Hypermethylated,0.0036416151284833775,0.0627790255338979,0.7194829226941658,TEAD4 (human)
+cg18326819,COL18A1,23822,Hypermethylated,0.0009038440611510712,0.06439534289920489,0.7194829226941658,Collagen Chain Trimerization R-HSA-8948216 | Assembly Of Collagen Fibrils And Other Multimeric Structures R-HSA-2022090 | Integrin Cell Surface Interactions R-HSA-216083 | Collagen Biosynthesis And Modifying Enzymes R-HSA-1650814 | Integrin Cell Surface Interactions | Collagen Chain Trimerization | Assembly of Collagen Fibrils and Other Multimeric Structures | Collagen Degradation | Collagen Biosynthesis and Modifying Enzymes | SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human) | Proteins Involved in Cataract
+cg19344545,LINC01678,3082,Hypermethylated,0.00615059280783492,0.06875301232715308,0.7194829226941658,No Significant Pathway
+cg16374972,SIK1,22397,Hypermethylated,0.0002469535935969436,0.06882893192346448,0.7194829226941658,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human)
+cg16087633,AIRE,3719,Hypermethylated,0.0026584331530601357,0.07124122393993351,0.7194829226941658,Thymus Development (GO:0048538)
+cg23034420,ZNF295-AS1,0,Hypomethylated,-0.0007212451373275197,0.07164950944850373,0.7194829226941658,No Significant Pathway
+cg22726155,LINC01678,3096,Hypermethylated,0.00632584054080032,0.07178783763760554,0.7194829226941658,No Significant Pathway
+cg20466382,LRRC3,0,Hypomethylated,-0.003625044358576246,0.07377661454427016,0.7194829226941658,SP1 (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human)
+cg14092208,LINC01678,8476,Hypermethylated,0.00690813121452627,0.07470108997622964,0.7194829226941658,No Significant Pathway
+cg14897238,RIPK4,11071,Hypomethylated,-0.01286398141358075,0.07480858551319267,0.7194829226941658,No Significant Pathway
+cg25408700,TFF3,5611,Hypermethylated,0.0005649349954177652,0.07578144375733346,0.7194829226941658,No Significant Pathway
+cg15348679,ICOSLG,16386,Hypomethylated,-0.004438560058633412,0.07713889642160623,0.7194829226941658,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human) | Extrafollicular And Follicular B Cell Activation By SARS CoV 2 WP5218 | Extrafollicular And Follicular B Cell Activation By SARS CoV 2 WP5218
+cg20208203,DYRK1A,34176,Hypomethylated,-0.0006470863189124154,0.07863890166973748,0.7194829226941658,"Negative Regulation of Heterochromatin Formation (GO:0031452) | Regulation of Amyloid-Beta Formation (GO:1902003) | Negative Regulation of DNA Damage Response, Signal Transduction by P53 Class Mediator (GO:0043518) | Regulation of Amyloid Precursor Protein Catabolic Process (GO:1902991) | SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human)"
+cg09964921,KCNE1,1259,Hypermethylated,0.004053520448767167,0.07880746009226157,0.7194829226941658,Negative Regulation of Delayed Rectifier Potassium Channel Activity (GO:1902260) | Membrane Repolarization During Ventricular Cardiac Muscle Cell Action Potential (GO:0098915) | Regulation of Delayed Rectifier Potassium Channel Activity (GO:1902259) | Negative Regulation of Voltage-Gated Potassium Channel Activity (GO:1903817) | Ventricular Cardiac Muscle Cell Membrane Repolarization (GO:0099625) | Potassium Ion Export Across Plasma Membrane (GO:0097623) | Membrane Repolarization During Action Potential (GO:0086011) | Membrane Repolarization During Cardiac Muscle Cell Action Potential (GO:0086013) | Ventricular Cardiac Muscle Cell Action Potential (GO:0086005) | Regulation of Ventricular Cardiac Muscle Cell Membrane Repolarization (GO:0060307) | Membrane Repolarization (GO:0086009) | Regulation of Cardiac Muscle Cell Membrane Repolarization (GO:0099623) | Phase 3 - Rapid Repolarisation R-HSA-5576890 | Phase 2 - Plateau Phase R-HSA-5576893 | Phase 3 - Rapid Repolarisation | Phase 2 - Plateau Phase | Voltage-gated K Chnl Act Inv in Ventricular Cardiac Muscle Action Potntl Repolarization (GO:1902282) | Voltage-gated Potassium Chnl Act Inv in Cardiac Muscle Cell Action Potential Repolarization (GO:0086008) | Potassium Channel Regulator Activity (GO:0015459) | Genes Targeted By miRNAs In Adipocytes WP1992 | Genes Targeted By miRNAs In Adipocytes WP1992 | Proteins Involved in Congenital Deafness
+cg22560083,CLIC6,2759,Hypomethylated,-0.006733493743791508,0.0819514990024648,0.7218208356205389,No Significant Pathway
+cg19856593,SIM2,7178,Hypermethylated,0.004945144002301255,0.08275670821138459,0.7218208356205389,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human)
+cg04847243,LINC00319,2155,Hypomethylated,-0.0033277478783045877,0.08345595868229354,0.7218208356205389,No Significant Pathway
+cg03741824,LINC01690,17535,Hypomethylated,-0.0010294331739778562,0.08851427735253262,0.7223159019450884,No Significant Pathway
+cg08309687,LINC00649,0,Hypermethylated,0.011468342088796324,0.08905530880206063,0.7223159019450884,No Significant Pathway
+cg16029659,SUMO3,2961,Hypermethylated,0.005935624332138234,0.09107446745706568,0.7223159019450884,No Significant Pathway
+cg08461903,LRRC3,2746,Hypomethylated,-0.006604482637585396,0.09305202801979207,0.7223159019450884,SP1 (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human)
+cg05532966,RIPK4,11585,Hypomethylated,-0.013222785739586518,0.0930883673856126,0.7223159019450884,No Significant Pathway
+cg14641018,FAM3B,12613,Hypermethylated,0.0016812419554321778,0.09331218632189325,0.7223159019450884,No Significant Pathway
+cg04047566,FAM3B,13435,Hypermethylated,0.00316136639876774,0.09451204629269756,0.7223159019450884,No Significant Pathway
+cg06592890,RIPPLY3,2348,Hypomethylated,-0.0018415550884471887,0.09523434812663438,0.7223159019450884,No Significant Pathway
+cg08031958,LINC01694,3841,Hypomethylated,-0.012781173833636417,0.0972954990995458,0.7267678947890315,No Significant Pathway
+cg15367378,HLCS,3858,Hypomethylated,-0.000376268115376166,0.09976365981715275,0.7340818550724821,No Significant Pathway
+cg26703511,SIK1,16942,Hypomethylated,-0.0007392194044570921,0.10614283312401883,0.7464229658358683,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human)
+cg06101661,LINC00163,2592,Hypermethylated,0.006609465383791702,0.10623902073757388,0.7464229658358683,No Significant Pathway
+cg23897377,PICSAR,17311,Hypomethylated,-0.00021699132699004586,0.10772303781282214,0.7464229658358683,No Significant Pathway
+cg04824511,SIK1,3300,Hypermethylated,0.003980096167012781,0.1089808245643033,0.7464229658358683,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human)
+cg21147063,LINC01690,22055,Hypomethylated,-0.0032166725643894,0.10953577842313778,0.7464229658358683,No Significant Pathway
+cg23794133,LINC01678,1863,Hypermethylated,0.004258464339554124,0.1121378273826598,0.7464229658358683,No Significant Pathway
+cg23323341,LINC00205,5314,Hypermethylated,0.007706240924522434,0.11317916587448311,0.7464229658358683,No Significant Pathway
+cg02519892,RIPK4,11374,Hypomethylated,-0.0035637724533824494,0.11367891153037314,0.7464229658358683,No Significant Pathway
+cg00699461,PDE9A,1830,Hypomethylated,-0.0022957438559920718,0.12070669609412596,0.7464229658358683,SP1 (human) | TCFAP2A (human) | PCBP1 (human)
+cg15235306,NRIP1,3149,Hypomethylated,-0.00218818328589665,0.12079375552048575,0.7464229658358683,Nuclear Retinoic Acid Receptor Binding (GO:0042974) | TCFAP2A (human)
+cg15643703,LINC00205,5537,Hypermethylated,0.004234743190585699,0.12238181658955669,0.7464229658358683,No Significant Pathway
+cg02010760,DYRK1A,36133,Hypermethylated,0.002596539013336119,0.12486981786584983,0.7464229658358683,"Negative Regulation of Heterochromatin Formation (GO:0031452) | Regulation of Amyloid-Beta Formation (GO:1902003) | Negative Regulation of DNA Damage Response, Signal Transduction by P53 Class Mediator (GO:0043518) | Regulation of Amyloid Precursor Protein Catabolic Process (GO:1902991) | SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human)"
+cg04285033,TSPEAR,12011,Hypermethylated,0.0009668310910704234,0.12494336253502192,0.7464229658358683,No Significant Pathway
+cg11022525,KCNJ15,1726,Hypomethylated,-0.0010697794084369994,0.12652918633179572,0.7464229658358683,No Significant Pathway
+cg00129785,COL6A1,30491,Hypermethylated,0.005004235631439813,0.1293281162812784,0.7464229658358683,Collagen Chain Trimerization R-HSA-8948216 | Assembly Of Collagen Fibrils And Other Multimeric Structures R-HSA-2022090 | Collagen Biosynthesis And Modifying Enzymes R-HSA-1650814 | Integrin Cell Surface Interactions | Collagen Chain Trimerization | Assembly of Collagen Fibrils and Other Multimeric Structures | Collagen Degradation | Collagen Biosynthesis and Modifying Enzymes | SP1 (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human) | miRNA Targets In ECM And Membrane Receptors WP2911 | miRNA Targets In ECM And Membrane Receptors WP2911
+cg14413354,LINC01694,1405,Hypomethylated,-0.008839974638800707,0.12974560555176198,0.7464229658358683,No Significant Pathway
+cg24114772,LIPI,23866,Hypermethylated,0.002788354228218326,0.13080128145425532,0.7464229658358683,No Significant Pathway
+cg00332248,UBE2G2,18204,Hypomethylated,-0.004238573682443181,0.13452713000652403,0.7464229658358683,No Significant Pathway
+cg20756600,PICSAR,11164,Hypomethylated,-0.0003589664744647614,0.1369875001970857,0.7464229658358683,No Significant Pathway
+cg07553580,PCBP3,0,Hypomethylated,-0.005081623754273901,0.13840056572975823,0.7464229658358683,No Significant Pathway
+cg06410273,LINC00205,3408,Hypermethylated,0.0043237896930991004,0.13866210921410752,0.7464229658358683,No Significant Pathway
+cg04498775,FRGCA,11860,Hypomethylated,-0.0017482573039577787,0.1399058451926112,0.7464229658358683,No Significant Pathway
+cg13299023,GET1,3845,Hypermethylated,0.0014784392852628114,0.14122330477776146,0.7464229658358683,Insertion Of Tail-Anchored Proteins Into Endoplasmic Reticulum Membrane R-HSA-9609523 | Insertion of Tail-Anchored Proteins Into the Endoplasmic Reticulum Membrane
+cg03630591,ABCG1,7206,Hypermethylated,0.00034591061817279556,0.14132898349141534,0.7464229658358683,Regulation of Amyloid-Beta Formation (GO:1902003) | SP1 (human) | TCFAP2A (human)
+cg11554566,COL6A1,3087,Hypomethylated,-0.0033660405152279305,0.14649866960315147,0.7464229658358683,Collagen Chain Trimerization R-HSA-8948216 | Assembly Of Collagen Fibrils And Other Multimeric Structures R-HSA-2022090 | Collagen Biosynthesis And Modifying Enzymes R-HSA-1650814 | Integrin Cell Surface Interactions | Collagen Chain Trimerization | Assembly of Collagen Fibrils and Other Multimeric Structures | Collagen Degradation | Collagen Biosynthesis and Modifying Enzymes | SP1 (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human) | miRNA Targets In ECM And Membrane Receptors WP2911 | miRNA Targets In ECM And Membrane Receptors WP2911
+cg01569601,COL18A1,13837,Hypomethylated,-0.0006318777474136894,0.14653970977659314,0.7464229658358683,Collagen Chain Trimerization R-HSA-8948216 | Assembly Of Collagen Fibrils And Other Multimeric Structures R-HSA-2022090 | Integrin Cell Surface Interactions R-HSA-216083 | Collagen Biosynthesis And Modifying Enzymes R-HSA-1650814 | Integrin Cell Surface Interactions | Collagen Chain Trimerization | Assembly of Collagen Fibrils and Other Multimeric Structures | Collagen Degradation | Collagen Biosynthesis and Modifying Enzymes | SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human) | Proteins Involved in Cataract
+cg09208331,LINC00319,2476,Hypomethylated,-0.007838262667596796,0.14844559830347354,0.7464229658358683,No Significant Pathway
+cg04836472,OLIG2,4506,Hypomethylated,-0.012531244235197192,0.1502054091655899,0.7464229658358683,Axon Development (GO:0061564) | TEAD4 (human)
+cg09195805,LIPI,25422,Hypermethylated,0.0003146046073090325,0.15132507944118656,0.7464229658358683,No Significant Pathway
+cg13524919,OLIG2,1736,Hypermethylated,0.007924871085686958,0.1525134214929623,0.7464229658358683,Axon Development (GO:0061564) | TEAD4 (human)
+cg14110008,SLC19A1,0,Hypermethylated,0.0024199040995269705,0.15327427082817088,0.7464229658358683,SP1 (human) | PCBP1 (human) | SP3 (human) | Folate Metabolism WP176 | Folate Metabolism WP176 | Vitamins Insufficiency Causes Homocysteine High Level Synthesis | Epigenetic Alterations Triggers Genomic Instability | High Level of Homocystine Effects (Methylation Cycle)
+cg02471848,RCAN1,2742,Hypomethylated,-0.0030342324663140685,0.15471005994530834,0.7464229658358683,SP1 (human) | TCFAP2A (human) | PCBP1 (human)
+cg11663144,LINC00334,0,Hypomethylated,-0.008475879226557792,0.15642156360374873,0.7464229658358683,No Significant Pathway
+cg24876492,TFF3,5894,Hypermethylated,0.00048630471185251434,0.15927534581045172,0.7464229658358683,No Significant Pathway
+cg02800013,LRRC3-DT,0,Hypermethylated,0.0005998941691200965,0.1598366467050121,0.7464229658358683,No Significant Pathway
+cg26106921,LINC00319,1271,Hypomethylated,-0.003714040452677647,0.16013697137759247,0.7464229658358683,No Significant Pathway
+cg15239190,PCBP3,0,Hypermethylated,0.0038541428370232333,0.16275668259073575,0.7464229658358683,No Significant Pathway
+cg08247806,CRYAA,3444,Hypomethylated,-0.004521406096268277,0.16303764496027678,0.7464229658358683,Proteins Involved in Cataract | Diabetes Induced Cataract | Age-Related Cataract
+cg00106925,LRRC3,0,Hypermethylated,0.0034785103264093342,0.16387774125558136,0.7464229658358683,SP1 (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human)
+cg02184772,PCBP3,610,Hypomethylated,-0.0046747468039783635,0.16482316173070982,0.7464229658358683,No Significant Pathway
+cg06868026,LINC00316,25908,Hypomethylated,-0.0009576295516190436,0.16590096379424873,0.7464229658358683,No Significant Pathway
+cg11071242,MIS18A,3620,Hypomethylated,-0.0004901319511079194,0.16732251627211864,0.7464229658358683,No Significant Pathway
+cg24444839,LINC01690,17858,Hypermethylated,0.00045858024899958494,0.16752224848194883,0.7464229658358683,No Significant Pathway
+cg00176309,ITGB2,2610,Hypomethylated,-0.004200636118906087,0.1681306689181466,0.7464229658358683,Regulation of Superoxide Anion Generation (GO:0032928) | Positive Regulation of Superoxide Anion Generation (GO:0032930) | Positive Regulation of Reactive Oxygen Species Metabolic Process (GO:2000379) | Neuron Cell-Cell Adhesion (GO:0007158) | Leukocyte Adhesion to Vascular Endothelial Cell (GO:0061756) | Microglial Cell Activation (GO:0001774) | Integrin Cell Surface Interactions R-HSA-216083 | Integrin Cell Surface Interactions | Extrafollicular And Follicular B Cell Activation By SARS CoV 2 WP5218 | Extrafollicular And Follicular B Cell Activation By SARS CoV 2 WP5218 | Proteins Involved in Vasospasm
+cg08148418,PTTG1IP,2403,Hypomethylated,-0.0032284171091229164,0.1695727630296496,0.7464229658358683,"Negative Regulation of DNA Damage Response, Signal Transduction by P53 Class Mediator (GO:0043518)"
+cg00092565,COL6A2,2816,Hypermethylated,0.0006463236641095493,0.1773357870756927,0.7545307027452397,Collagen Chain Trimerization R-HSA-8948216 | Assembly Of Collagen Fibrils And Other Multimeric Structures R-HSA-2022090 | Collagen Biosynthesis And Modifying Enzymes R-HSA-1650814 | Integrin Cell Surface Interactions | Collagen Chain Trimerization | Assembly of Collagen Fibrils and Other Multimeric Structures | Collagen Degradation | Collagen Biosynthesis and Modifying Enzymes | TCFAP2A (human) | miRNA Targets In ECM And Membrane Receptors WP2911 | miRNA Targets In ECM And Membrane Receptors WP2911
+cg09838568,TRPM2,3502,Hypomethylated,-0.005254682062934529,0.17847516941523953,0.7545307027452397,Ligand-gated Calcium Channel Activity (GO:0099604)
+cg05409047,PPP1R2P2,0,Hypermethylated,0.0035747466640368986,0.17947711347067982,0.7545307027452397,No Significant Pathway
+cg00955547,CHODL,0,Hypermethylated,0.0054963629608348885,0.18046298324846602,0.7545307027452397,No Significant Pathway
+cg07854182,COL6A1,35402,Hypomethylated,-0.0022061872419761874,0.18057879771574964,0.7545307027452397,Collagen Chain Trimerization R-HSA-8948216 | Assembly Of Collagen Fibrils And Other Multimeric Structures R-HSA-2022090 | Collagen Biosynthesis And Modifying Enzymes R-HSA-1650814 | Integrin Cell Surface Interactions | Collagen Chain Trimerization | Assembly of Collagen Fibrils and Other Multimeric Structures | Collagen Degradation | Collagen Biosynthesis and Modifying Enzymes | SP1 (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human) | miRNA Targets In ECM And Membrane Receptors WP2911 | miRNA Targets In ECM And Membrane Receptors WP2911
+cg10719920,LINC00205,7574,Hypermethylated,0.00459071480932427,0.18059761242178152,0.7545307027452397,No Significant Pathway
+cg16826218,URB1-AS1,1825,Hypermethylated,0.0009958540667635019,0.18217191924285453,0.7547122368632544,No Significant Pathway
+cg04896620,KCNE2,1675,Hypermethylated,0.0027583507000661367,0.18402245557753907,0.7560255883310564,Negative Regulation of Delayed Rectifier Potassium Channel Activity (GO:1902260) | Membrane Repolarization During Ventricular Cardiac Muscle Cell Action Potential (GO:0098915) | Regulation of Delayed Rectifier Potassium Channel Activity (GO:1902259) | Negative Regulation of Voltage-Gated Potassium Channel Activity (GO:1903817) | Ventricular Cardiac Muscle Cell Membrane Repolarization (GO:0099625) | Potassium Ion Export Across Plasma Membrane (GO:0097623) | Membrane Repolarization During Action Potential (GO:0086011) | Membrane Repolarization During Cardiac Muscle Cell Action Potential (GO:0086013) | Ventricular Cardiac Muscle Cell Action Potential (GO:0086005) | Regulation of Ventricular Cardiac Muscle Cell Membrane Repolarization (GO:0060307) | Membrane Repolarization (GO:0086009) | Regulation of Cardiac Muscle Cell Membrane Repolarization (GO:0099623) | Phase 3 - Rapid Repolarisation R-HSA-5576890 | Phase 2 - Plateau Phase R-HSA-5576893 | Phase 3 - Rapid Repolarisation | Phase 2 - Plateau Phase | Voltage-gated K Chnl Act Inv in Ventricular Cardiac Muscle Action Potntl Repolarization (GO:1902282) | Voltage-gated Potassium Chnl Act Inv in Cardiac Muscle Cell Action Potential Repolarization (GO:0086008) | Potassium Channel Regulator Activity (GO:0015459)
+cg07703190,PCBP3,0,Hypomethylated,-0.00017171066600063511,0.18848893833227762,0.762059411426663,No Significant Pathway
+cg17251034,RWDD2B,1618,Hypomethylated,-0.00044820410097241165,0.19106677942697933,0.762059411426663,No Significant Pathway
+cg02057463,MX1,2562,Hypomethylated,-0.006002387294303024,0.19306496338102716,0.762059411426663,Immune Response To Tuberculosis WP4197 | Immune Response To Tuberculosis WP4197
+cg06618935,LINC00334,0,Hypomethylated,-0.021442415556621075,0.19613496193856417,0.762059411426663,No Significant Pathway
+cg01016465,SPATC1L,663,Hypermethylated,0.0007386622873706283,0.1967748989635333,0.762059411426663,No Significant Pathway
+cg25387466,C21orf91,3536,Hypermethylated,0.0009611939104611222,0.19774875639108702,0.762059411426663,No Significant Pathway
+cg27533201,PPP1R2P2,0,Hypomethylated,-0.00017667381964869833,0.20028486657353353,0.762059411426663,No Significant Pathway
+cg24803637,LIPI,36895,Hypermethylated,0.000896490371303571,0.2010642055968035,0.762059411426663,No Significant Pathway
+cg11943058,WDR4,9673,Hypomethylated,-0.0007941672618776568,0.20114022888019403,0.762059411426663,No Significant Pathway
+cg24937995,OLIG1,3319,Hypomethylated,-0.0004896939990228777,0.20251393824957256,0.762059411426663,Axon Development (GO:0061564)
+cg27315077,LINC00163,5194,Hypermethylated,0.008016835078210494,0.2026683654111492,0.762059411426663,No Significant Pathway
+cg17752291,CBR3-AS1,0,Hypermethylated,0.002153602297139276,0.2040402480898976,0.762059411426663,No Significant Pathway
+cg01992765,ICOSLG,20384,Hypomethylated,-0.0008761765835119117,0.20959652845128168,0.7683367114254861,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human) | Extrafollicular And Follicular B Cell Activation By SARS CoV 2 WP5218 | Extrafollicular And Follicular B Cell Activation By SARS CoV 2 WP5218
+cg07134627,LRRC3,1650,Hypermethylated,0.00637627163778387,0.21102505494625082,0.7683367114254861,SP1 (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human)
+cg00746783,SLC19A1,0,Hypomethylated,-0.00020947666929704845,0.21185434327386288,0.7683367114254861,SP1 (human) | PCBP1 (human) | SP3 (human) | Folate Metabolism WP176 | Folate Metabolism WP176 | Vitamins Insufficiency Causes Homocysteine High Level Synthesis | Epigenetic Alterations Triggers Genomic Instability | High Level of Homocystine Effects (Methylation Cycle)
+cg10829693,OLIG2,2021,Hypermethylated,0.0013453955792866942,0.21195495487599617,0.7683367114254861,Axon Development (GO:0061564) | TEAD4 (human)
+cg14172108,OLIG2,4062,Hypomethylated,-0.015563106614736588,0.21481710184939243,0.7730279650492734,Axon Development (GO:0061564) | TEAD4 (human)
+cg00274965,OLIG2,4190,Hypomethylated,-0.026904628649497442,0.21880766310455677,0.7730975634278215,Axon Development (GO:0061564) | TEAD4 (human)
+cg20152484,LINC00316,24135,Hypermethylated,0.004107233295457036,0.22153992991922103,0.7730975634278215,No Significant Pathway
+cg24553619,LTN1,3088,Hypomethylated,-0.0004283443620985983,0.2248793156128451,0.7730975634278215,No Significant Pathway
+cg02983163,LINC01694,3106,Hypermethylated,0.0027128848591837645,0.2263181687467205,0.7730975634278215,No Significant Pathway
+cg02045981,LRRC3,564,Hypomethylated,-0.003933313994180843,0.22827764348126794,0.7730975634278215,SP1 (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human)
+cg02087289,ICOSLG,20781,Hypermethylated,0.0031069398294926165,0.2286366343039743,0.7730975634278215,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human) | Extrafollicular And Follicular B Cell Activation By SARS CoV 2 WP5218 | Extrafollicular And Follicular B Cell Activation By SARS CoV 2 WP5218
+cg22274813,SIM2,4313,Hypermethylated,0.004238251144103672,0.2293488040046428,0.7730975634278215,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human)
+cg13200482,PCBP3,0,Hypomethylated,-0.010748074955954867,0.23055046601120188,0.7730975634278215,No Significant Pathway
+cg13139630,PICSAR,13423,Hypermethylated,0.00632345823176611,0.23479048086038082,0.7730975634278215,No Significant Pathway
+cg09762582,ICOSLG,18699,Hypomethylated,-0.004466182686642839,0.23729854071178608,0.7730975634278215,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human) | Extrafollicular And Follicular B Cell Activation By SARS CoV 2 WP5218 | Extrafollicular And Follicular B Cell Activation By SARS CoV 2 WP5218
+cg22990871,C2CD2,3450,Hypermethylated,0.004105858065639345,0.24110392277870316,0.7730975634278215,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human)
+cg24968283,WDR4,9578,Hypomethylated,-0.0011771930240710507,0.24334863731047976,0.7730975634278215,No Significant Pathway
+cg08846592,PICSAR,14700,Hypermethylated,0.0063614005551348995,0.24369319781818088,0.7730975634278215,No Significant Pathway
+cg19950556,PICSAR,14828,Hypermethylated,0.0025829144170391727,0.24607555014701235,0.7730975634278215,No Significant Pathway
+cg22856279,SIK1,3885,Hypermethylated,0.01592661463567069,0.24709839669294,0.7730975634278215,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human)
+cg16403860,OLIG2,3830,Hypomethylated,-0.0069254754711340905,0.2483753010959494,0.7730975634278215,Axon Development (GO:0061564) | TEAD4 (human)
+cg21498326,LINC00158,22402,Hypomethylated,-0.001472549284259106,0.2484863245147086,0.7730975634278215,No Significant Pathway
+cg00874051,LINC00310,8596,Hypermethylated,0.005566090872426321,0.248675391656275,0.7730975634278215,No Significant Pathway
+cg11438134,PTTG1IP,483,Hypomethylated,-0.0044220436023779675,0.24958008912309723,0.7730975634278215,"Negative Regulation of DNA Damage Response, Signal Transduction by P53 Class Mediator (GO:0043518)"
+cg15294263,LINC00205,5898,Hypomethylated,-0.003850694963913326,0.2512100831276064,0.7730975634278215,No Significant Pathway
+cg14899046,LINC00316,22772,Hypermethylated,0.004989262945936823,0.252035252602661,0.7730975634278215,No Significant Pathway
+cg01233397,CHAF1B,2908,Hypomethylated,-0.0010745402666053616,0.25235493576311196,0.7730975634278215,No Significant Pathway
+cg26420795,COL6A1,26649,Hypermethylated,0.010457801163505254,0.2539681962739178,0.7730975634278215,Collagen Chain Trimerization R-HSA-8948216 | Assembly Of Collagen Fibrils And Other Multimeric Structures R-HSA-2022090 | Collagen Biosynthesis And Modifying Enzymes R-HSA-1650814 | Integrin Cell Surface Interactions | Collagen Chain Trimerization | Assembly of Collagen Fibrils and Other Multimeric Structures | Collagen Degradation | Collagen Biosynthesis and Modifying Enzymes | SP1 (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human) | miRNA Targets In ECM And Membrane Receptors WP2911 | miRNA Targets In ECM And Membrane Receptors WP2911
+cg00429107,LOC102723996,1964,Hypermethylated,0.0020009814137407003,0.2540004446122638,0.7730975634278215,Extrafollicular And Follicular B Cell Activation By SARS CoV 2 WP5218 | Extrafollicular And Follicular B Cell Activation By SARS CoV 2 WP5218
+cg12516959,YBEY,415,Hypomethylated,-0.007368287211962088,0.25617262470474655,0.7730975634278215,No Significant Pathway
+cg08632701,LOC100133286,0,Hypomethylated,-0.0041240527153295625,0.25763692097127633,0.7730975634278215,No Significant Pathway
+cg19315479,COL6A1,1977,Hypermethylated,0.0017998130207284024,0.2598575503191252,0.7730975634278215,Collagen Chain Trimerization R-HSA-8948216 | Assembly Of Collagen Fibrils And Other Multimeric Structures R-HSA-2022090 | Collagen Biosynthesis And Modifying Enzymes R-HSA-1650814 | Integrin Cell Surface Interactions | Collagen Chain Trimerization | Assembly of Collagen Fibrils and Other Multimeric Structures | Collagen Degradation | Collagen Biosynthesis and Modifying Enzymes | SP1 (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human) | miRNA Targets In ECM And Membrane Receptors WP2911 | miRNA Targets In ECM And Membrane Receptors WP2911
+cg26205217,DOP1B,0,Hypomethylated,-0.0013394264297950098,0.2604350732219697,0.7730975634278215,No Significant Pathway
+cg25410746,LINC00322,21169,Hypermethylated,0.0016941303948145858,0.262216232167164,0.7730975634278215,No Significant Pathway
+cg16698981,PCBP3,14188,Hypermethylated,0.0002166979710415129,0.26410123063035673,0.7730975634278215,No Significant Pathway
+cg25115941,LINC01678,2752,Hypermethylated,0.0025436435550105774,0.26546974810013324,0.7730975634278215,No Significant Pathway
+cg00935361,C21orf58,0,Hypermethylated,0.00043371347225429346,0.26795306642019073,0.7730975634278215,No Significant Pathway
+cg23687021,PICSAR,27752,Hypomethylated,-0.00023777860253482164,0.2687590207614512,0.7730975634278215,No Significant Pathway
+cg25315503,AATBC,14590,Hypermethylated,0.003422636455407746,0.2717597167641111,0.7730975634278215,No Significant Pathway
+cg01848115,PCBP3,11487,Hypomethylated,-0.0046682720612487155,0.2721189625081161,0.7730975634278215,No Significant Pathway
+cg08888905,LINC01694,5469,Hypomethylated,-0.004963437134610005,0.27460879603509525,0.7730975634278215,No Significant Pathway
+cg04824666,PRMT2,481,Hypermethylated,0.0013893691795655583,0.27821203563246455,0.7730975634278215,Nuclear Retinoic Acid Receptor Binding (GO:0042974) | TEAD4 (human)
+cg11950299,CRYAA,13936,Hypermethylated,0.0008386656662396907,0.28120338128743233,0.7730975634278215,Proteins Involved in Cataract | Diabetes Induced Cataract | Age-Related Cataract
+cg00152948,RIPK4,9993,Hypomethylated,-0.001516968112899919,0.28367461076486333,0.7730975634278215,No Significant Pathway
+cg10915739,OLIG2,4242,Hypomethylated,-0.012195697517403237,0.2853873647957293,0.7730975634278215,Axon Development (GO:0061564) | TEAD4 (human)
+cg16786200,MIR155HG,3662,Hypermethylated,0.0008560820190952612,0.28583022900464405,0.7730975634278215,No Significant Pathway
+cg16580937,LINC01690,14254,Hypomethylated,-0.0017931212698792942,0.2881816358413739,0.7730975634278215,No Significant Pathway
+cg22316093,AATBC,13860,Hypermethylated,0.008219346736261235,0.28859711328145976,0.7730975634278215,No Significant Pathway
+cg17675333,LIPI,29731,Hypermethylated,0.000561023427297136,0.2907476382052517,0.7730975634278215,No Significant Pathway
+cg03566291,SIK1,3322,Hypomethylated,-0.001564269038950905,0.29315342567235037,0.7730975634278215,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human)
+cg18073115,COL18A1,11781,Hypomethylated,-0.00529699639089154,0.2987132693039024,0.7730975634278215,Collagen Chain Trimerization R-HSA-8948216 | Assembly Of Collagen Fibrils And Other Multimeric Structures R-HSA-2022090 | Integrin Cell Surface Interactions R-HSA-216083 | Collagen Biosynthesis And Modifying Enzymes R-HSA-1650814 | Integrin Cell Surface Interactions | Collagen Chain Trimerization | Assembly of Collagen Fibrils and Other Multimeric Structures | Collagen Degradation | Collagen Biosynthesis and Modifying Enzymes | SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human) | Proteins Involved in Cataract
+cg08451325,LINC00322,21104,Hypomethylated,-0.0032247257822572983,0.2990262106050611,0.7730975634278215,No Significant Pathway
+cg10477592,OLIG2,5098,Hypermethylated,0.0006160781441290064,0.3016549261673503,0.7730975634278215,Axon Development (GO:0061564) | TEAD4 (human)
+cg21139150,SLC19A1,0,Hypermethylated,0.03656750973818082,0.3020160516092253,0.7730975634278215,SP1 (human) | PCBP1 (human) | SP3 (human) | Folate Metabolism WP176 | Folate Metabolism WP176 | Vitamins Insufficiency Causes Homocysteine High Level Synthesis | Epigenetic Alterations Triggers Genomic Instability | High Level of Homocystine Effects (Methylation Cycle)
+cg13053992,LOC102723996,2322,Hypermethylated,0.004765328842087135,0.3021759050113738,0.7730975634278215,Extrafollicular And Follicular B Cell Activation By SARS CoV 2 WP5218 | Extrafollicular And Follicular B Cell Activation By SARS CoV 2 WP5218
+cg12094552,PICSAR,25319,Hypermethylated,0.004317021054429215,0.3023230354620057,0.7730975634278215,No Significant Pathway
+cg13489127,EVA1C,2529,Hypomethylated,-0.0007448188567859004,0.3033309025226962,0.7730975634278215,No Significant Pathway
+cg24827626,UBE2G2,19252,Hypomethylated,-0.0063936927047374414,0.3036292559634371,0.7730975634278215,No Significant Pathway
+cg24450073,LINC01694,364,Hypermethylated,0.0003296354787276634,0.3049471590635064,0.7730975634278215,No Significant Pathway
+cg07500325,PCBP3,1374,Hypermethylated,0.006236271908096169,0.3072116137614352,0.7730975634278215,No Significant Pathway
+cg06174495,COL6A1,2035,Hypomethylated,-0.006645036435324103,0.3077946722359514,0.7730975634278215,Collagen Chain Trimerization R-HSA-8948216 | Assembly Of Collagen Fibrils And Other Multimeric Structures R-HSA-2022090 | Collagen Biosynthesis And Modifying Enzymes R-HSA-1650814 | Integrin Cell Surface Interactions | Collagen Chain Trimerization | Assembly of Collagen Fibrils and Other Multimeric Structures | Collagen Degradation | Collagen Biosynthesis and Modifying Enzymes | SP1 (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human) | miRNA Targets In ECM And Membrane Receptors WP2911 | miRNA Targets In ECM And Membrane Receptors WP2911
+cg19306866,KRTAP6-2,7,Hypomethylated,-0.0018204286305351092,0.30781739986328344,0.7730975634278215,No Significant Pathway
+cg00820922,SLC19A1,0,Hypomethylated,-0.001012053570430882,0.3086708866298975,0.7730975634278215,SP1 (human) | PCBP1 (human) | SP3 (human) | Folate Metabolism WP176 | Folate Metabolism WP176 | Vitamins Insufficiency Causes Homocysteine High Level Synthesis | Epigenetic Alterations Triggers Genomic Instability | High Level of Homocystine Effects (Methylation Cycle)
+cg22391205,COL6A1,33625,Hypermethylated,0.002050311952847883,0.31068172011271367,0.7730975634278215,Collagen Chain Trimerization R-HSA-8948216 | Assembly Of Collagen Fibrils And Other Multimeric Structures R-HSA-2022090 | Collagen Biosynthesis And Modifying Enzymes R-HSA-1650814 | Integrin Cell Surface Interactions | Collagen Chain Trimerization | Assembly of Collagen Fibrils and Other Multimeric Structures | Collagen Degradation | Collagen Biosynthesis and Modifying Enzymes | SP1 (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human) | miRNA Targets In ECM And Membrane Receptors WP2911 | miRNA Targets In ECM And Membrane Receptors WP2911
+cg04090347,PDE9A,12133,Hypermethylated,0.01291546897766227,0.3120622162221394,0.7730975634278215,SP1 (human) | TCFAP2A (human) | PCBP1 (human)
+cg25504217,COL6A1,30817,Hypermethylated,0.006375296335220049,0.31587653327845877,0.7730975634278215,Collagen Chain Trimerization R-HSA-8948216 | Assembly Of Collagen Fibrils And Other Multimeric Structures R-HSA-2022090 | Collagen Biosynthesis And Modifying Enzymes R-HSA-1650814 | Integrin Cell Surface Interactions | Collagen Chain Trimerization | Assembly of Collagen Fibrils and Other Multimeric Structures | Collagen Degradation | Collagen Biosynthesis and Modifying Enzymes | SP1 (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human) | miRNA Targets In ECM And Membrane Receptors WP2911 | miRNA Targets In ECM And Membrane Receptors WP2911
+cg18133531,SIM2,6230,Hypermethylated,0.0034071225757927037,0.31619000247384804,0.7730975634278215,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human)
+ch.21.820555F,C21orf58,0,Hypermethylated,0.0005328972646549066,0.3193688105087652,0.7730975634278215,No Significant Pathway
+cg23437810,COL18A1,8494,Hypomethylated,-0.00028714604525315046,0.3225013969298095,0.7730975634278215,Collagen Chain Trimerization R-HSA-8948216 | Assembly Of Collagen Fibrils And Other Multimeric Structures R-HSA-2022090 | Integrin Cell Surface Interactions R-HSA-216083 | Collagen Biosynthesis And Modifying Enzymes R-HSA-1650814 | Integrin Cell Surface Interactions | Collagen Chain Trimerization | Assembly of Collagen Fibrils and Other Multimeric Structures | Collagen Degradation | Collagen Biosynthesis and Modifying Enzymes | SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human) | Proteins Involved in Cataract
+cg16052237,S100B,3151,Hypomethylated,-0.0006390668464496541,0.3227442381142248,0.7730975634278215,Axon Development (GO:0061564) | Advanced Glycosylation Endproduct Receptor Signaling R-HSA-879415 | Advanced Glycosylation Endproduct Receptor Signaling | RAGE Receptor Binding (GO:0050786)
+cg21305068,ICOSLG,20658,Hypomethylated,-0.003926367754332749,0.32305899644612757,0.7730975634278215,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human) | Extrafollicular And Follicular B Cell Activation By SARS CoV 2 WP5218 | Extrafollicular And Follicular B Cell Activation By SARS CoV 2 WP5218
+cg19118951,LINC00310,12850,Hypermethylated,0.003151914490418073,0.3232080662351371,0.7730975634278215,No Significant Pathway
+cg00775094,LINC01669,5410,Hypomethylated,-0.0026914416143816178,0.32497920354185755,0.7730975634278215,No Significant Pathway
+cg14638315,APP,2626,Hypermethylated,0.0008818020693569517,0.32662894395178754,0.7730975634278215,Regulation of Superoxide Anion Generation (GO:0032928) | Positive Regulation of Superoxide Anion Generation (GO:0032930) | Positive Regulation of Reactive Oxygen Species Metabolic Process (GO:2000379) | Regulation of Amyloid-Beta Formation (GO:1902003) | Regulation of Multicellular Organism Growth (GO:0040014) | Positive Regulation of Lymphocyte Migration (GO:2000403) | Axon Development (GO:0061564) | Regulation of Amyloid Precursor Protein Catabolic Process (GO:1902991) | Microglial Cell Activation (GO:0001774) | Advanced Glycosylation Endproduct Receptor Signaling R-HSA-879415 | Insertion Of Tail-Anchored Proteins Into Endoplasmic Reticulum Membrane R-HSA-9609523 | Advanced Glycosylation Endproduct Receptor Signaling | Insertion of Tail-Anchored Proteins Into the Endoplasmic Reticulum Membrane | RAGE Receptor Binding (GO:0050786) | Proteins Involved in Cataract | Mitochondrial Respiratory Chain Dysfunction | Estrogen Effects in Mitochondria in Alzheimer Disease
+cg05198244,LINC00158,25214,Hypermethylated,0.0020372581152867664,0.33033385220122324,0.7730975634278215,No Significant Pathway
+cg05183668,LINC01690,17712,Hypomethylated,-0.0002965956794874769,0.33039775115167913,0.7730975634278215,No Significant Pathway
+cg00097639,RIPK4,2071,Hypomethylated,-0.00031697757718052166,0.331240179370776,0.7730975634278215,No Significant Pathway
+cg15231205,FRGCA,12652,Hypermethylated,0.0031935519986625582,0.33194831421923987,0.7730975634278215,No Significant Pathway
+cg13821571,OLIG2,5046,Hypomethylated,-0.0016830388982620459,0.3321223919202613,0.7730975634278215,Axon Development (GO:0061564) | TEAD4 (human)
+cg19904322,AATBC,17389,Hypermethylated,0.0034970113699681615,0.3330811311993743,0.7730975634278215,No Significant Pathway
+cg13472610,ETS2,2315,Hypermethylated,0.0011540891121775143,0.33401578298199996,0.7730975634278215,Extracellular Vesicles In The Crosstalk Of Cardiac Cells WP4300 | Extracellular Vesicles In The Crosstalk Of Cardiac Cells WP4300
+cg14081667,LINC01679,268,Hypermethylated,0.0014563939754055656,0.3361389045038139,0.7738593491032327,No Significant Pathway
+cg02139827,OLIG2,2966,Hypomethylated,-0.002076685809101697,0.337484300318854,0.7738593491032327,Axon Development (GO:0061564) | TEAD4 (human)
+cg22851299,SLC19A1,0,Hypermethylated,0.004387752140154522,0.34000879930308037,0.7742599281396247,SP1 (human) | PCBP1 (human) | SP3 (human) | Folate Metabolism WP176 | Folate Metabolism WP176 | Vitamins Insufficiency Causes Homocysteine High Level Synthesis | Epigenetic Alterations Triggers Genomic Instability | High Level of Homocystine Effects (Methylation Cycle)
+cg15765398,LINC00163,0,Hypomethylated,-0.004267885655981574,0.34250920567149246,0.7742599281396247,No Significant Pathway
+cg10848140,PTTG1IP,744,Hypomethylated,-0.004016710555196035,0.3425334095099915,0.7742599281396247,"Negative Regulation of DNA Damage Response, Signal Transduction by P53 Class Mediator (GO:0043518)"
+cg08039560,LINC01678,2823,Hypermethylated,0.002858302111106936,0.3440205225159491,0.7742599281396247,No Significant Pathway
+cg01772743,LINC01678,2570,Hypomethylated,-0.0031192779550938132,0.3455115297986155,0.7742599281396247,No Significant Pathway
+cg06651563,LOC110091776,3646,Hypermethylated,0.002692762810496241,0.34753207757114335,0.7752638653510121,No Significant Pathway
+cg00445318,PICSAR,23242,Hypomethylated,-0.0003903275427383779,0.3518839290952834,0.7789766827437875,No Significant Pathway
+cg20383624,LINC00316,23429,Hypermethylated,0.0005220580380891349,0.3523565928029708,0.7789766827437875,No Significant Pathway
+cg24760717,COL6A1,6048,Hypomethylated,-0.004321281751799688,0.35637322595952187,0.7843392874912691,Collagen Chain Trimerization R-HSA-8948216 | Assembly Of Collagen Fibrils And Other Multimeric Structures R-HSA-2022090 | Collagen Biosynthesis And Modifying Enzymes R-HSA-1650814 | Integrin Cell Surface Interactions | Collagen Chain Trimerization | Assembly of Collagen Fibrils and Other Multimeric Structures | Collagen Degradation | Collagen Biosynthesis and Modifying Enzymes | SP1 (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human) | miRNA Targets In ECM And Membrane Receptors WP2911 | miRNA Targets In ECM And Membrane Receptors WP2911
+cg23564309,LINC01678,2703,Hypermethylated,0.0020396156391795373,0.36025891655444925,0.7893673149393043,No Significant Pathway
+cg21863949,RIPK4,11219,Hypomethylated,-0.005241927383775602,0.36715813366201805,0.7937334672014983,No Significant Pathway
+cg03534481,LINC00945,2160,Hypermethylated,0.0016152878670658843,0.367451315437859,0.7937334672014983,No Significant Pathway
+cg20954971,CRYAA,722,Hypomethylated,-0.006989016450061336,0.36863034295379576,0.7937334672014983,Proteins Involved in Cataract | Diabetes Induced Cataract | Age-Related Cataract
+cg11808885,PICSAR,14101,Hypermethylated,0.0007334021153035941,0.3714304345319806,0.7937334672014983,No Significant Pathway
+cg24338411,DOP1B,1238,Hypomethylated,-0.0038393135872328843,0.3724087679844743,0.7937334672014983,No Significant Pathway
+cg20341238,LINC00319,716,Hypomethylated,-0.00017093745287366513,0.3739622022726856,0.7937334672014983,No Significant Pathway
+cg18574298,LINC01694,0,Hypomethylated,-0.0005003067020330487,0.3750642259960544,0.7937334672014983,No Significant Pathway
+cg01881464,PAXBP1-AS1,0,Hypomethylated,-0.00017866154703460868,0.3778369666643683,0.7937334672014983,No Significant Pathway
+cg20230411,GRIK1,3629,Hypermethylated,0.00047742736074496417,0.37902659879044975,0.7937334672014983,Ligand-gated Calcium Channel Activity (GO:0099604)
+cg03868978,MIR3197,2189,Hypermethylated,0.001783983108796905,0.3794348827258105,0.7937334672014983,No Significant Pathway
+cg06584329,COL6A1,32413,Hypermethylated,0.0005558705057101543,0.3799616597556868,0.7937334672014983,Collagen Chain Trimerization R-HSA-8948216 | Assembly Of Collagen Fibrils And Other Multimeric Structures R-HSA-2022090 | Collagen Biosynthesis And Modifying Enzymes R-HSA-1650814 | Integrin Cell Surface Interactions | Collagen Chain Trimerization | Assembly of Collagen Fibrils and Other Multimeric Structures | Collagen Degradation | Collagen Biosynthesis and Modifying Enzymes | SP1 (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human) | miRNA Targets In ECM And Membrane Receptors WP2911 | miRNA Targets In ECM And Membrane Receptors WP2911
+cg08073507,LINC00319,4863,Hypermethylated,0.002180944966190035,0.38481577898307173,0.7972009109486533,No Significant Pathway
+cg02976054,CBR3-AS1,162,Hypomethylated,-0.0020694602059700834,0.385274683940266,0.7972009109486533,No Significant Pathway
+cg07871532,SIK1,17791,Hypomethylated,-0.0023908728882506836,0.3887827369768435,0.7972009109486533,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human)
+cg03160378,LINC01669,1139,Hypermethylated,0.0013392788207345907,0.38883453089378706,0.7972009109486533,No Significant Pathway
+cg04685531,BTG3-AS1,1872,Hypermethylated,0.0014948463034282211,0.39213935594810967,0.7972009109486533,No Significant Pathway
+cg07330438,PPP1R2P2,282,Hypomethylated,-0.001978321118683013,0.3924419134032701,0.7972009109486533,No Significant Pathway
+cg25832747,LINC01678,1796,Hypermethylated,0.0006866969090061348,0.3963377209009586,0.7972009109486533,No Significant Pathway
+ch.21.420934R,LINC00310,36658,Hypomethylated,-0.0026664640052107835,0.3964125246032163,0.7972009109486533,No Significant Pathway
+cg12457659,COL6A1,31484,Hypomethylated,-0.0024568109492777435,0.3966890415250766,0.7972009109486533,Collagen Chain Trimerization R-HSA-8948216 | Assembly Of Collagen Fibrils And Other Multimeric Structures R-HSA-2022090 | Collagen Biosynthesis And Modifying Enzymes R-HSA-1650814 | Integrin Cell Surface Interactions | Collagen Chain Trimerization | Assembly of Collagen Fibrils and Other Multimeric Structures | Collagen Degradation | Collagen Biosynthesis and Modifying Enzymes | SP1 (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human) | miRNA Targets In ECM And Membrane Receptors WP2911 | miRNA Targets In ECM And Membrane Receptors WP2911
+cg24014805,WDR4,1952,Hypermethylated,0.0015470251343899788,0.39779193528066675,0.7972009109486533,No Significant Pathway
+cg09476092,LINC00316,25220,Hypermethylated,0.00027119987586021743,0.4021631261127158,0.802698061431453,No Significant Pathway
+cg10272219,LINC00163,1852,Hypermethylated,0.0025565921794197255,0.4118515786389847,0.8187210817299172,No Significant Pathway
+cg27038480,RIPPLY3,4072,Hypomethylated,-0.0002622320925151911,0.41903304551178244,0.8232697318443674,No Significant Pathway
+cg08431893,LINC00319,1880,Hypermethylated,0.007270830313030996,0.4192042107857417,0.8232697318443674,No Significant Pathway
+cg23474190,DYRK1A,38450,Hypermethylated,0.0014097721809101862,0.42138294900146916,0.8232697318443674,"Negative Regulation of Heterochromatin Formation (GO:0031452) | Regulation of Amyloid-Beta Formation (GO:1902003) | Negative Regulation of DNA Damage Response, Signal Transduction by P53 Class Mediator (GO:0043518) | Regulation of Amyloid Precursor Protein Catabolic Process (GO:1902991) | SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human)"
+cg06508062,SIM2,7542,Hypomethylated,-0.007757971537122044,0.4241585495112093,0.8232697318443674,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human)
+cg16544704,LINC01671,2072,Hypermethylated,0.00026462763071211093,0.42643894618408845,0.8232697318443674,No Significant Pathway
+cg06815826,TFF3,6574,Hypermethylated,0.00275247602469908,0.4266073531390657,0.8232697318443674,No Significant Pathway
+cg23056155,TMEM50B,3250,Hypermethylated,0.0005431380090662463,0.427631439068283,0.8232697318443674,No Significant Pathway
+cg14719752,LINC01671,2265,Hypomethylated,-0.00010848019002773768,0.4288241659613926,0.8232697318443674,No Significant Pathway
+cg23658739,WDR4,5893,Hypomethylated,-0.0035488175334033034,0.43144280485912107,0.8232697318443674,No Significant Pathway
+cg08751406,CBS,2400,Hypermethylated,0.004157398731918005,0.43355520993149466,0.8232697318443674,Pyridoxal Phosphate Binding (GO:0030170) | Vitamin B6 Binding (GO:0070279) | SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human) | Trans Sulfuration One Carbon Metabolism And Related Pathways WP2525 | Folate Metabolism WP176 | Trans Sulfuration One Carbon Metabolism And Related Pathways WP2525 | Folate Metabolism WP176 | Vitamins Insufficiency Causes Homocysteine High Level Synthesis | High Level of Homocystine Effects (Methylation Cycle)
+cg24112562,SIM2,1373,Hypermethylated,0.002407344886970697,0.43567650258547275,0.8232697318443674,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human)
+cg04236639,OLIG2,1074,Hypomethylated,-0.0019107794372155151,0.437980669559546,0.8232697318443674,Axon Development (GO:0061564) | TEAD4 (human)
+cg15555709,LINC01679,4012,Hypomethylated,-0.0014918671650701043,0.44262040560909194,0.8232697318443674,No Significant Pathway
+cg11985424,TFF3,4779,Hypermethylated,0.0009454978548398413,0.44299977889020475,0.8232697318443674,No Significant Pathway
+cg05969018,PCBP3,6705,Hypomethylated,-0.0033827643493510307,0.44407204061319083,0.8232697318443674,No Significant Pathway
+cg07128124,PDE9A,3300,Hypomethylated,-0.0005176150815205949,0.44941037224823904,0.8232697318443674,SP1 (human) | TCFAP2A (human) | PCBP1 (human)
+cg05291773,LOC100133286,1704,Hypomethylated,-0.002938243241353611,0.4510778645916814,0.8232697318443674,No Significant Pathway
+cg12955277,LINC01669,5650,Hypermethylated,0.0018139886820282003,0.4528812194849352,0.8232697318443674,No Significant Pathway
+cg05163357,DOP1B,1909,Hypermethylated,9.4116350699891e-05,0.4539462013372459,0.8232697318443674,No Significant Pathway
+cg02875805,CBR3-AS1,0,Hypermethylated,0.0006804166626804831,0.45453528446356295,0.8232697318443674,No Significant Pathway
+cg12459059,TPTE,21994,Hypomethylated,-0.0029398231113879625,0.45481491908540395,0.8232697318443674,TCFAP2A (human) | TEAD4 (human)
+cg03543861,WDR4,4994,Hypermethylated,0.0001922220525014673,0.45510939341449985,0.8232697318443674,No Significant Pathway
+cg06546183,WDR4,6117,Hypermethylated,0.002560193393196797,0.4560092821103727,0.8232697318443674,No Significant Pathway
+cg13591648,SIK1,12911,Hypermethylated,0.0009673106557118727,0.4577300255318867,0.8232697318443674,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human)
+cg00362657,LINC00319,2888,Hypermethylated,0.0005461129454410463,0.4590412122733164,0.8232697318443674,No Significant Pathway
+cg27037013,LINC00649,0,Hypermethylated,0.004963115877480662,0.4594943084855599,0.8232697318443674,No Significant Pathway
+cg13689342,ABCG1,5407,Hypermethylated,0.0004193077220138175,0.4609349288978487,0.8232697318443674,Regulation of Amyloid-Beta Formation (GO:1902003) | SP1 (human) | TCFAP2A (human)
+cg23342358,PCBP3,0,Hypermethylated,0.000915788109429827,0.4621814515132493,0.8232697318443674,No Significant Pathway
+cg09057954,LOC150051,2746,Hypermethylated,0.0001331371818523719,0.46690747012400863,0.8232697318443674,No Significant Pathway
+cg14269083,LINC01694,6013,Hypermethylated,0.0006878933670918519,0.46905783776651433,0.8232697318443674,No Significant Pathway
+cg07033513,NCAM2,3380,Hypermethylated,0.0011774762295545527,0.4712324134751464,0.8232697318443674,Neuron Cell-Cell Adhesion (GO:0007158)
+cg01932076,LOC101928796,0,Hypomethylated,-0.002234127250982071,0.47137168370768057,0.8232697318443674,No Significant Pathway
+cg06119162,LINC00334,0,Hypermethylated,0.0002219003085939253,0.4719033525616303,0.8232697318443674,No Significant Pathway
+cg00929871,LINC01669,5831,Hypermethylated,0.0006365920252230373,0.47196726334559924,0.8232697318443674,No Significant Pathway
+cg22117968,LINC00316,6219,Hypermethylated,0.00014810311562574174,0.4725868846084299,0.8232697318443674,No Significant Pathway
+cg17731209,DYRK1A,38657,Hypermethylated,0.007631617029670301,0.4750446037670358,0.8246372875251712,"Negative Regulation of Heterochromatin Formation (GO:0031452) | Regulation of Amyloid-Beta Formation (GO:1902003) | Negative Regulation of DNA Damage Response, Signal Transduction by P53 Class Mediator (GO:0043518) | Regulation of Amyloid Precursor Protein Catabolic Process (GO:1902991) | SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human)"
+cg13315838,SOD1,2316,Hypomethylated,-0.0002678972136554991,0.4813310931759967,0.8312097659834243,Regulation of Superoxide Anion Generation (GO:0032928) | Positive Regulation of Superoxide Anion Generation (GO:0032930) | Positive Regulation of Reactive Oxygen Species Metabolic Process (GO:2000379) | Thymus Development (GO:0048538) | Regulation of Multicellular Organism Growth (GO:0040014) | Extracellular Vesicles In The Crosstalk Of Cardiac Cells WP4300 | Trans Sulfuration One Carbon Metabolism And Related Pathways WP2525 | Folate Metabolism WP176 | Extracellular Vesicles In The Crosstalk Of Cardiac Cells WP4300 | Trans Sulfuration One Carbon Metabolism And Related Pathways WP2525 | Folate Metabolism WP176 | Proteins Involved in Cataract | Mitochondrial Respiratory Chain Dysfunction | Estrogen Effects in Mitochondria in Alzheimer Disease | Diabetes Induced Cataract | Proteins Involved in Vasospasm | Age-Related Cataract
+cg25191041,LINC01679,241,Hypermethylated,0.0007274140369987955,0.48276026918058756,0.8312097659834243,No Significant Pathway
+cg19832832,FAM3B,11945,Hypomethylated,-0.0014787651344481123,0.4838888495684438,0.8312097659834243,No Significant Pathway
+cg14729175,RWDD2B,1617,Hypermethylated,0.0003018345516022647,0.4859122110109519,0.8317872223208308,No Significant Pathway
+cg18566883,DYRK1A,21017,Hypermethylated,0.0013786603878943315,0.4924755424311348,0.8401053370884065,"Negative Regulation of Heterochromatin Formation (GO:0031452) | Regulation of Amyloid-Beta Formation (GO:1902003) | Negative Regulation of DNA Damage Response, Signal Transduction by P53 Class Mediator (GO:0043518) | Regulation of Amyloid Precursor Protein Catabolic Process (GO:1902991) | SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human)"
+cg20198819,ICOSLG,20755,Hypermethylated,0.0007481958815113154,0.49632151265168983,0.8437465715078727,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human) | Extrafollicular And Follicular B Cell Activation By SARS CoV 2 WP5218 | Extrafollicular And Follicular B Cell Activation By SARS CoV 2 WP5218
+cg18319984,RWDD2B,1956,Hypermethylated,0.00531330817919945,0.5014087395263046,0.8470049326948893,No Significant Pathway
+cg15636421,HUNK,2837,Hypermethylated,0.011220963312988053,0.5022919982452728,0.8470049326948893,No Significant Pathway
+cg19469688,COL6A1,24402,Hypermethylated,0.0008210926767946436,0.5043029604604402,0.8470049326948893,Collagen Chain Trimerization R-HSA-8948216 | Assembly Of Collagen Fibrils And Other Multimeric Structures R-HSA-2022090 | Collagen Biosynthesis And Modifying Enzymes R-HSA-1650814 | Integrin Cell Surface Interactions | Collagen Chain Trimerization | Assembly of Collagen Fibrils and Other Multimeric Structures | Collagen Degradation | Collagen Biosynthesis and Modifying Enzymes | SP1 (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human) | miRNA Targets In ECM And Membrane Receptors WP2911 | miRNA Targets In ECM And Membrane Receptors WP2911
+cg14411929,LOC100133286,1512,Hypermethylated,0.0001030839141248352,0.5063864709668993,0.8470049326948893,No Significant Pathway
+cg18752716,FAM3B,12992,Hypomethylated,-0.0008799202966482955,0.5068285094218912,0.8470049326948893,No Significant Pathway
+cg19452992,FRGCA,10670,Hypermethylated,0.00016117868962906012,0.5145250159950384,0.8569622732620066,No Significant Pathway
+cg00638202,PPP1R2P2,0,Hypomethylated,-0.00014939648681155937,0.5221008299987837,0.8627601533295696,No Significant Pathway
+cg00705508,COL18A1,26682,Hypomethylated,-0.0030485140469314054,0.523690843946165,0.8627601533295696,Collagen Chain Trimerization R-HSA-8948216 | Assembly Of Collagen Fibrils And Other Multimeric Structures R-HSA-2022090 | Integrin Cell Surface Interactions R-HSA-216083 | Collagen Biosynthesis And Modifying Enzymes R-HSA-1650814 | Integrin Cell Surface Interactions | Collagen Chain Trimerization | Assembly of Collagen Fibrils and Other Multimeric Structures | Collagen Degradation | Collagen Biosynthesis and Modifying Enzymes | SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human) | Proteins Involved in Cataract
+cg03122722,COL18A1,11934,Hypomethylated,-0.0014320018041487081,0.5248963370886905,0.8627601533295696,Collagen Chain Trimerization R-HSA-8948216 | Assembly Of Collagen Fibrils And Other Multimeric Structures R-HSA-2022090 | Integrin Cell Surface Interactions R-HSA-216083 | Collagen Biosynthesis And Modifying Enzymes R-HSA-1650814 | Integrin Cell Surface Interactions | Collagen Chain Trimerization | Assembly of Collagen Fibrils and Other Multimeric Structures | Collagen Degradation | Collagen Biosynthesis and Modifying Enzymes | SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human) | Proteins Involved in Cataract
+cg13840526,LINC01694,4421,Hypermethylated,0.004067282883351786,0.5254063290602896,0.8627601533295696,No Significant Pathway
+cg18374181,OLIG2,307,Hypomethylated,-0.0018174872005694426,0.5284298616065456,0.8627601533295696,Axon Development (GO:0061564) | TEAD4 (human)
+cg18703541,CFAP410,2797,Hypomethylated,-0.00481314030537372,0.5285062196866734,0.8627601533295696,No Significant Pathway
+cg22702814,COL6A1,32776,Hypermethylated,0.000286807977488146,0.5310773801950958,0.8629498795139372,Collagen Chain Trimerization R-HSA-8948216 | Assembly Of Collagen Fibrils And Other Multimeric Structures R-HSA-2022090 | Collagen Biosynthesis And Modifying Enzymes R-HSA-1650814 | Integrin Cell Surface Interactions | Collagen Chain Trimerization | Assembly of Collagen Fibrils and Other Multimeric Structures | Collagen Degradation | Collagen Biosynthesis and Modifying Enzymes | SP1 (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human) | miRNA Targets In ECM And Membrane Receptors WP2911 | miRNA Targets In ECM And Membrane Receptors WP2911
+cg23553008,TSPEAR,12387,Hypermethylated,0.006182917585466408,0.5321232522763426,0.8629498795139372,No Significant Pathway
+cg27144884,COL6A1,32226,Hypermethylated,0.00015459270989481855,0.5345615402071721,0.8640617682692978,Collagen Chain Trimerization R-HSA-8948216 | Assembly Of Collagen Fibrils And Other Multimeric Structures R-HSA-2022090 | Collagen Biosynthesis And Modifying Enzymes R-HSA-1650814 | Integrin Cell Surface Interactions | Collagen Chain Trimerization | Assembly of Collagen Fibrils and Other Multimeric Structures | Collagen Degradation | Collagen Biosynthesis and Modifying Enzymes | SP1 (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human) | miRNA Targets In ECM And Membrane Receptors WP2911 | miRNA Targets In ECM And Membrane Receptors WP2911
+cg03861097,OLIG2,4653,Hypomethylated,-0.0010243498062256773,0.5412739279066199,0.8720524394051098,Axon Development (GO:0061564) | TEAD4 (human)
+cg10251070,LINC01679,0,Hypomethylated,-0.0031266979316768584,0.5444207945477912,0.8742653150230003,No Significant Pathway
+cg04564515,PICSAR,21049,Hypomethylated,-0.0006737457397962832,0.5499919005816095,0.879541893861931,No Significant Pathway
+cg06377222,LINC00334,0,Hypomethylated,-0.0012413074224392195,0.5512747367207641,0.879541893861931,No Significant Pathway
+cg21275932,LINC00163,0,Hypermethylated,0.0003056835553839621,0.5565594050849317,0.8851089893770044,No Significant Pathway
+cg00009944,S100B,1284,Hypomethylated,-0.000508554301778541,0.5613730844162705,0.8871433623333207,Axon Development (GO:0061564) | Advanced Glycosylation Endproduct Receptor Signaling R-HSA-879415 | Advanced Glycosylation Endproduct Receptor Signaling | RAGE Receptor Binding (GO:0050786)
+cg09387528,DIP2A,2745,Hypermethylated,0.001626215761016514,0.561488059069784,0.8871433623333207,No Significant Pathway
+cg25507885,LIPI,44872,Hypermethylated,0.00342670834339176,0.5632370637126356,0.8871433623333207,No Significant Pathway
+cg04121561,SLC37A1,6018,Hypomethylated,-0.000381300296835696,0.5716563817499345,0.89540080582413,No Significant Pathway
+cg10105268,LINC01678,4018,Hypomethylated,-0.00018168979258026408,0.5754569943066781,0.89540080582413,No Significant Pathway
+cg05634149,OLIG2,2925,Hypermethylated,0.0009032376434146214,0.5768525955362109,0.89540080582413,Axon Development (GO:0061564) | TEAD4 (human)
+cg22820639,DOP1B,1490,Hypomethylated,-9.373550440783252e-05,0.5776833177009304,0.89540080582413,No Significant Pathway
+cg26616156,LINC00319,2508,Hypermethylated,0.002766241159077143,0.5813386538206924,0.89540080582413,No Significant Pathway
+cg17499729,CBR3-AS1,0,Hypomethylated,-0.002547116705112984,0.5821122335549339,0.89540080582413,No Significant Pathway
+cg25143099,SLC19A1,0,Hypomethylated,-0.0003317180059423386,0.5825417842006272,0.89540080582413,SP1 (human) | PCBP1 (human) | SP3 (human) | Folate Metabolism WP176 | Folate Metabolism WP176 | Vitamins Insufficiency Causes Homocysteine High Level Synthesis | Epigenetic Alterations Triggers Genomic Instability | High Level of Homocystine Effects (Methylation Cycle)
+cg03234839,LINC00163,1741,Hypomethylated,-0.0028501894534570527,0.583009449633967,0.89540080582413,No Significant Pathway
+cg09121378,LRRC3,1511,Hypermethylated,0.0013266671808532804,0.5852707858636206,0.8960822901576551,SP1 (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human)
+cg16149927,CSTB,2403,Hypermethylated,0.0007727254695035768,0.5874483766005855,0.8966317327061568,TCFAP2A (human) | TEAD4 (human) | SP3 (human) | Proteins Involved in Congenital Deafness
+cg23347501,TPTE,21773,Hypermethylated,0.0012463482270254067,0.5922087432102966,0.901107748156408,TCFAP2A (human) | TEAD4 (human)
+cg14920503,TRAPPC10,3034,Hypermethylated,0.00020855498770333547,0.5960075493657453,0.9034093125198007,No Significant Pathway
+cg18403852,LINC01671,3185,Hypermethylated,0.0010115069771381435,0.5973862796784077,0.9034093125198007,No Significant Pathway
+cg04206926,COL6A1,28335,Hypermethylated,0.0013421332381353679,0.601387110497499,0.9035951353567621,Collagen Chain Trimerization R-HSA-8948216 | Assembly Of Collagen Fibrils And Other Multimeric Structures R-HSA-2022090 | Collagen Biosynthesis And Modifying Enzymes R-HSA-1650814 | Integrin Cell Surface Interactions | Collagen Chain Trimerization | Assembly of Collagen Fibrils and Other Multimeric Structures | Collagen Degradation | Collagen Biosynthesis and Modifying Enzymes | SP1 (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human) | miRNA Targets In ECM And Membrane Receptors WP2911 | miRNA Targets In ECM And Membrane Receptors WP2911
+cg19747745,SIK1,17057,Hypermethylated,0.0011053429695085937,0.6035990425258689,0.9035951353567621,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human)
+cg13018197,TSPEAR,14946,Hypomethylated,-0.0001112301536060345,0.6040408414083892,0.9035951353567621,No Significant Pathway
+cg18749043,LINC01678,6889,Hypomethylated,-0.00043447180587219414,0.6065316405509107,0.9035951353567621,No Significant Pathway
+cg18527771,SIK1,5251,Hypomethylated,-0.0007176937796645744,0.6066734073084954,0.9035951353567621,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human)
+cg05010111,LINC00322,24313,Hypermethylated,0.0007278817881063437,0.6098030775341309,0.9055208350130316,No Significant Pathway
+cg10272901,LINC00334,0,Hypomethylated,-0.00010909247195522997,0.6151888385551909,0.9081499221555531,No Significant Pathway
+cg18749097,SLC37A1,3063,Hypomethylated,-0.0016049974628579156,0.6152577565922003,0.9081499221555531,No Significant Pathway
+cg10957180,U2AF1L5,3403,Hypermethylated,0.0010291270242714368,0.6200368650410593,0.9113902169947029,No Significant Pathway
+cg11304968,LINC01671,3319,Hypomethylated,-0.0008774712708909949,0.6211503304466941,0.9113902169947029,No Significant Pathway
+cg27462210,LINC01669,5598,Hypomethylated,-0.0011857798204982783,0.6259312305603774,0.9146861062264099,No Significant Pathway
+cg15769689,PCBP3,0,Hypomethylated,-0.0003523630417060497,0.6271655079879151,0.9146861062264099,No Significant Pathway
+cg21386992,LINC00322,17369,Hypomethylated,-0.0003650775567620723,0.6289626572226226,0.9146861062264099,No Significant Pathway
+cg23036852,SIK1,24379,Hypermethylated,0.001330235696044152,0.632256459720597,0.9167718665948655,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human)
+cg23200357,SCAF4,4246,Hypermethylated,0.0001626806539883896,0.6362129167801588,0.9185034046891868,No Significant Pathway
+cg11170318,AATBC,13915,Hypermethylated,0.0026413124942755717,0.637176804064304,0.9185034046891868,No Significant Pathway
+cg15317049,COL6A1,31442,Hypomethylated,-0.001026209735645378,0.6459379981153833,0.9250906897752088,Collagen Chain Trimerization R-HSA-8948216 | Assembly Of Collagen Fibrils And Other Multimeric Structures R-HSA-2022090 | Collagen Biosynthesis And Modifying Enzymes R-HSA-1650814 | Integrin Cell Surface Interactions | Collagen Chain Trimerization | Assembly of Collagen Fibrils and Other Multimeric Structures | Collagen Degradation | Collagen Biosynthesis and Modifying Enzymes | SP1 (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human) | miRNA Targets In ECM And Membrane Receptors WP2911 | miRNA Targets In ECM And Membrane Receptors WP2911
+cg06907356,DNMT3L,2083,Hypermethylated,0.0008926149924050678,0.64659356160571,0.9250906897752088,Negative Regulation of Heterochromatin Formation (GO:0031452) | SP1 (human) | SP3 (human) | Trans Sulfuration One Carbon Metabolism And Related Pathways WP2525 | Trans Sulfuration One Carbon Metabolism And Related Pathways WP2525 | Epigenetic Alterations Triggers Genomic Instability
+cg19880185,SIK1,3516,Hypermethylated,0.0025069578410358284,0.6526551980942293,0.9250906897752088,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human)
+cg24359868,N6AMT1,3829,Hypomethylated,-0.000283496701149466,0.6528829454268572,0.9250906897752088,No Significant Pathway
+cg00199065,MIR802,234,Hypomethylated,-0.0002862863759144352,0.6540949365087458,0.9250906897752088,No Significant Pathway
+cg16708938,SIK1,2012,Hypomethylated,-0.0027697428066255636,0.6555751722997972,0.9250906897752088,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human)
+cg20635920,PRMT2,2749,Hypermethylated,0.00035192324390020957,0.6597626215918911,0.9250906897752088,Nuclear Retinoic Acid Receptor Binding (GO:0042974) | TEAD4 (human)
+cg03385918,LINC00319,4055,Hypomethylated,-0.0005328006254162743,0.660541900341125,0.9250906897752088,No Significant Pathway
+cg14180004,LINC00205,5508,Hypermethylated,0.0011322556716021337,0.6611657419690292,0.9250906897752088,No Significant Pathway
+cg19116956,ICOSLG,23428,Hypermethylated,0.0009850912724620464,0.6640927827092367,0.9250906897752088,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human) | Extrafollicular And Follicular B Cell Activation By SARS CoV 2 WP5218 | Extrafollicular And Follicular B Cell Activation By SARS CoV 2 WP5218
+cg06565377,PPP1R2P2,2804,Hypomethylated,-0.00015278813987729123,0.6642794035712722,0.9250906897752088,No Significant Pathway
+cg00161791,LINC01678,3641,Hypermethylated,0.002075539154856698,0.6669347254413287,0.9250906897752088,No Significant Pathway
+cg15467834,FRGCA,12820,Hypomethylated,-0.002814796575881018,0.6675266965902429,0.9250906897752088,No Significant Pathway
+cg12244325,LRRC3,1785,Hypermethylated,0.0016900795212676512,0.6680168064096843,0.9250906897752088,SP1 (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human)
+cg03612413,SIM2,4496,Hypomethylated,-0.0011518304115361588,0.673375288546019,0.9298992079921216,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human)
+cg09714100,SIK1,12970,Hypermethylated,0.00021444401452797024,0.6807188280000129,0.9332318372602951,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human)
+cg01074392,LINC01671,2119,Hypomethylated,-0.0006765880088578369,0.6811301666344807,0.9332318372602951,No Significant Pathway
+cg06171420,PCBP3,5250,Hypomethylated,-0.0013518153478091488,0.6837014118329041,0.9332318372602951,No Significant Pathway
+cg15220969,SIK1,15250,Hypermethylated,0.0010475879064834326,0.6908180165081477,0.9332318372602951,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human)
+cg01895398,LINC01694,15935,Hypomethylated,-0.0033077295886364544,0.6923687710835809,0.9332318372602951,No Significant Pathway
+cg00525436,LIPI,24789,Hypermethylated,6.469343866377653e-05,0.692503029974084,0.9332318372602951,No Significant Pathway
+cg21536969,PICSAR,13533,Hypomethylated,-0.001267694237612249,0.6928627244342676,0.9332318372602951,No Significant Pathway
+cg02458053,PCBP3,2196,Hypermethylated,0.00017792332819643875,0.6953581637267476,0.9332318372602951,No Significant Pathway
+cg06430509,SIK1,6459,Hypomethylated,-0.0013379264946545844,0.6964231847742783,0.9332318372602951,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human)
+cg13604150,COL6A1,28558,Hypomethylated,-0.0005887057616843494,0.6987688267842225,0.9332318372602951,Collagen Chain Trimerization R-HSA-8948216 | Assembly Of Collagen Fibrils And Other Multimeric Structures R-HSA-2022090 | Collagen Biosynthesis And Modifying Enzymes R-HSA-1650814 | Integrin Cell Surface Interactions | Collagen Chain Trimerization | Assembly of Collagen Fibrils and Other Multimeric Structures | Collagen Degradation | Collagen Biosynthesis and Modifying Enzymes | SP1 (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human) | miRNA Targets In ECM And Membrane Receptors WP2911 | miRNA Targets In ECM And Membrane Receptors WP2911
+cg05030553,PDE9A,12327,Hypermethylated,0.004517933724908385,0.7009897378037745,0.9332318372602951,SP1 (human) | TCFAP2A (human) | PCBP1 (human)
+cg05306070,TRPM2,3185,Hypermethylated,0.0015462639123485222,0.7031885942886804,0.9332318372602951,Ligand-gated Calcium Channel Activity (GO:0099604)
+cg11950982,PTTG1IP,373,Hypomethylated,-0.0011427080902739473,0.7034251017149566,0.9332318372602951,"Negative Regulation of DNA Damage Response, Signal Transduction by P53 Class Mediator (GO:0043518)"
+cg03366312,OLIG2,9678,Hypermethylated,0.00013864427370968713,0.7039856196595953,0.9332318372602951,Axon Development (GO:0061564) | TEAD4 (human)
+cg21032292,OLIG2,3149,Hypermethylated,0.0002406953098030816,0.7057985754445357,0.9332318372602951,Axon Development (GO:0061564) | TEAD4 (human)
+cg04753583,PCBP3,1073,Hypermethylated,0.0013580159215408616,0.7065888191535528,0.9332318372602951,No Significant Pathway
+cg23475244,COL18A1,12043,Hypomethylated,-0.0002630727866932414,0.7080926030527036,0.9332318372602951,Collagen Chain Trimerization R-HSA-8948216 | Assembly Of Collagen Fibrils And Other Multimeric Structures R-HSA-2022090 | Integrin Cell Surface Interactions R-HSA-216083 | Collagen Biosynthesis And Modifying Enzymes R-HSA-1650814 | Integrin Cell Surface Interactions | Collagen Chain Trimerization | Assembly of Collagen Fibrils and Other Multimeric Structures | Collagen Degradation | Collagen Biosynthesis and Modifying Enzymes | SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human) | Proteins Involved in Cataract
+cg03721140,UBE2G2,18320,Hypomethylated,-9.54234500696316e-05,0.7098619451777093,0.9332318372602951,No Significant Pathway
+cg10641258,UMODL1,0,Hypermethylated,0.000673888110521742,0.7139663849782627,0.934169982412881,No Significant Pathway
+cg06525127,PICSAR,12835,Hypermethylated,0.0011502484378388411,0.7151711126912639,0.934169982412881,No Significant Pathway
+cg12218747,LOC100133286,0,Hypomethylated,-0.0023756973018677074,0.7195392991365323,0.934169982412881,No Significant Pathway
+cg18546236,PPP1R2P2,3358,Hypermethylated,0.0028627886715974493,0.7195816281136687,0.934169982412881,No Significant Pathway
+cg14149623,PCBP3,10566,Hypermethylated,0.0008346617500573084,0.7224658715489426,0.934169982412881,No Significant Pathway
+cg25439798,COL6A1,31353,Hypermethylated,5.924862580841683e-05,0.7262881522395305,0.934169982412881,Collagen Chain Trimerization R-HSA-8948216 | Assembly Of Collagen Fibrils And Other Multimeric Structures R-HSA-2022090 | Collagen Biosynthesis And Modifying Enzymes R-HSA-1650814 | Integrin Cell Surface Interactions | Collagen Chain Trimerization | Assembly of Collagen Fibrils and Other Multimeric Structures | Collagen Degradation | Collagen Biosynthesis and Modifying Enzymes | SP1 (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human) | miRNA Targets In ECM And Membrane Receptors WP2911 | miRNA Targets In ECM And Membrane Receptors WP2911
+cg09408917,SIM2,2093,Hypermethylated,0.0011500545087914926,0.726808045999845,0.934169982412881,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human)
+cg00622655,DOP1B,1067,Hypomethylated,-6.901955683880079e-05,0.7284541761112339,0.934169982412881,No Significant Pathway
+cg14386999,LINC01669,7258,Hypermethylated,0.0008947272314518973,0.7337480052893955,0.934169982412881,No Significant Pathway
+cg24479382,LINC00334,0,Hypomethylated,-0.002686493959603742,0.7370504455263567,0.934169982412881,No Significant Pathway
+cg22240348,SLC19A1,0,Hypermethylated,0.0024354303120239645,0.7374347436378386,0.934169982412881,SP1 (human) | PCBP1 (human) | SP3 (human) | Folate Metabolism WP176 | Folate Metabolism WP176 | Vitamins Insufficiency Causes Homocysteine High Level Synthesis | Epigenetic Alterations Triggers Genomic Instability | High Level of Homocystine Effects (Methylation Cycle)
+cg01210084,LINC00205,226,Hypomethylated,-0.0011663483523857154,0.7392161762209705,0.934169982412881,No Significant Pathway
+cg02984790,PRMT2,5092,Hypermethylated,0.0004389495230958662,0.7395977564549184,0.934169982412881,Nuclear Retinoic Acid Receptor Binding (GO:0042974) | TEAD4 (human)
+cg04375033,DIP2A,2165,Hypomethylated,-6.311736858144457e-05,0.7402193600885163,0.934169982412881,No Significant Pathway
+cg01164574,NCAM2,1786,Hypermethylated,0.0011300081147308516,0.7422134681726634,0.934169982412881,Neuron Cell-Cell Adhesion (GO:0007158)
+cg15855040,LINC00322,22869,Hypermethylated,7.628775774437546e-05,0.7454365021697241,0.934169982412881,No Significant Pathway
+ch.21.45966675F,PCBP3,0,Hypermethylated,0.0007485510498348308,0.7465695696059199,0.934169982412881,No Significant Pathway
+cg07468397,PRMT2,5472,Hypomethylated,-0.001027462710093907,0.7481268210584938,0.934169982412881,Nuclear Retinoic Acid Receptor Binding (GO:0042974) | TEAD4 (human)
+cg20533952,RIPK4,11389,Hypermethylated,0.0012758756891622092,0.7497414694104183,0.934169982412881,No Significant Pathway
+cg16376461,SLC19A1,0,Hypermethylated,0.00022372627852029758,0.7522896275749796,0.934169982412881,SP1 (human) | PCBP1 (human) | SP3 (human) | Folate Metabolism WP176 | Folate Metabolism WP176 | Vitamins Insufficiency Causes Homocysteine High Level Synthesis | Epigenetic Alterations Triggers Genomic Instability | High Level of Homocystine Effects (Methylation Cycle)
+cg02651190,SIK1,15438,Hypermethylated,0.0006069783642255189,0.7575934360304504,0.934169982412881,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human)
+cg15236484,RIPK4,14692,Hypomethylated,-0.0020478930703044518,0.7610881799390461,0.934169982412881,No Significant Pathway
+cg08064488,SIM2,3371,Hypomethylated,-0.0008537706955174806,0.7634172062110718,0.934169982412881,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human)
+cg18466173,LINC00205,8998,Hypermethylated,7.407413495930104e-05,0.7638685759862361,0.934169982412881,No Significant Pathway
+cg06925304,COL6A1,44142,Hypermethylated,0.00018693834320282487,0.7678793719477985,0.934169982412881,Collagen Chain Trimerization R-HSA-8948216 | Assembly Of Collagen Fibrils And Other Multimeric Structures R-HSA-2022090 | Collagen Biosynthesis And Modifying Enzymes R-HSA-1650814 | Integrin Cell Surface Interactions | Collagen Chain Trimerization | Assembly of Collagen Fibrils and Other Multimeric Structures | Collagen Degradation | Collagen Biosynthesis and Modifying Enzymes | SP1 (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human) | miRNA Targets In ECM And Membrane Receptors WP2911 | miRNA Targets In ECM And Membrane Receptors WP2911
+cg23060618,LINC00322,21011,Hypermethylated,0.0006554004026747551,0.769320541087621,0.934169982412881,No Significant Pathway
+cg03254566,SLC37A1,5064,Hypomethylated,-0.0013688843363316439,0.7712793398813862,0.934169982412881,No Significant Pathway
+cg14897025,VPS26C,2188,Hypomethylated,-5.429126368405868e-05,0.7729649327847349,0.934169982412881,No Significant Pathway
+cg11601519,LIPI,29890,Hypomethylated,-5.47777637692759e-05,0.7738236832270358,0.934169982412881,No Significant Pathway
+cg04781339,LINC01679,0,Hypomethylated,-0.0019065682852612564,0.7793077275962014,0.934169982412881,No Significant Pathway
+cg08493762,DSCAM,3629,Hypermethylated,0.0006750155744241759,0.7796620963829018,0.934169982412881,No Significant Pathway
+cg23416788,PCBP3,0,Hypomethylated,-0.00032091521268831635,0.7820756034420329,0.934169982412881,No Significant Pathway
+cg22410724,COL18A1,12083,Hypomethylated,-0.0008189525377673146,0.782903827199237,0.934169982412881,Collagen Chain Trimerization R-HSA-8948216 | Assembly Of Collagen Fibrils And Other Multimeric Structures R-HSA-2022090 | Integrin Cell Surface Interactions R-HSA-216083 | Collagen Biosynthesis And Modifying Enzymes R-HSA-1650814 | Integrin Cell Surface Interactions | Collagen Chain Trimerization | Assembly of Collagen Fibrils and Other Multimeric Structures | Collagen Degradation | Collagen Biosynthesis and Modifying Enzymes | SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human) | Proteins Involved in Cataract
+cg11398623,LOC100133286,251,Hypomethylated,-8.721328038585607e-05,0.784687390049646,0.934169982412881,No Significant Pathway
+cg09671060,PCBP3,685,Hypomethylated,-0.0002557536674530278,0.7847867897641939,0.934169982412881,No Significant Pathway
+cg24341911,BRWD1-AS1,0,Hypermethylated,0.0008162064263825541,0.7847912564033176,0.934169982412881,No Significant Pathway
+cg16424439,ICOSLG,19872,Hypomethylated,-9.417149742163566e-05,0.785010038213924,0.934169982412881,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human) | Extrafollicular And Follicular B Cell Activation By SARS CoV 2 WP5218 | Extrafollicular And Follicular B Cell Activation By SARS CoV 2 WP5218
+cg19968619,FAM3B,12336,Hypomethylated,-4.193356553316985e-05,0.785072284789257,0.934169982412881,No Significant Pathway
+cg12111500,LINC00319,2518,Hypomethylated,-0.0012081474032866746,0.7871137791658169,0.934169982412881,No Significant Pathway
+cg25528449,C21orf58,0,Hypomethylated,-8.974657633509242e-05,0.7888570961329322,0.934169982412881,No Significant Pathway
+cg26504019,CBR3-AS1,57,Hypermethylated,0.0003454335485131438,0.7902598081804856,0.934169982412881,No Significant Pathway
+cg07296260,LINC00163,1685,Hypermethylated,0.00167294562830822,0.7905941966584551,0.934169982412881,No Significant Pathway
+cg25211403,SLC19A1,0,Hypermethylated,0.000712347706376848,0.8008682115293604,0.934169982412881,SP1 (human) | PCBP1 (human) | SP3 (human) | Folate Metabolism WP176 | Folate Metabolism WP176 | Vitamins Insufficiency Causes Homocysteine High Level Synthesis | Epigenetic Alterations Triggers Genomic Instability | High Level of Homocystine Effects (Methylation Cycle)
+cg22240717,FRGCA,12745,Hypermethylated,0.0013212159419542235,0.8030474779894359,0.934169982412881,No Significant Pathway
+cg00376979,LINC01690,17855,Hypomethylated,-9.4999741559465e-05,0.8089890205374336,0.934169982412881,No Significant Pathway
+cg00377065,LINC01678,6842,Hypermethylated,0.0005270487829232007,0.8108358085419414,0.934169982412881,No Significant Pathway
+cg10257895,LINC01678,4397,Hypomethylated,-0.0005877382084895633,0.8119025632482949,0.934169982412881,No Significant Pathway
+cg16400350,LINC00163,568,Hypermethylated,0.000148776536509021,0.8124218629050937,0.934169982412881,No Significant Pathway
+cg16564033,SIM2,3673,Hypermethylated,0.0008450655417899383,0.8125974311408323,0.934169982412881,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human)
+cg02987199,COL6A1,9040,Hypermethylated,0.00011334238071414315,0.8131264136823616,0.934169982412881,Collagen Chain Trimerization R-HSA-8948216 | Assembly Of Collagen Fibrils And Other Multimeric Structures R-HSA-2022090 | Collagen Biosynthesis And Modifying Enzymes R-HSA-1650814 | Integrin Cell Surface Interactions | Collagen Chain Trimerization | Assembly of Collagen Fibrils and Other Multimeric Structures | Collagen Degradation | Collagen Biosynthesis and Modifying Enzymes | SP1 (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human) | miRNA Targets In ECM And Membrane Receptors WP2911 | miRNA Targets In ECM And Membrane Receptors WP2911
+cg09438382,TSPEAR,12320,Hypermethylated,0.0014041811497706724,0.8143031793722714,0.934169982412881,No Significant Pathway
+cg24493120,FAM3B,3421,Hypermethylated,0.001081756609605855,0.8148413818004325,0.934169982412881,No Significant Pathway
+cg08511764,SIK1,21009,Hypomethylated,-0.00010196407368356919,0.8174006088628903,0.934169982412881,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human)
+cg17806069,LINC00319,2869,Hypomethylated,-0.00014759693822896658,0.8195151288011788,0.934169982412881,No Significant Pathway
+cg11359720,AATBC,13993,Hypermethylated,0.0019827277284212297,0.8196927101955288,0.934169982412881,No Significant Pathway
+cg13222920,U2AF1,354,Hypomethylated,-0.00037237215833241244,0.8202933694622051,0.934169982412881,No Significant Pathway
+cg10351617,SPATC1L,335,Hypomethylated,-0.00039963228227690717,0.822126347119272,0.934169982412881,No Significant Pathway
+cg11575131,LINC00158,24569,Hypomethylated,-0.001604515420033592,0.8243311721338491,0.934169982412881,No Significant Pathway
+cg10375884,IFNAR2,2230,Hypomethylated,-0.00018925043090411986,0.8245370696703072,0.934169982412881,Extrafollicular And Follicular B Cell Activation By SARS CoV 2 WP5218 | Immune Response To Tuberculosis WP4197 | Extrafollicular And Follicular B Cell Activation By SARS CoV 2 WP5218 | Immune Response To Tuberculosis WP4197
+cg01917669,PCBP3,6940,Hypomethylated,-0.0005543838821164826,0.8252357657922241,0.934169982412881,No Significant Pathway
+cg24459147,SIM2,2833,Hypermethylated,0.0007621997788345991,0.8269519438142261,0.934169982412881,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human)
+cg15140798,LINC00316,20580,Hypomethylated,-0.0008577700616021477,0.8294559946338909,0.934169982412881,No Significant Pathway
+cg05529899,RRP1,2689,Hypermethylated,0.00022445858189668044,0.8324969936163983,0.934169982412881,No Significant Pathway
+cg22633049,POFUT2,2555,Hypermethylated,0.0001676438843931649,0.8330952296712577,0.934169982412881,SP1 (human) | TCFAP2A (human) | PCBP1 (human) | SP3 (human)
+cg06086990,KRTAP6-2,76,Hypermethylated,0.000362700138762051,0.8337419721332,0.934169982412881,No Significant Pathway
+cg07529122,PCBP3,9099,Hypomethylated,-0.001874934448165888,0.8402316015738163,0.9393065296505475,No Significant Pathway
+cg01209984,COL6A1,44717,Hypomethylated,-0.0013635302628345336,0.8498061960128898,0.9477529446282255,Collagen Chain Trimerization R-HSA-8948216 | Assembly Of Collagen Fibrils And Other Multimeric Structures R-HSA-2022090 | Collagen Biosynthesis And Modifying Enzymes R-HSA-1650814 | Integrin Cell Surface Interactions | Collagen Chain Trimerization | Assembly of Collagen Fibrils and Other Multimeric Structures | Collagen Degradation | Collagen Biosynthesis and Modifying Enzymes | SP1 (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human) | miRNA Targets In ECM And Membrane Receptors WP2911 | miRNA Targets In ECM And Membrane Receptors WP2911
+cg08450965,LINC00334,0,Hypermethylated,0.0009338592226283415,0.8519096128995289,0.9477529446282255,No Significant Pathway
+cg24127719,SIM2,2754,Hypomethylated,-0.00042551758168153653,0.8542006699764347,0.9477529446282255,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human)
+cg12157440,UBE2G2,15286,Hypermethylated,0.00083446328958936,0.8555224918422517,0.9477529446282255,No Significant Pathway
+cg17122157,SIK1,14917,Hypomethylated,-0.00015853665032784098,0.8590903900917864,0.9477529446282255,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human)
+cg08650934,AATBC,13804,Hypermethylated,0.0006202177083013405,0.8593216353931376,0.9477529446282255,No Significant Pathway
+cg05399211,ATP5PO,3303,Hypermethylated,8.421749462195205e-05,0.8621098202684658,0.9487056727507894,No Significant Pathway
+cg26741373,CRYAA,3611,Hypomethylated,-0.0005129879933427617,0.8700494046983835,0.9506998750319886,Proteins Involved in Cataract | Diabetes Induced Cataract | Age-Related Cataract
+cg01117788,FAM3B,12478,Hypomethylated,-4.701687813468691e-05,0.8723834661511347,0.9506998750319886,No Significant Pathway
+cg11767442,LINC01678,4687,Hypomethylated,-4.5007278430042597e-05,0.8729221649869946,0.9506998750319886,No Significant Pathway
+cg16038510,LIPI,38025,Hypomethylated,-1.842712938315838e-05,0.8737668668182818,0.9506998750319886,No Significant Pathway
+cg02965237,OLIG2,4574,Hypermethylated,0.0007657157187228869,0.8754903272001858,0.9506998750319886,Axon Development (GO:0061564) | TEAD4 (human)
+cg26666978,LINC01694,15561,Hypermethylated,0.0003274906845072978,0.8754923798469022,0.9506998750319886,No Significant Pathway
+cg11150585,TRPM2,3506,Hypermethylated,0.0006489913956385651,0.8812807232021896,0.9516105981041341,Ligand-gated Calcium Channel Activity (GO:0099604)
+cg22622328,RIPK4,7859,Hypomethylated,-0.0006138594750522142,0.8822405194870668,0.9516105981041341,No Significant Pathway
+cg05200811,SPATC1L,31,Hypermethylated,0.00292967661809429,0.8829979103063867,0.9516105981041341,No Significant Pathway
+cg07521889,LINC00205,2913,Hypomethylated,-2.4713734907311213e-05,0.8840520363726032,0.9516105981041341,No Significant Pathway
+cg26958236,LINC00316,23433,Hypomethylated,-0.00034969932539263837,0.8909520508431353,0.956948499053738,No Significant Pathway
+cg22260897,COL18A1,2796,Hypomethylated,-2.580637596494295e-05,0.9039425091922455,0.9629205468842235,Collagen Chain Trimerization R-HSA-8948216 | Assembly Of Collagen Fibrils And Other Multimeric Structures R-HSA-2022090 | Integrin Cell Surface Interactions R-HSA-216083 | Collagen Biosynthesis And Modifying Enzymes R-HSA-1650814 | Integrin Cell Surface Interactions | Collagen Chain Trimerization | Assembly of Collagen Fibrils and Other Multimeric Structures | Collagen Degradation | Collagen Biosynthesis and Modifying Enzymes | SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human) | Proteins Involved in Cataract
+cg08155625,SIK1,4233,Hypermethylated,0.0005486910738320416,0.9050748135537462,0.9629205468842235,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human)
+ch.21.788740F,SLC19A1,0,Hypermethylated,2.717188708225779e-05,0.9074530261020382,0.9629205468842235,SP1 (human) | PCBP1 (human) | SP3 (human) | Folate Metabolism WP176 | Folate Metabolism WP176 | Vitamins Insufficiency Causes Homocysteine High Level Synthesis | Epigenetic Alterations Triggers Genomic Instability | High Level of Homocystine Effects (Methylation Cycle)
+cg11378001,LINC00163,0,Hypermethylated,8.628053235093525e-05,0.9085252774991148,0.9629205468842235,No Significant Pathway
+cg02956715,RRP1,3080,Hypermethylated,0.00017410452342736527,0.908951797811705,0.9629205468842235,No Significant Pathway
+cg04847841,LINC01690,18276,Hypermethylated,2.8606911953055203e-05,0.9090691267668486,0.9629205468842235,No Significant Pathway
+cg08821909,PRMT2,5975,Hypomethylated,-0.00034568761226383415,0.9108347971277319,0.9629205468842235,Nuclear Retinoic Acid Receptor Binding (GO:0042974) | TEAD4 (human)
+cg07456546,TFF3,5461,Hypermethylated,0.00023268124775610577,0.914404268728875,0.9629205468842235,No Significant Pathway
+cg13753900,CBR3-AS1,71,Hypomethylated,-0.0001250438882238053,0.9186511714640097,0.9629205468842235,No Significant Pathway
+cg03692708,LINC01669,8846,Hypomethylated,-0.00021421364338303217,0.9210465643073444,0.9629205468842235,No Significant Pathway
+cg02260098,LINC01679,205,Hypermethylated,0.00029347351852211656,0.9221203152920968,0.9629205468842235,No Significant Pathway
+cg23690480,LINC00163,0,Hypomethylated,-5.9157214061578145e-05,0.9227209710757218,0.9629205468842235,No Significant Pathway
+cg14507658,LINC00163,1636,Hypermethylated,0.0001508381832602268,0.9230970286781816,0.9629205468842235,No Significant Pathway
+cg01082437,CFAP298-TCP10L,0,Hypermethylated,0.00025876824860704417,0.9238568330146809,0.9629205468842235,No Significant Pathway
+cg11912202,LINC01690,18003,Hypomethylated,-3.102751258043934e-05,0.9306833298121906,0.9679892016822995,No Significant Pathway
+cg11319265,PPP1R2P2,0,Hypomethylated,-0.00012069829197891568,0.9414093034514257,0.9770837612664272,No Significant Pathway
+cg15143447,SIK1,20984,Hypomethylated,-6.993455838577578e-05,0.9459293910283073,0.978441503959745,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human)
+cg25254949,USP25,3996,Hypermethylated,1.8753167183915842e-05,0.9466868101192665,0.978441503959745,SP1 (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human)
+cg12349676,LINC01690,18062,Hypermethylated,0.0003440819283327956,0.9492332474520886,0.9790209016608362,No Significant Pathway
+cg11209957,SIK1,3441,Hypomethylated,-0.00013891230107210273,0.9575653806513342,0.9855526777893691,SP1 (human) | TCFAP2A (human) | TEAD4 (human) | PCBP1 (human) | SP3 (human)
+cg16077168,PCBP3,0,Hypomethylated,-0.00013496432802473368,0.9603659297789218,0.9862495058647951,No Significant Pathway
+cg07856962,LINC00319,2119,Hypermethylated,0.00039496134269023653,0.9638611228113353,0.9862495058647951,No Significant Pathway
+cg13402292,DOP1B,1349,Hypomethylated,-0.0001905869509538638,0.9642439387968179,0.9862495058647951,No Significant Pathway
+cg06965300,LINC00319,0,Hypomethylated,-0.00040468752685596243,0.9686812095265428,0.9867054063764114,No Significant Pathway
+cg16059957,PCBP3,1359,Hypomethylated,-4.824274103384929e-05,0.9688829664092575,0.9867054063764114,No Significant Pathway
+cg04550439,LINC01669,5527,Hypermethylated,7.720355848950256e-06,0.9706939596197962,0.9867054063764114,No Significant Pathway
+cg24943066,JAM2,2427,Hypermethylated,8.287148779229092e-05,0.980145010112585,0.9914619654464564,Positive Regulation of Lymphocyte Migration (GO:2000403) | Leukocyte Adhesion to Vascular Endothelial Cell (GO:0061756) | Integrin Cell Surface Interactions R-HSA-216083 | Integrin Cell Surface Interactions
+cg08443717,LINC01678,5602,Hypomethylated,-3.457856100466672e-05,0.9843134999901616,0.9914619654464564,No Significant Pathway
+cg27232166,SLC5A3,3810,Hypermethylated,1.7726932446393562e-05,0.9848549055500678,0.9914619654464564,Positive Regulation of Reactive Oxygen Species Metabolic Process (GO:2000379) | Potassium Channel Regulator Activity (GO:0015459) | SP1 (human) | TCFAP2A (human) | PCBP1 (human) | SP3 (human) | Proteins Involved in Cataract
+cg12249789,RRP1,6053,Hypomethylated,-4.921544669800326e-05,0.9883391609305883,0.9914619654464564,No Significant Pathway
+cg03738656,LINC01678,1263,Hypermethylated,6.39658931591569e-05,0.9899519881058014,0.9914619654464564,No Significant Pathway
+cg19509405,LIPI,24527,Hypomethylated,-5.343783927358459e-06,0.9901476204912246,0.9914619654464564,No Significant Pathway
+cg19318330,LINC01679,643,Hypomethylated,-6.849899215760624e-05,0.9901583295981066,0.9914619654464564,No Significant Pathway
+cg10380293,LINC01669,3401,Hypomethylated,-9.730409943564666e-06,0.9914619654464564,0.9914619654464564,No Significant Pathway
