@@ -158,7 +158,7 @@ def main(m_matrix_filepath, manifest_filepath, results_filepath):
         print(f"Fold {fold + 1} | ROC AUC: {fold_roc:.4f} | PR AUC: {fold_pr:.4f}")
 
         # Save the model weights for downstream biological extraction
-        torch.save(model.state_dict(), f"/workspace/results/gat_fold_{fold + 1}.pt")
+        torch.save(model.state_dict(), f"{results_filepath}/gat_fold_{fold + 1}.pt")
 
         del model, optimizer, train_ds, test_ds
         torch.cuda.empty_cache()
