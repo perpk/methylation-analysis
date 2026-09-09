@@ -176,4 +176,4 @@ def main(m_matrix_filepath, manifest_filepath, results_filepath):
 
 if __name__ == "__main__":
     import sys
-    main(sys.argv[1], sys.argv[2], sys.arg[3])
+    main(sys.argv[1], sys.argv[2], sys.argv[3])
