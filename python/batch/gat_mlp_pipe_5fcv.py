@@ -60,11 +60,10 @@ def main(m_matrix_filepath, manifest_filepath, results_filepath):
 
     cell_cols = ['CD8T', 'CD4T', 'NK', 'Bcell', 'Mono', 'Gran']
 
+    m_matrix_full_reduced.set_index('Sample_Name', inplace=True)
     common_probes = list(set(m_matrix_full_reduced.columns).intersection(set(manifest_df['IlmnID'])))
     m_matrix_df = m_matrix_full_reduced[common_probes] # Discard unused columns to save RAM early
     print(f"Total overlapping autosome probes: {len(common_probes):,}")
-
-    m_matrix_df.set_index("Sample_Name", inplace=True)
 
     print("Building chromosome 1D adjacency and genic graphs...")
     chr_topologies = build_chromosome_topologies(manifest_df, common_probes)
