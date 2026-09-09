@@ -35,9 +35,9 @@ def main(m_matrix_filepath, manifest_filepath, results_filepath):
     print(f"Wrote pheno_df to {pheno_out}")
 
     m_matrix_with_id = (
-    m_matrix_full.copy()
-    if 'Sample_Name' in m_matrix_full.columns
-    else m_matrix_full.reset_index().rename(columns={m_matrix_full.index.name or 'index': 'Sample_Name'})
+        m_matrix_full.copy()
+        if 'Sample_Name' in m_matrix_full.columns
+        else m_matrix_full.reset_index().rename(columns={m_matrix_full.index.name or 'index': 'Sample_Name'})
     )
 
     cols_to_keep = ['Sample_Name'] + [
@@ -64,7 +64,7 @@ def main(m_matrix_filepath, manifest_filepath, results_filepath):
     m_matrix_df = m_matrix_full_reduced[common_probes] # Discard unused columns to save RAM early
     print(f"Total overlapping autosome probes: {len(common_probes):,}")
 
-    m_matrix_df.set_index('Sample_Name', inplace=True)
+    m_matrix_df.set_index("Sample_Name", inplace=True)
 
     print("Building chromosome 1D adjacency and genic graphs...")
     chr_topologies = build_chromosome_topologies(manifest_df, common_probes)
