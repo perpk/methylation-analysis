@@ -1,3 +1,13 @@
+import numpy as np
+
+import torch
+from torch_geometric.data import Batch
+
+FUNCTIONAL_MAP = {
+    'TSS200': 0, 'TSS1500': 1, '1stExon': 2, 
+    "5'UTR": 3, 'Body': 4, "3'UTR": 5, 'Other': 6
+}
+
 def build_chromosome_topologies(manifest_df, common_probes, max_linear_dist_bp=1000):
     manifest = manifest_df[manifest_df['IlmnID'].isin(common_probes)].copy()
     manifest['CHR'] = manifest['CHR'].astype(str).str.replace('chr', '')

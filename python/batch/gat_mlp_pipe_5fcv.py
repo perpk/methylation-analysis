@@ -13,11 +13,6 @@ from sklearn.metrics import roc_auc_score, average_precision_score
 
 from gat import ChromosomeParallelGAT, WholeBloodMethylationDataset, chromosome_collate_fn, build_chromosome_topologies
 
-FUNCTIONAL_MAP = {
-    'TSS200': 0, 'TSS1500': 1, '1stExon': 2, 
-    "5'UTR": 3, 'Body': 4, "3'UTR": 5, 'Other': 6
-}
-
 def main(m_matrix_filepath, manifest_filepath, results_filepath):
     print("Starting main function")
 
