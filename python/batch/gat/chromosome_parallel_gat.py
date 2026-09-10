@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from torch_geometric.nn import GATv2Conv, GlobalAttention
+from torch_geometric.nn import GATv2Conv, AttentionalAggregation
 
 class ChromosomeParallelGAT(nn.Module):
     def __init__(self, num_node_classes=7, chr_embed_dim=16, cell_prop_dim=6):
@@ -17,7 +17,7 @@ class ChromosomeParallelGAT(nn.Module):
             nn.ReLU(),
             nn.Linear(8, 1)
         )
-        self.pool = GlobalAttention(gate_nn=self.gate_nn)
+        self.pool = AttentionalAggregation(gate_nn=self.gate_nn)
         
         fused_dim = (22 * chr_embed_dim) + cell_prop_dim
         self.classifier = nn.Sequential(
