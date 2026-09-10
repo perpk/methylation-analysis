@@ -92,9 +92,7 @@ def main(m_matrix_filepath, manifest_filepath, results_filepath):
         train_loader = DataLoader(train_ds, 
                                 batch_size=batch_size, 
                                 shuffle=True, 
-                                collate_fn=chromosome_collate_fn,
-                                num_workers=4,
-                                pin_memory=True)
+                                collate_fn=chromosome_collate_fn)
         test_loader = DataLoader(test_ds, batch_size=batch_size, shuffle=False, collate_fn=chromosome_collate_fn)
         
         model = ChromosomeParallelGAT().to(device)
