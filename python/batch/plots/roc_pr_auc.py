@@ -92,11 +92,11 @@ def generate_evaluation_plots(m_matrix_df, pheno_df, chr_topologies, cell_cols, 
     # ROC Plot
     mean_train_tpr = np.mean(train_tprs, axis=0)
     mean_train_tpr[-1] = 1.0
-    ax_roc.plot(mean_fpr, mean_train_tpr, color='#d9822b', lw=2.5, label=f'Train Mean ROC (AUC = {np.mean(train_aucs):.2f} $\pm$ {np.std(train_aucs):.2f})')
+    ax_roc.plot(mean_fpr, mean_train_tpr, color='#d9822b', lw=2.5, label=f'Train Mean ROC (AUC = {np.mean(train_aucs):.2f} $\\pm$ {np.std(train_aucs):.2f})')
     
     mean_val_tpr = np.mean(val_tprs, axis=0)
     mean_val_tpr[-1] = 1.0
-    ax_roc.plot(mean_fpr, mean_val_tpr, color='#3b719f', lw=2.5, label=f'Val Mean ROC (AUC = {np.mean(val_aucs):.2f} $\pm$ {np.std(val_aucs):.2f})')
+    ax_roc.plot(mean_fpr, mean_val_tpr, color='#3b719f', lw=2.5, label=f'Val Mean ROC (AUC = {np.mean(val_aucs):.2f} $\\pm$ {np.std(val_aucs):.2f})')
     
     ax_roc.plot([0, 1], [0, 1], linestyle='--', lw=1.5, color='gray', label='Chance')
     ax_roc.set(xlim=[-0.05, 1.05], ylim=[-0.05, 1.05], title="Receiver Operating Characteristic (ROC)", xlabel="False Positive Rate", ylabel="True Positive Rate")
@@ -106,12 +106,12 @@ def generate_evaluation_plots(m_matrix_df, pheno_df, chr_topologies, cell_cols, 
     baseline = np.sum(y) / len(y)
     ax_pr.axhline(y=baseline, color='gray', linestyle='--', label=f'Baseline ({baseline:.2f})')
     
-    ax_pr.plot([], [], color='#d9822b', lw=2.5, label=f'Train Mean AP = {np.mean(train_pr_aucs):.2f} $\pm$ {np.std(train_pr_aucs):.2f}')
-    ax_pr.plot([], [], color='#3b719f', lw=2.5, label=f'Val Mean AP = {np.mean(val_pr_aucs):.2f} $\pm$ {np.std(val_pr_aucs):.2f}')
+    ax_pr.plot([], [], color='#d9822b', lw=2.5, label=f'Train Mean AP = {np.mean(train_pr_aucs):.2f} $\\pm$ {np.std(train_pr_aucs):.2f}')
+    ax_pr.plot([], [], color='#3b719f', lw=2.5, label=f'Val Mean AP = {np.mean(val_pr_aucs):.2f} $\\pm$ {np.std(val_pr_aucs):.2f}')
     
     ax_pr.set(xlim=[-0.05, 1.05], ylim=[-0.05, 1.05], title="Precision-Recall Curve", xlabel="Recall", ylabel="Precision")
     ax_pr.legend(loc="lower left")
     
     plt.tight_layout()
-    plt.savefig(results_filepath, format="pdf", bbox_inches="tight")
+    plt.savefig(f"{results_filepath}/roc_pr_auc_plots.png", dpi=300, bbox_inches="tight")
     plt.close()
