@@ -132,7 +132,28 @@ def main(m_matrix_filepath, manifest_filepath, results_filepath):
                 
                 # VRAM Fragmentation Protection
                 del batched_chrs, u_cells, batch_y, logits, loss
+
+    # --- CALCULATE TRAINING METRICS ---
+        model.eval()
+        train_preds, train_truths = [], []
+        with torch.no_grad():
+            for batched_chrs, u_cells, batch_y in train_loader:
+                batched_chrs = [c.to(device, non_blocking=True) for c in batched_chrs]
+                u_cells = u_cells.to(device, non_blocking=True)
                 
+                logits = model(batched_chrs, u_cells).squeeze(1)
+                probs = torch.sigmoid(logits).cpu().numpy()
+                
+                train_preds.extend(probs)
+                train_truths.extend(batch_y.numpy())
+                
+                del batched_chrs, u_cells, logits
+                
+        train_roc = roc_auc_score(train_truths, train_preds)
+        train_pr = average_precision_score(train_truths, train_preds)
+        print(f"Fold {fold + 1} | TRAIN ROC AUC: {train_roc:.4f} | TRAIN PR AUC: {train_pr:.4f}")
+        # ----------------------------------
+
         # Evaluation
         model.eval()
         preds, truths = [], []
@@ -155,8 +176,16 @@ def main(m_matrix_filepath, manifest_filepath, results_filepath):
         pr_aucs.append(fold_pr)
         print(f"Fold {fold + 1} | ROC AUC: {fold_roc:.4f} | PR AUC: {fold_pr:.4f}")
 
-        # Save the model weights for downstream biological extraction
-        torch.save(model.state_dict(), f"{results_filepath}/gat_fold_{fold + 1}.pt")
+        checkpoint = {
+            'fold': fold + 1,
+            'model_state_dict': model.state_dict(),
+            'train_roc_auc': float(train_roc),
+            'train_pr_auc': float(train_pr),
+            'val_roc_auc': float(fold_roc),
+            'val_pr_auc': float(fold_pr)
+        }
+        
+        torch.save(checkpoint, f"{results_filepath}/gat_fold_{fold + 1}.pt")
 
         del model, optimizer, train_ds, test_ds
         torch.cuda.empty_cache()
