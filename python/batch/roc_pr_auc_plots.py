@@ -14,6 +14,9 @@ def main(m_matrix_path, pheno_path, manifest_path, results_filepath):
     if m_matrix_df.index.name != "Sample_Name":
         m_matrix_df = m_matrix_df.set_index("Sample_Name")
 
+    if pheno_df.index.name != "Sample_Name":
+        pheno_df = pheno_df.set_index("Sample_Name")
+
     if 'Neu' in pheno_df.columns:
         pheno_df = pheno_df.rename(columns={'Neu': 'Gran'})
 
