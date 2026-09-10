@@ -20,7 +20,7 @@ def main(m_matrix_path, pheno_path, manifest_path, results_filepath):
     common_probes = list(set(m_matrix_df.columns).intersection(set(manifest_df['IlmnID'])))
     chr_topologies = build_chromosome_topologies(manifest_df, common_probes)
 
-    generate_evaluation_plots(m_matrix_df, pheno_df, chr_topologies, cell_cols)
+    generate_evaluation_plots(m_matrix_df, pheno_df, chr_topologies, cell_cols, results_filepath)
 
     
 
