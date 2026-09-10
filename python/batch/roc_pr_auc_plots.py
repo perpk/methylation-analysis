@@ -2,7 +2,7 @@ import pandas as pd
 from plots import generate_evaluation_plots
 import sys
 
-from python.batch.gat.utils import build_chromosome_topologies
+from gat import build_chromosome_topologies
 
 def main(m_matrix_path, pheno_path, manifest_path, results_filepath):
     cell_cols = ['CD8T', 'CD4T', 'NK', 'Bcell', 'Mono', 'Gran']
