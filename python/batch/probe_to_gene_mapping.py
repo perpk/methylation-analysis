@@ -9,7 +9,7 @@ def main(m_matrix_path, manifest_path, results_path):
     common_probes = list(set(m_matrix_df.columns).intersection(set(manifest_df['IlmnID'])))
 
     test_bed = export_strict_test_bed(
-        drivers_csv_path=f"{results_path}/pd_ensemble_epigenetic_drivers.csv",
+        drivers_csv_path=f"{results_path}/pd_top_folds_epigenetic_drivers.csv",
         manifest_df=manifest_df,
         top_n=500,
         output_path=f"{results_path}/top_500_pd_enhancers_strict.bed"
