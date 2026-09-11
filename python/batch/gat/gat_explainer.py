@@ -2,7 +2,8 @@ import torch
 import torch.nn as nn
 import pandas as pd
 import numpy as np
-from torch_geometric.nn import GATv2Conv, GlobalAttention
+from torch_geometric.nn import GATv2Conv
+from torch_geometric.nn.aggr import AttentionalAggregation
 from torch_geometric.utils import softmax
 from torch_geometric.data import Batch, Data
 import torch
@@ -26,7 +27,7 @@ class GATExplainer(nn.Module):
             nn.ReLU(),
             nn.Linear(8, 1)
         )
-        self.pool = GlobalAttention(gate_nn=self.gate_nn)
+        self.pool = AttentionalAggregation(gate_nn=self.gate_nn)
         
         fused_dim = (22 * chr_embed_dim) + cell_prop_dim
         self.classifier = nn.Sequential(
