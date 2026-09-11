@@ -1,8 +1,9 @@
 import torch
 import numpy as np
 from torch_geometric.data import Data, Batch
-from models import GATExplainer
 from utils import map_and_export_drivers
+
+from gat import GATExplainer
 
 def extract_biological_drivers(model_path, m_matrix_df, pheno_df, chr_topologies, cell_cols):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
