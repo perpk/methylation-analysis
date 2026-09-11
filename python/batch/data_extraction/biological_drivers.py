@@ -45,33 +45,3 @@ def extract_biological_drivers(model_path, m_matrix_df, pheno_df, chr_topologies
     return consensus_attention
 
 
-# # --- TARGETED ENSEMBLE EXECUTION ---
-# cell_cols = ['CD8T', 'CD4T', 'NK', 'Bcell', 'Mono', 'Neu']
-
-# # Strictly target the high-generalization folds
-# top_folds = [1, 5]
-# fold_paths = [f"{results_filepath}/gat_fold_{i}.pt" for i in top_folds]
-
-# master_consensus = {c: np.zeros(chr_topologies[c]['n_nodes']) for c in range(1, 23)}
-# print("Starting Targeted Extraction on Folds 1 and 5...")
-
-# for model_path in fold_paths:
-#     fold_consensus = extract_biological_drivers(model_path, m_matrix_df, pheno_df, chr_topologies, cell_cols)
-    
-#     for c in range(1, 23):
-#         master_consensus[c] += fold_consensus[c]
-
-# # Average weights across the 2 top folds
-# for c in range(1, 23):
-#     master_consensus[c] /= len(top_folds)
-
-# # Map and export
-# ensemble_drivers_df = map_and_export_drivers(
-#     master_consensus, 
-#     chr_topologies, 
-#     manifest_df, 
-#     export_path=f"{results_filepath}/pd_top_folds_epigenetic_drivers.csv"
-# )
-
-# print("\nTop 20 Consistently Weighted CpG Sites from Generalizable Folds:")
-# print(ensemble_drivers_df.head(20))
