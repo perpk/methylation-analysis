@@ -2,7 +2,7 @@ import sys
 import pandas as pd
 import numpy as np
 from gat import build_chromosome_topologies
-from data_extraction import extract_biological_drivers, map_and_export_drivers
+from data_extraction import export_biological_drivers, map_and_export_drivers
 
 def main(m_matrix_path, pheno_path, manifest_path, results_filepath):
     cell_cols = ['CD8T', 'CD4T', 'NK', 'Bcell', 'Mono', 'Gran']
@@ -21,7 +21,7 @@ def main(m_matrix_path, pheno_path, manifest_path, results_filepath):
     print("Starting Targeted Extraction on Folds 1 and 5...")
 
     for model_path in fold_paths:
-        fold_consensus = extract_biological_drivers(model_path, m_matrix_df, pheno_df, chr_topologies, cell_cols)
+        fold_consensus = export_biological_drivers(model_path, m_matrix_df, pheno_df, chr_topologies, cell_cols)
         
         for c in range(1, 23):
             master_consensus[c] += fold_consensus[c]
