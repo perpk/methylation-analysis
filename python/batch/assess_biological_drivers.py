@@ -2,7 +2,7 @@ import sys
 import pandas as pd
 import numpy as np
 from gat import build_chromosome_topologies, map_and_export_drivers
-from data_extraction import extract_biological_drivers, map_and_export_drivers
+from data_extraction import extract_biological_drivers
 
 def main(m_matrix_path, pheno_path, manifest_path, results_filepath):
     cell_cols = ['CD8T', 'CD4T', 'NK', 'Bcell', 'Mono', 'Gran']
