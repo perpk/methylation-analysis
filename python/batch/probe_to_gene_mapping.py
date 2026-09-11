@@ -3,8 +3,6 @@ import sys
 from mapping import map_distal_enhancers_to_genes, export_strict_test_bed, export_strict_background_bed
 
 def main(m_matrix_path, manifest_path, results_path):
-    print(mapped_enhancers_df.head())
-
     manifest_df = pd.read_parquet(manifest_path)
     m_matrix_df = pd.read_parquet(m_matrix_path)
 
@@ -23,6 +21,7 @@ def main(m_matrix_path, manifest_path, results_path):
         output_path=f"{results_path}/gat_background_universe_strict.bed"
     )
     mapped_enhancers_df = map_distal_enhancers_to_genes(f"{results_path}/top_500_pd_enhancers_strict.bed", results_path)
+    print(mapped_enhancers_df.head())
 
 if __name__ == "__main__":
     main(
