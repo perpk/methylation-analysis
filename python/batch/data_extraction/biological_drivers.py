@@ -1,7 +1,6 @@
 import torch
 import numpy as np
 from torch_geometric.data import Data, Batch
-from utils import map_and_export_drivers
 
 from gat import GATExplainer
 
