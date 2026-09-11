@@ -58,6 +58,9 @@ def main(m_matrix_filepath, manifest_filepath, results_filepath):
     if pheno_df.index.name != "Sample_Name":
         pheno_df = pheno_df.set_index("Sample_Name")
 
+    if 'Neu' in pheno_df.columns:
+        pheno_df = pheno_df.rename(columns={'Neu': 'Gran'})
+
     cell_cols = ['CD8T', 'CD4T', 'NK', 'Bcell', 'Mono', 'Gran']
 
     m_matrix_full_reduced.set_index('Sample_Name', inplace=True)

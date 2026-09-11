@@ -1,3 +1,20 @@
+library(tidyverse)
+library(arrow)
+
+pheno_path <- "/Users/kpax/Documents/study/phd/projects/methylation/results/peg1/torchgat2/data/GSE111629_pheno_data.parquet"
+
+pheno_df <- read_parquet(pheno_path)
+
+pheno_df |> head()
+
+pheno_df |>
+    count(Sample_Group) |>
+    ggplot(aes(x = Sample_Group, y = n, fill = Sample_Group)) +
+    geom_col() +
+    labs(title = "Counts of Sample_Group in PEG1 Cohort", x = "Sample Group", y = "Count") +
+    theme_minimal()
+
+
 # sgpd_idat_path <- "/Volumes/saucepan/methylation-project/data/GSE145361_RAW/GSE145361_RAW"
 # random_file_to_dissect <- "GSM4315405_3998888019_R01C01_Grn.idat.gz"
 
