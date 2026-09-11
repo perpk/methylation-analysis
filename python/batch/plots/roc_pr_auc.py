@@ -7,6 +7,7 @@ from sklearn.metrics import (roc_curve, auc, precision_recall_curve,
                              average_precision_score, accuracy_score, 
                              precision_score, recall_score, f1_score)
 from torch.utils.data import DataLoader
+from gat import ChromosomeParallelGAT, WholeBloodMethylationDataset, chromosome_collate_fn
 
 def generate_evaluation_plots(m_matrix_df, pheno_df, chr_topologies, cell_cols, results_filepath):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
