@@ -10,10 +10,12 @@ from torch.utils.data import DataLoader
 from torch_geometric.data import Batch
 from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import roc_auc_score, average_precision_score
+import torch.multiprocessing
 
 from gat import ChromosomeParallelGAT, WholeBloodMethylationDataset, chromosome_collate_fn, build_chromosome_topologies
 
 def main(m_matrix_filepath, manifest_filepath, results_filepath):
+    torch.multiprocessing.set_sharing_strategy('file_system')
     print("Starting main function")
 
     m_matrix_full = pd.read_parquet(m_matrix_filepath)
@@ -96,18 +98,18 @@ def main(m_matrix_filepath, manifest_filepath, results_filepath):
                                 batch_size=batch_size, 
                                 shuffle=True, 
                                 collate_fn=chromosome_collate_fn,
-                                num_workers=12,
+                                num_workers=6,
                                 pin_memory=True,
                                 persistent_workers=True,
-                                prefetch_factor=2)
+                                prefetch_factor=1)
         test_loader = DataLoader(test_ds, 
                                  batch_size=batch_size, 
                                  shuffle=False, 
                                  collate_fn=chromosome_collate_fn,
-                                 num_workers=12,
+                                 num_workers=6,
                                  pin_memory=True,
                                  persistent_workers=True,
-                                 prefetch_factor=2)
+                                 prefetch_factor=1)
         
         model = ChromosomeParallelGAT().to(device)
         
