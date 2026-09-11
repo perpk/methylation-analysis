@@ -8,7 +8,7 @@ def main(results_path):
     # 1. Extract the Top Annotated Genes
     # ==========================================
     print("Extracting top annotated GAT drivers...")
-    drivers_df = pd.read_csv(f"{results_path}/pd_ensemble_epigenetic_drivers.csv")
+    drivers_df = pd.read_csv(f"{results_path}/pd_top_folds_epigenetic_drivers.csv")
     mapped_enhancers_df = pd.read_csv(f"{results_path}/top_500_pd_enhancers_strict.bed", sep="\t", header=None, names=['chrom', 'start', 'end', 'target_gene', 'distance_bp'])
 
     # Isolate probes that HAVE a known gene annotation
