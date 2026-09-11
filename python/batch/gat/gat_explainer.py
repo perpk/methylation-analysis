@@ -61,54 +61,6 @@ class GATExplainer(nn.Module):
             
         return genome_attention
 
-# =====================================================================
-# 2. EXTRACTION LOGIC
-# =====================================================================
-def extract_biological_drivers(model_path, m_matrix_df, pheno_df, chr_topologies, cell_cols):
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    print(f"Extracting on: {device}")
-    
-    # 1. Initialize and Load Weights
-    model = GATExplainer().to(device)
-    model.load_state_dict(torch.load(model_path, map_location=device))
-    model.eval()
-    
-    # 2. Isolate Parkinson's Patients (We want to see what drives the PD signature)
-    pd_samples = pheno_df[pheno_df['Sample_Group'] == 'PD'].index.tolist()
-    print(f"Extracting drivers across {len(pd_samples)} PD patients...")
-    
-    # 3. Process Patients (Batch size 1 for clean extraction)
-    # We will accumulate the attention weights to find the consensus drivers
-    consensus_attention = {c: np.zeros(chr_topologies[c]['n_nodes']) for c in range(1, 23)}
-    
-    for sample in pd_samples:
-        chr_graphs = []
-        for c in range(1, 23):
-            probes = chr_topologies[c]['probes']
-            raw_x = torch.from_numpy(m_matrix_df.loc[sample, probes].values.astype(np.float32)).unsqueeze(1)
-            data = Data(x=raw_x, edge_index=chr_topologies[c]['edge_index'], func_type=chr_topologies[c]['func_type'])
-            chr_graphs.append(data)
-            
-        # Convert to PyG Batch format (batch size 1)
-        batched_chrs = [Batch.from_data_list([g]).to(device) for g in chr_graphs]
-        u = torch.tensor(pheno_df.loc[sample, cell_cols].values.astype(np.float32)).unsqueeze(0).to(device)
-        
-        # 4. Extract Attention
-        with torch.no_grad():
-            attention_dict = model(batched_chrs, u)
-            
-        for c in range(1, 23):
-            consensus_attention[c] += attention_dict[c]
-
-    # 5. Average the attention across all PD patients
-    for c in range(1, 23):
-        consensus_attention[c] /= len(pd_samples)
-        
-    return consensus_attention
-
-# =====================================================================
-# 3. MAP TO BIOLOGY & EXPORT
-# =====================================================================
 def map_and_export_drivers(consensus_attention, chr_topologies, manifest_df, export_path="pd_epigenetic_drivers.csv"):
     records = []
     
@@ -138,4 +90,3 @@ def map_and_export_drivers(consensus_attention, chr_topologies, manifest_df, exp
     print(f"Top drivers exported to {export_path}")
     
     return final_df
-

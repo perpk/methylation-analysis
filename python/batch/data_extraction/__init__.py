@@ -1,2 +1,2 @@
 from .patient_predictions import export_patient_predictions
-from .biological_drivers import export_biological_drivers
+from .biological_drivers import extract_biological_drivers

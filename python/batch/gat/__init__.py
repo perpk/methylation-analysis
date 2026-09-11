@@ -1,4 +1,4 @@
 from .chromosome_parallel_gat import ChromosomeParallelGAT
 from .whole_blood_methylation_dataset import WholeBloodMethylationDataset
 from .utils import build_chromosome_topologies, chromosome_collate_fn
-from .gat_explainer import GATExplainer
+from .gat_explainer import GATExplainer, map_and_export_drivers
