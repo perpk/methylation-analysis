@@ -57,7 +57,7 @@ class ChromosomeParallelGAT(nn.Module):
             node_feat = torch.cat([batch.x, emb_func], dim=1)
             
             # 1. Drop 60% of the raw CpG + functional embeddings
-            node_feat = F.dropout(node_feat, p=0.6, training=self.training)
+            node_feat = F.dropout(node_feat, p=0.3, training=self.training)
             
             h = torch.relu(self.gat1(node_feat, batch.edge_index))
             
@@ -73,6 +73,6 @@ class ChromosomeParallelGAT(nn.Module):
         fused = torch.cat([genome_vector, u_cells], dim=1)
         
         # 3. Drop 60% of the final fused vector before classification
-        fused = F.dropout(fused, p=0.6, training=self.training)
+        fused = F.dropout(fused, p=0.3, training=self.training)
         
         return self.classifier(fused)
