@@ -62,7 +62,7 @@ class ChromosomeParallelGAT(nn.Module):
             h = torch.relu(self.gat1(node_feat, batch.edge_index))
             
             # 2. Drop 60% of the hidden embeddings before the second GAT layer
-            h = F.dropout(h, p=0.6, training=self.training)
+            h = F.dropout(h, p=0.3, training=self.training)
             
             h = torch.relu(self.gat2(h, batch.edge_index))
             
