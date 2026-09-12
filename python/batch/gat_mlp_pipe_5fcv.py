@@ -125,7 +125,7 @@ def main(m_matrix_filepath, manifest_filepath, results_filepath):
             raise ValueError("Training fold has no positive samples, cannot compute pos_weight")
         pos_weight = torch.tensor([negatives / positives], device=device, dtype=torch.float32)
         criterion = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
-        optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-3)
+        optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-2)
         
         # Training
         model.train()
