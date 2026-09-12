@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from torch_geometric.nn import GATv2Conv, AttentionalAggregation
+import torch.nn.functional as F
 
 class ChromosomeParallelGAT(nn.Module):
     def __init__(self, num_node_classes=7, chr_embed_dim=16, cell_prop_dim=6):
