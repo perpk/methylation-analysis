@@ -11,6 +11,12 @@ def main(m_matrix_path, pheno_path, manifest_path, results_filepath):
     pheno_df = pd.read_parquet(pheno_path)
     manifest_df = pd.read_parquet(manifest_path)
 
+    if m_matrix_df.index.name != "Sample_Name":
+        m_matrix_df = m_matrix_df.set_index("Sample_Name")
+
+    if pheno_df.index.name != "Sample_Name":
+        pheno_df = pheno_df.set_index("Sample_Name")
+
     common_probes = list(set(m_matrix_df.columns).intersection(set(manifest_df['IlmnID'])))
     chr_topologies = build_chromosome_topologies(manifest_df, common_probes)
 
