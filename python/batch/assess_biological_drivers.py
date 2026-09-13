@@ -27,7 +27,7 @@ def main(m_matrix_path, pheno_path, manifest_path, results_filepath):
     fold_paths = [f"{results_filepath}/gat_fold_{i}.pt" for i in top_folds]
 
     master_consensus = {c: np.zeros(chr_topologies[c]['n_nodes']) for c in range(1, 23)}
-    print("Starting Targeted Extraction on Folds 1 and 5...")
+    print(f"Starting Targeted Extraction on Folds {top_folds}...")
 
     for model_path in fold_paths:
         fold_consensus = extract_biological_drivers(model_path, m_matrix_df, pheno_df, chr_topologies, cell_cols)
