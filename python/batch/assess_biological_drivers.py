@@ -17,6 +17,9 @@ def main(m_matrix_path, pheno_path, manifest_path, results_filepath):
     if pheno_df.index.name != "Sample_Name":
         pheno_df = pheno_df.set_index("Sample_Name")
 
+    if 'Neu' in pheno_df.columns:
+        pheno_df = pheno_df.rename(columns={'Neu': 'Gran'})
+
     common_probes = list(set(m_matrix_df.columns).intersection(set(manifest_df['IlmnID'])))
     chr_topologies = build_chromosome_topologies(manifest_df, common_probes)
 
