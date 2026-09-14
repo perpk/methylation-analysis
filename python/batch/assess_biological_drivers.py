@@ -23,7 +23,7 @@ def main(m_matrix_path, pheno_path, manifest_path, results_filepath):
     common_probes = list(set(m_matrix_df.columns).intersection(set(manifest_df['IlmnID'])))
     chr_topologies = build_chromosome_topologies(manifest_df, common_probes)
 
-    top_folds = [1, 3, 4] # PEG1 = [1, 5]
+    top_folds = [1, 2, 3, 4, 5] # PPMI = [1, 3, 4] # PEG1 = [1, 5]
     fold_paths = [f"{results_filepath}/gat_fold_{i}.pt" for i in top_folds]
 
     master_consensus = {c: np.zeros(chr_topologies[c]['n_nodes']) for c in range(1, 23)}
