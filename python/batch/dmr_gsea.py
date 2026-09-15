@@ -37,7 +37,7 @@ for dmr_name, dmr_path in dmr_files.items():
         .str.strip()
         .loc[lambda genes: genes.ne('')]
         .unique()
-    )
+    ).tolist()
 
     print(f"Running Enrichment against {len(databases)} databases...")
     enrichment = gp.enrichr(
