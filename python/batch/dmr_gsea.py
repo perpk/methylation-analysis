@@ -3,8 +3,8 @@ import gseapy as gp
 
 dmr_files = { 
     "peg1" : "/workspace/results/peg1/peg1_dmr_results.csv",
-    "sgpd" : "/workspace/results/sgpd/sgpd_dmr_results.csv",
-    "ppmi" : "/workspace/results/ppmi/ppmi_dmr_results.csv" 
+    "sgpd" : "/workspace/results/sgpd/GSE145361_DMR_results.csv",
+    "ppmi" : "/workspace/results/ppmi/PPMI_DMR_results_df.csv" 
 }
 
 results_path = "/workspace/results"
@@ -29,7 +29,7 @@ for dmr_name, dmr_path in dmr_files.items():
 
     dmr_df = pd.read_csv(dmr_path)
 
-    overlapping_genes = dmr_df['gene']
+    overlapping_genes = dmr_df['overlapping_genes']
     master_gene_list = (
         overlapping_genes.dropna()
         .str.split(',')
