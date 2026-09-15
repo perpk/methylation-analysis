@@ -29,7 +29,7 @@ for dmr_name, dmr_path in dmr_files.items():
 
     dmr_df = pd.read_csv(dmr_path)
 
-    overlapping_genes = dmr_df['overlapping_genes']
+    overlapping_genes = dmr_df['overlapping.genes']
     master_gene_list = (
         overlapping_genes.dropna()
         .str.split(',')
