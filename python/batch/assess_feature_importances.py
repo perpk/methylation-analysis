@@ -128,6 +128,7 @@ for cohort, path in cohorts.items():
         # Load the specific 450k manifest for this chromosome to get Illumina IDs and Gene names
         # Ensure this dataframe is in the exact same order as your graph nodes!
         chr_name = str(c_idx + 1) 
+        chr_int = c_idx + 1
         
         # 2. Filter the master manifest for THIS chromosome AND only the probes used in the graph
         chr_df = manifest_df[(manifest_df['CHR'] == chr_name) & (manifest_df['IlmnID'].isin(common_probes))].copy()
@@ -150,7 +151,7 @@ for cohort, path in cohorts.items():
         # 2. Grab the first 5 probe IDs from the graph topology 
         # (Adjust ['probes'] to whatever key your build_chromosome_topologies uses to store the probe list)
         print(chr_topologies.keys())
-        graph_top_5 = chr_topologies[chr_name]['probes'][:5] 
+        graph_top_5 = chr_topologies[chr_int]['probes'][:5] 
         
         # 3. Print the comparison
         print(f"\n--- Alignment Check for Chromosome {chr_name} ---")
