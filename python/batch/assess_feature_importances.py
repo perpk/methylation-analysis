@@ -20,7 +20,7 @@ cohorts = {
     "ppmi": {
         "results_path": "/workspace/results/ppmi",
         "pheno_data": "/workspace/data/ppmi/ppmi_pheno_data.parquet",
-        "m_matrix": "/workspace/data/ppmi/ppmi_data_test.parquet.parquet"
+        "m_matrix": "/workspace/data/ppmi/ppmi_data_test.parquet"
     }
 }
 
