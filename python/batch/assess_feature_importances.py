@@ -127,7 +127,15 @@ for cohort, path in cohorts.items():
         
         # Load the specific 450k manifest for this chromosome to get Illumina IDs and Gene names
         # Ensure this dataframe is in the exact same order as your graph nodes!
-        chr_df = pd.read_parquet(f"processed_chrs/chr_{c_idx + 1}_probes.parquet")
+        chr_name = str(c_idx + 1) 
+        
+        # 2. Filter the master manifest for THIS chromosome AND only the probes used in the graph
+        chr_df = manifest_df[(manifest_df['CHR'] == chr_name) & (manifest_df['IlmnID'].isin(common_probes))].copy()
+        
+        # 3. CRITICAL: Sort the dataframe to perfectly match the node order in your PyG graph!
+        # If build_chromosome_topologies sorted nodes by genomic coordinate, sort by MAPINFO here:
+        if 'MAPINFO' in chr_df.columns:
+            chr_df = chr_df.sort_values(by='MAPINFO').reset_index(drop=True)
         
         chr_df['chromosome'] = c_idx + 1
         chr_df['gat_alpha'] = mean_gat_alphas
@@ -135,6 +143,24 @@ for cohort, path in cohorts.items():
         chr_df['compound_importance'] = compound_scores
         
         global_probe_ranking.append(chr_df)
+
+        #### 1. Grab the first 5 probe IDs from the DataFrame
+        df_top_5 = chr_df['IlmnID'].head(5).tolist()
+        
+        # 2. Grab the first 5 probe IDs from the graph topology 
+        # (Adjust ['probes'] to whatever key your build_chromosome_topologies uses to store the probe list)
+        graph_top_5 = chr_topologies[chr_name]['probes'][:5] 
+        
+        # 3. Print the comparison
+        print(f"\n--- Alignment Check for Chromosome {chr_name} ---")
+        print(f"DataFrame order : {df_top_5}")
+        print(f"Topology order  : {graph_top_5}")
+        print(f"Perfect Match?  : {df_top_5 == graph_top_5}")
+        
+        # 4. Break the loop so it only prints once and doesn't flood your console
+        import sys
+        sys.exit()
+        ####
 
     # 5. Concatenate all 22 chromosomes into a single master dataframe
     master_df = pd.concat(global_probe_ranking, ignore_index=True)
