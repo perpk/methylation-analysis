@@ -142,6 +142,8 @@ for cohort, path in cohorts.items():
         chr_df['gat_alpha'] = mean_gat_alphas
         chr_df['mlp_chr_weight'] = chr_mlp_weight
         chr_df['compound_importance'] = compound_scores
+
+        print(chr_df.head())
         
         global_probe_ranking.append(chr_df)
 
