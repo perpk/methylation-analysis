@@ -149,7 +149,7 @@ for cohort, path in cohorts.items():
         
         # 2. Grab the first 5 probe IDs from the graph topology 
         # (Adjust ['probes'] to whatever key your build_chromosome_topologies uses to store the probe list)
-        print(chr_topologies)
+        print(chr_topologies.keys())
         graph_top_5 = chr_topologies[chr_name]['probes'][:5] 
         
         # 3. Print the comparison
