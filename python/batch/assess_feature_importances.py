@@ -3,6 +3,7 @@ from sklearn.model_selection import StratifiedKFold
 import torch
 from torch.utils.data import DataLoader
 from gat import ChromosomeParallelGAT, WholeBloodMethylationDataset, chromosome_collate_fn, build_chromosome_topologies
+from torch_geometric.utils import softmax as pyg_softmax
 
 cohorts = {
     "peg1": {
@@ -59,10 +60,9 @@ for cohort, path in cohorts.items():
         batch_size=16, 
         shuffle=False,
         collate_fn=chromosome_collate_fn,
-        num_workers=6,
-        pin_memory=True,
-        persistent_workers=True,
-        prefetch_factor=1
+        num_workers=0,
+        pin_memory=False,
+        persistent_workers=False,
     )
 
     checkpoint_path = f"{results_path}/gat_fold_{fold_idx + 1}.pt"
@@ -102,8 +102,8 @@ for cohort, path in cohorts.items():
                 gate_logits = model.gate_nn(h).squeeze(-1)
                 
                 # Apply softmax dynamically based on patient batching
-                alpha = torch.softmax(gate_logits, batch.batch)
-                
+                alpha = pyg_softmax(gate_logits, batch.batch)
+
                 # Reshape to [patients_in_batch, nodes_in_chromosome]
                 num_patients = int(batch.batch.max().item() + 1)
                 nodes_per_patient = int(batch.num_nodes / num_patients)
@@ -145,7 +145,10 @@ for cohort, path in cohorts.items():
     print(master_df[['probe_id', 'chromosome', 'gene_symbol', 'gat_alpha', 'mlp_chr_weight', 'compound_importance']].head(20))
 
     # Save for your thesis / pathway analysis
-    master_df.to_csv("global_compound_importance_ranking.csv", index=False)
+    # Save dynamically to the specific cohort's result folder
+    output_file = f"{results_path}/global_compound_importance_ranking.csv"
+    master_df.to_csv(output_file, index=False)
+    print(f"Saved ranking to: {output_file}\n")
 
 
 
