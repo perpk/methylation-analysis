@@ -7,20 +7,20 @@ from torch_geometric.utils import softmax as pyg_softmax
 import numpy as np
 
 cohorts = {
-    "peg1": {
-        "results_path": "/workspace/results/peg1",
-        "pheno_data": "/workspace/data/peg1/GSE111629_pheno_data.parquet",
-        "m_matrix": "/workspace/data/peg1/GSE111629_m_matrix_full_reduced.parquet"
-    },
-    "sgpd": {
-        "results_path": "/workspace/results/sgpd",
-        "pheno_data": "/workspace/data/sgpd/pheno_data.parquet",
-        "m_matrix": "/workspace/data/sgpd/GSE145361_data_corrected.parquet"
-    },
+    # "peg1": {
+    #     "results_path": "/workspace/results/peg1",
+    #     "pheno_data": "/workspace/data/peg1/GSE111629_pheno_data.parquet",
+    #     "m_matrix": "/workspace/data/peg1/GSE111629_m_matrix_full_reduced.parquet"
+    # },
+    # "sgpd": {
+    #     "results_path": "/workspace/results/sgpd",
+    #     "pheno_data": "/workspace/data/sgpd/pheno_data.parquet",
+    #     "m_matrix": "/workspace/data/sgpd/GSE145361_data_corrected.parquet"
+    # },
     "ppmi": {
         "results_path": "/workspace/results/ppmi",
         "pheno_data": "/workspace/data/ppmi/ppmi_pheno_data.parquet",
-        "m_matrix": "/workspace/data/ppmi/m_matrix_full_reduced.parquet"
+        "m_matrix": "/workspace/data/ppmi/ppmi_data_test.parquet.parquet"
     }
 }
 
