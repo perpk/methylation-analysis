@@ -148,23 +148,23 @@ for cohort, path in cohorts.items():
         
         global_probe_ranking.append(chr_df)
 
-        #### 1. Grab the first 5 probe IDs from the DataFrame
-        df_top_5 = chr_df['IlmnID'].head(5).tolist()
+        # #### 1. Grab the first 5 probe IDs from the DataFrame
+        # df_top_5 = chr_df['IlmnID'].head(5).tolist()
         
-        # 2. Grab the first 5 probe IDs from the graph topology 
-        # (Adjust ['probes'] to whatever key your build_chromosome_topologies uses to store the probe list)
-        print(chr_topologies.keys())
-        graph_top_5 = chr_topologies[chr_int]['probes'][:5] 
+        # # 2. Grab the first 5 probe IDs from the graph topology 
+        # # (Adjust ['probes'] to whatever key your build_chromosome_topologies uses to store the probe list)
+        # print(chr_topologies.keys())
+        # graph_top_5 = chr_topologies[chr_int]['probes'][:5] 
         
-        # 3. Print the comparison
-        print(f"\n--- Alignment Check for Chromosome {chr_name} ---")
-        print(f"DataFrame order : {df_top_5}")
-        print(f"Topology order  : {graph_top_5}")
-        print(f"Perfect Match?  : {df_top_5 == graph_top_5}")
+        # # 3. Print the comparison
+        # print(f"\n--- Alignment Check for Chromosome {chr_name} ---")
+        # print(f"DataFrame order : {df_top_5}")
+        # print(f"Topology order  : {graph_top_5}")
+        # print(f"Perfect Match?  : {df_top_5 == graph_top_5}")
         
-        # 4. Break the loop so it only prints once and doesn't flood your console
-        import sys
-        sys.exit()
+        # # 4. Break the loop so it only prints once and doesn't flood your console
+        # import sys
+        # sys.exit()
         ####
 
     # 5. Concatenate all 22 chromosomes into a single master dataframe
