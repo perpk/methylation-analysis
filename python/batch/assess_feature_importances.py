@@ -51,7 +51,8 @@ for cohort, path in cohorts.items():
     common_probes = list(set(master_m_matrix.columns).intersection(set(manifest_df['IlmnID'])))
     
     chr_topologies = build_chromosome_topologies(manifest_df, common_probes)
-    val_ds = WholeBloodMethylationDataset(master_m_matrix, test_pheno, common_probes, chr_topologies)
+    cell_cols = ['CD8T', 'CD4T', 'NK', 'Bcell', 'Mono', 'Gran']
+    val_ds = WholeBloodMethylationDataset(master_m_matrix, test_pheno, cell_cols, chr_topologies)
 
     val_loader = DataLoader(
         val_ds, 
