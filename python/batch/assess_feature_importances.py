@@ -174,6 +174,7 @@ for cohort, path in cohorts.items():
     master_df = master_df.sort_values(by='compound_importance', ascending=False).reset_index(drop=True)
 
     print("--- Top 20 Global Driver Probes for Parkinson's Classification ---")
+    print(master_df.head())
     print(master_df[['probe_id', 'chromosome', 'gene_symbol', 'gat_alpha', 'mlp_chr_weight', 'compound_importance']].head(20))
 
     # Save for your thesis / pathway analysis
