@@ -133,7 +133,7 @@ for cohort, path in cohorts.items():
         
         # 2. Filter the master manifest for THIS chromosome AND only the probes used in the graph
         print(manifest_df.head())
-        chr_df = manifest_df[(manifest_df['CHR'] == chr_name) & (manifest_df['IlmnID'].isin(common_probes))].copy()
+        chr_df = manifest_df[(manifest_df['CHR'] == f"chr{chr_name}") & (manifest_df['IlmnID'].isin(common_probes))].copy()
         
         # 3. CRITICAL: Sort the dataframe to perfectly match the node order in your PyG graph!
         # If build_chromosome_topologies sorted nodes by genomic coordinate, sort by MAPINFO here:
