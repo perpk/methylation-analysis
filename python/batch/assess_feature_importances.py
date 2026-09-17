@@ -51,6 +51,7 @@ for cohort, path in cohorts.items():
     test_pheno = master_pheno_df.iloc[test_idx].copy()
 
     common_probes = list(set(master_m_matrix.columns).intersection(set(manifest_df['IlmnID'])))
+    print(f"=> Number of common probes: {len(common_probes)}")
     
     chr_topologies = build_chromosome_topologies(manifest_df, common_probes)
     cell_cols = ['CD8T', 'CD4T', 'NK', 'Bcell', 'Mono', 'Gran']
@@ -131,6 +132,7 @@ for cohort, path in cohorts.items():
         chr_int = c_idx + 1
         
         # 2. Filter the master manifest for THIS chromosome AND only the probes used in the graph
+        print(manifest_df.head())
         chr_df = manifest_df[(manifest_df['CHR'] == chr_name) & (manifest_df['IlmnID'].isin(common_probes))].copy()
         
         # 3. CRITICAL: Sort the dataframe to perfectly match the node order in your PyG graph!
@@ -143,7 +145,6 @@ for cohort, path in cohorts.items():
         chr_df['mlp_chr_weight'] = chr_mlp_weight
         chr_df['compound_importance'] = compound_scores
 
-        print(chr_df.head())
         
         global_probe_ranking.append(chr_df)
 
