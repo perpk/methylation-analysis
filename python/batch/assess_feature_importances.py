@@ -4,6 +4,7 @@ import torch
 from torch.utils.data import DataLoader
 from gat import ChromosomeParallelGAT, WholeBloodMethylationDataset, chromosome_collate_fn, build_chromosome_topologies
 from torch_geometric.utils import softmax as pyg_softmax
+import numpy as np
 
 cohorts = {
     "peg1": {
