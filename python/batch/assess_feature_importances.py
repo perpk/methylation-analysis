@@ -65,7 +65,7 @@ for cohort, path in cohorts.items():
         prefetch_factor=1
     )
 
-    checkpoint_path = f"{results_path}/fold_{fold_idx + 1}_checkpoint.pt"
+    checkpoint_path = f"{results_path}/gat_fold_{fold_idx + 1}.pt"
     model = ChromosomeParallelGAT(num_node_classes=7, chr_embed_dim=16, cell_prop_dim=6)
     checkpoint = torch.load(checkpoint_path, map_location='cpu')
     model.load_state_dict(checkpoint['model_state_dict'])
