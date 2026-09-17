@@ -31,6 +31,16 @@ for cohort, path in cohorts.items():
     master_pheno_df = pd.read_parquet(path["pheno_data"])
     master_m_matrix = pd.read_parquet(path["m_matrix"])
 
+    if master_m_matrix.index.name != "Sample_Name":
+        master_m_matrix = master_m_matrix.set_index("Sample_Name")
+
+    if master_pheno_df.index.name != "Sample_Name":
+        master_pheno_df = master_pheno_df.set_index("Sample_Name")
+
+    if 'Neu' in master_pheno_df.columns:
+        master_pheno_df = master_pheno_df.rename(columns={'Neu': 'Gran'})
+
+
     fold_splits = list(skf.split(master_pheno_df, master_pheno_df['Sample_Group']))
 
     fold_idx = 0 
