@@ -125,8 +125,10 @@ print(f"Number of 'ch.' (non-CpG) probes in the consensus: {ch_count}")
 
 consensus_df_distal = consensus_df.copy()
 consensus_df.rename(columns={'compound_importance': 'compound_importance_ppmi'}, inplace=True)
-consensus_df = consensus_df.merge(mapped_enhancers_peg1[['compound_importance', 'cpg_id']], left_on='cpg_id', right_on='cpg_id', how='left', suffixes=('', '_peg1'))
+consensus_df = consensus_df.merge(mapped_enhancers_peg1[['compound_importance', 'cpg_id']], left_on='cpg_id', right_on='cpg_id', how='left')
+consensus_df.rename(columns={'compound_importance': 'compound_importance_peg1'}, inplace=True)
 consensus_df = consensus_df.merge(mapped_enhancers_sgpd[['compound_importance', 'cpg_id']], left_on='cpg_id', right_on='cpg_id', how='left', suffixes=('', '_sgpd'))
+consensus_df.rename(columns={'compound_importance': 'compound_importance_sgpd'}, inplace=True)
 
 consensus_df['importance_mean'] = consensus_df[['compound_importance_ppmi', 'compound_importance_peg1', 'compound_importance_sgpd']].mean(axis=1)
 consensus_df['importance_median'] = consensus_df[['compound_importance_ppmi', 'compound_importance_peg1', 'compound_importance_sgpd']].median(axis=1)
