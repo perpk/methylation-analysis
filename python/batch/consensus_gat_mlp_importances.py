@@ -40,9 +40,13 @@ sgpd_top_500_ranked_annotated.to_csv(f"{results_path}/sgpd/sgpd_top_500_ranked_a
 
 common_annotated_df = ppmi_top_500_ranked_annotated.copy()
 common_annotated_df.rename(columns={'compound_importance': 'compound_importance_ppmi'}, inplace=True)
-common_annotated_df = common_annotated_df.merge(peg1_top_500_ranked_annotated[['IlmnID', 'compound_importance']], left_on='IlmnID', right_on='IlmnID', how='left', suffixes=('', '_peg1'))
-common_annotated_df = common_annotated_df.merge(sgpd_top_500_ranked_annotated[['IlmnID', 'compound_importance']], left_on='IlmnID', right_on='IlmnID', how='left', suffixes=('', '_sgpd'))
+common_annotated_df = common_annotated_df.merge(peg1_top_500_ranked_annotated[['IlmnID', 'compound_importance']], left_on='IlmnID', right_on='IlmnID', how='left')
+common_annotated_df.rename(columns={'compound_importance': 'compound_importance_peg1'}, inplace=True)
+common_annotated_df = common_annotated_df.merge(sgpd_top_500_ranked_annotated[['IlmnID', 'compound_importance']], left_on='IlmnID', right_on='IlmnID', how='left')
+common_annotated_df.rename(columns={'compound_importance': 'compound_importance_sgpd'}, inplace=True)
+
 print(common_annotated_df.head())
+
 common_annotated_df['importance_mean'] = common_annotated_df[['compound_importance_ppmi', 'compound_importance_peg1', 'compound_importance_sgpd']].mean(axis=1)
 common_annotated_df['importance_median'] = common_annotated_df[['compound_importance_ppmi', 'compound_importance_peg1', 'compound_importance_sgpd']].median(axis=1)
 common_annotated_df['importance_std'] = common_annotated_df[['compound_importance_ppmi', 'compound_importance_peg1', 'compound_importance_sgpd']].std(axis=1)
@@ -66,7 +70,7 @@ export_strict_test_bed(
 )
 
 export_strict_test_bed(
-    drivers_csv_path=f"{results_path}/sgpd/global_compound_importance_ranking.parquet",
+    drivers_csv_path=f"{results_path}/sgpd/global_compound_importance_ranking.csv",
     manifest_df=manifest_df,
     top_n=500,
     output_path=f"{results_path}/top_500_sgpd_strict.bed",
