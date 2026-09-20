@@ -84,7 +84,7 @@ def export_strict_test_bed(drivers_csv_path, manifest_df, top_n=500, output_path
     # Get top drivers and merge with physical coordinates
     top_cpgs = unannotated.sort_values(by=sort_by, ascending=False).head(top_n)
     merged_df = top_cpgs.merge(manifest_df[['IlmnID', 'CHR', 'MAPINFO']], on='IlmnID', how='inner')
-    
+    print(merged_df.head())
     return _format_and_export_strict_bed(merged_df, output_path)
 
 def export_strict_background_bed(manifest_df, common_probes, output_path="gat_background_universe_strict.bed"):
