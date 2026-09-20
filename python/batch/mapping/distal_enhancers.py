@@ -80,7 +80,7 @@ def export_strict_test_bed(drivers_csv_path, manifest_df, top_n=500, output_path
         drivers_df['UCSC_RefGene_Name'].isna() | 
         (drivers_df['UCSC_RefGene_Name'].astype(str).str.lower() == 'nan')
     ]
-    
+    print(drivers_df.head())
     # Get top drivers and merge with physical coordinates
     top_cpgs = unannotated.sort_values(by=sort_by, ascending=False).head(top_n)
     merged_df = top_cpgs.merge(manifest_df[['IlmnID', 'CHR', 'MAPINFO', sort_by]], on='IlmnID', how='inner')
