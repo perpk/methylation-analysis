@@ -133,14 +133,13 @@ print(f"Number of 'ch.' (non-CpG) probes in the consensus: {ch_count}")
 
 consensus_df_distal = consensus_df.copy()
 consensus_df.rename(columns={'compound_importance': 'compound_importance_ppmi'}, inplace=True)
-consensus_df.merge(mapped_enhancers_peg1[['compound_importance']], left_on='cpg_id', right_on='cpg_id', how='left', suffixes=('', '_peg1'), inplace=True)
-consensus_df.merge(mapped_enhancers_sgpd[['compound_importance']], left_on='cpg_id', right_on='cpg_id', how='left', suffixes=('', '_sgpd'), inplace=True)
+consensus_df = consensus_df.merge(mapped_enhancers_peg1[['compound_importance']], left_on='cpg_id', right_on='cpg_id', how='left', suffixes=('', '_peg1'))
+consensus_df = consensus_df.merge(mapped_enhancers_sgpd[['compound_importance']], left_on='cpg_id', right_on='cpg_id', how='left', suffixes=('', '_sgpd'))
 
 consensus_df['importance_mean'] = consensus_df[['compound_importance_ppmi', 'compound_importance_peg1', 'compound_importance_sgpd']].mean(axis=1)
 consensus_df['importance_median'] = consensus_df[['compound_importance_ppmi', 'compound_importance_peg1', 'compound_importance_sgpd']].median(axis=1)
 consensus_df['importance_std'] = consensus_df[['compound_importance_ppmi', 'compound_importance_peg1', 'compound_importance_sgpd']].std(axis=1)
 
-consensus_df.to_csv('/workspace/results/peg1_ppmi_sgpd_consensus_signature.csv', index=False)
+print(consensus_df.head())
 
-print("\n--- Top 20 Consensus Probes ---")
-print(consensus_df.head(20))
+# consensus_df.to_csv('/workspace/results/peg1_ppmi_sgpd_consensus_signature.csv', index=False)
