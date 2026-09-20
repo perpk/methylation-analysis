@@ -19,6 +19,12 @@ ppmi_probes = set(ppmi_df['IlmnID'])
 peg1_common_probes = list(set(peg1_probes).intersection(set(manifest_df['IlmnID'])))
 ppmi_common_probes = list(set(ppmi_probes).intersection(set(manifest_df['IlmnID'])))
 
+peg1_annotated_probes = set(peg1_df[peg1_df['UCSC_RefGene_Name'].notna()]['IlmnID'])
+ppmi_annotated_probes = set(ppmi_df[ppmi_df['UCSC_RefGene_Name'].notna()]['IlmnID'])
+
+common_annotated_probes = peg1_annotated_probes.intersection(ppmi_annotated_probes)
+print(f"Common annotated probes between peg1 and ppmi: {len(common_annotated_probes)}")
+
 export_strict_test_bed(
     drivers_csv_path=f"{results_path}/peg1/global_compound_importance_ranking.csv",
     manifest_df=manifest_df,
