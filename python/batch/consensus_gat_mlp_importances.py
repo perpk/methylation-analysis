@@ -30,22 +30,22 @@ peg1_top_ranked_annotated = peg1_df[peg1_df['IlmnID'].isin(peg1_annotated_probes
 ppmi_top_ranked_annotated = ppmi_df[ppmi_df['IlmnID'].isin(ppmi_annotated_probes)].sort_values(by='compound_importance', ascending=False)
 sgpd_top_ranked_annotated = sgpd_df[sgpd_df['IlmnID'].isin(sgpd_annotated_probes)].sort_values(by='compound_importance', ascending=False)
 
-peg1_top_500_ranked_annotated = peg1_top_ranked_annotated[peg1_top_ranked_annotated['IlmnID'].isin(common_annotated_probes)].head(500)
-ppmi_top_500_ranked_annotated = ppmi_top_ranked_annotated[ppmi_top_ranked_annotated['IlmnID'].isin(common_annotated_probes)].head(500)
-sgpd_top_500_ranked_annotated = sgpd_top_ranked_annotated[sgpd_top_ranked_annotated['IlmnID'].isin(common_annotated_probes)].head(500)
+peg1_top_ranked_annotated = peg1_top_ranked_annotated[peg1_top_ranked_annotated['IlmnID'].isin(common_annotated_probes)]
+ppmi_top_ranked_annotated = ppmi_top_ranked_annotated[ppmi_top_ranked_annotated['IlmnID'].isin(common_annotated_probes)]
+sgpd_top_ranked_annotated = sgpd_top_ranked_annotated[sgpd_top_ranked_annotated['IlmnID'].isin(common_annotated_probes)]
 
-peg1_top_500_ranked_annotated.to_csv(f"{results_path}/peg1/peg1_top_500_ranked_annotated.csv", index=False)
-ppmi_top_500_ranked_annotated.to_csv(f"{results_path}/ppmi/ppmi_top_500_ranked_annotated.csv", index=False)
-sgpd_top_500_ranked_annotated.to_csv(f"{results_path}/sgpd/sgpd_top_500_ranked_annotated.csv", index=False)
+peg1_top_ranked_annotated.to_csv(f"{results_path}/peg1/peg1_top_500_ranked_annotated.csv", index=False)
+ppmi_top_ranked_annotated.to_csv(f"{results_path}/ppmi/ppmi_top_500_ranked_annotated.csv", index=False)
+sgpd_top_ranked_annotated.to_csv(f"{results_path}/sgpd/sgpd_top_500_ranked_annotated.csv", index=False)
 
-common_annotated_df = ppmi_top_500_ranked_annotated.copy()
+common_annotated_df = ppmi_top_ranked_annotated.copy()
 common_annotated_df.rename(columns={'compound_importance': 'compound_importance_ppmi'}, inplace=True)
-common_annotated_df = common_annotated_df.merge(peg1_top_500_ranked_annotated[['IlmnID', 'compound_importance']], left_on='IlmnID', right_on='IlmnID', how='left')
+common_annotated_df = common_annotated_df.merge(peg1_top_ranked_annotated[['IlmnID', 'compound_importance']], left_on='IlmnID', right_on='IlmnID', how='left')
 common_annotated_df.rename(columns={'compound_importance': 'compound_importance_peg1'}, inplace=True)
-common_annotated_df = common_annotated_df.merge(sgpd_top_500_ranked_annotated[['IlmnID', 'compound_importance']], left_on='IlmnID', right_on='IlmnID', how='left')
+common_annotated_df = common_annotated_df.merge(sgpd_top_ranked_annotated[['IlmnID', 'compound_importance']], left_on='IlmnID', right_on='IlmnID', how='left')
 common_annotated_df.rename(columns={'compound_importance': 'compound_importance_sgpd'}, inplace=True)
 
-print(peg1_top_500_ranked_annotated[peg1_top_500_ranked_annotated['IlmnID'] == 'cg10004976'])
+print(peg1_top_ranked_annotated[peg1_top_ranked_annotated['IlmnID'] == 'cg10004976'])
 
 print("Common annotated probes between peg1, ppmi, and sgpd in the top 500:")
 print(common_annotated_df.head())
