@@ -6,7 +6,7 @@ results_path = "/workspace/results"
 # 1. Load the top 500 ranked probes from both datasets
 peg1_df = pd.read_csv(f"{results_path}/peg1/global_compound_importance_ranking.csv")
 ppmi_df = pd.read_csv(f"{results_path}/ppmi/global_compound_importance_ranking.csv")
-sgpd_df = pd.read_parquet(f"{results_path}/sgpd/global_compound_importance_ranking.parquet")
+sgpd_df = pd.read_csv(f"{results_path}/sgpd/global_compound_importance_ranking.csv")
 
 manifest_df = pd.read_parquet("/workspace/data/infinium450k_manifest.parquet")
 
