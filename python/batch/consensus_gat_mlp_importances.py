@@ -45,10 +45,6 @@ common_annotated_df.rename(columns={'compound_importance': 'compound_importance_
 common_annotated_df = common_annotated_df.merge(sgpd_top_ranked_annotated[['IlmnID', 'compound_importance']], left_on='IlmnID', right_on='IlmnID', how='left')
 common_annotated_df.rename(columns={'compound_importance': 'compound_importance_sgpd'}, inplace=True)
 
-print("Common annotated probes between peg1, ppmi, and sgpd")
-print(common_annotated_df.head())
-print("========================================")
-
 common_annotated_df['importance_mean'] = common_annotated_df[['compound_importance_ppmi', 'compound_importance_peg1', 'compound_importance_sgpd']].mean(axis=1)
 common_annotated_df['importance_median'] = common_annotated_df[['compound_importance_ppmi', 'compound_importance_peg1', 'compound_importance_sgpd']].median(axis=1)
 common_annotated_df['importance_std'] = common_annotated_df[['compound_importance_ppmi', 'compound_importance_peg1', 'compound_importance_sgpd']].std(axis=1)
@@ -105,10 +101,6 @@ mapped_enhancers_peg1 = mapped_enhancers_peg1.merge(peg1_df[['IlmnID', 'compound
 mapped_enhancers_ppmi = mapped_enhancers_ppmi.merge(ppmi_df[['IlmnID', 'compound_importance']], left_on='cpg_id', right_on='IlmnID', how='left', suffixes=('', '_importance'))
 mapped_enhancers_sgpd = mapped_enhancers_sgpd.merge(sgpd_df[['IlmnID', 'compound_importance']], left_on='cpg_id', right_on='IlmnID', how='left', suffixes=('', '_importance'))
 
-print(mapped_enhancers_peg1.head())
-print(mapped_enhancers_ppmi.head())
-print(mapped_enhancers_sgpd.head())
-
 mapped_peg1 = set(mapped_enhancers_peg1['cpg_id'])
 mapped_ppmi = set(mapped_enhancers_ppmi['cpg_id'])
 mapped_sgpd = set(mapped_enhancers_sgpd['cpg_id'])
@@ -130,6 +122,9 @@ ch_count = sum(consensus_df['cpg_id'].str.startswith('ch.'))
 print(f"Number of 'ch.' (non-CpG) probes in the consensus: {ch_count}")
 
 # 6. Save this high-confidence signature for pathway analysis
+
+print(mapped_enhancers_peg1.head())
+print(consensus_df.head())
 
 consensus_df_distal = consensus_df.copy()
 consensus_df.rename(columns={'compound_importance': 'compound_importance_ppmi'}, inplace=True)
