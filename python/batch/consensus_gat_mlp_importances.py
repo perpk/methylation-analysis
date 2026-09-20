@@ -146,6 +146,8 @@ consensus_df_peg1_ppmi['importance_mean'] = consensus_df_peg1_ppmi[['compound_im
 consensus_df_peg1_ppmi['importance_median'] = consensus_df_peg1_ppmi[['compound_importance_ppmi', 'compound_importance_peg1']].median(axis=1)
 consensus_df_peg1_ppmi['importance_std'] = consensus_df_peg1_ppmi[['compound_importance_ppmi', 'compound_importance_peg1']].std(axis=1)
 
+print(consensus_df_peg1_ppmi.head(20))
+
 consensus_df_peg1_ppmi.to_csv('/workspace/results/peg1_ppmi_consensus_signature.csv', index=False)
 
 
