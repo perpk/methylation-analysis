@@ -134,6 +134,18 @@ consensus_df['importance_mean'] = consensus_df[['compound_importance_ppmi', 'com
 consensus_df['importance_median'] = consensus_df[['compound_importance_ppmi', 'compound_importance_peg1', 'compound_importance_sgpd']].median(axis=1)
 consensus_df['importance_std'] = consensus_df[['compound_importance_ppmi', 'compound_importance_peg1', 'compound_importance_sgpd']].std(axis=1)
 
-print(consensus_df.head())
+consensus_df.to_csv('/workspace/results/peg1_ppmi_sgpd_consensus_signature.csv', index=False)
 
-# consensus_df.to_csv('/workspace/results/peg1_ppmi_sgpd_consensus_signature.csv', index=False)
+consensus_probes_peg1_ppmi = mapped_peg1.intersection(mapped_ppmi)
+consensus_df_peg1_ppmi = mapped_enhancers_ppmi[mapped_enhancers_ppmi['cpg_id'].isin(consensus_probes_peg1_ppmi)].copy()
+
+consensus_df_peg1_ppmi.rename(columns={'compound_importance': 'compound_importance_ppmi'}, inplace=True)
+consensus_df_peg1_ppmi = consensus_df_peg1_ppmi.merge(mapped_enhancers_peg1[['compound_importance', 'cpg_id']], left_on='cpg_id', right_on='cpg_id', how='left')
+consensus_df_peg1_ppmi.rename(columns={'compound_importance': 'compound_importance_peg1'}, inplace=True)
+consensus_df_peg1_ppmi['importance_mean'] = consensus_df_peg1_ppmi[['compound_importance_ppmi', 'compound_importance_peg1']].mean(axis=1)
+consensus_df_peg1_ppmi['importance_median'] = consensus_df_peg1_ppmi[['compound_importance_ppmi', 'compound_importance_peg1']].median(axis=1)
+consensus_df_peg1_ppmi['importance_std'] = consensus_df_peg1_ppmi[['compound_importance_ppmi', 'compound_importance_peg1']].std(axis=1)
+
+consensus_df_peg1_ppmi.to_csv('/workspace/results/peg1_ppmi_consensus_signature.csv', index=False)
+
+
