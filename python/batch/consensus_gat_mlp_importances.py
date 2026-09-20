@@ -10,10 +10,6 @@ sgpd_df = pd.read_csv(f"{results_path}/sgpd/global_compound_importance_ranking.c
 
 manifest_df = pd.read_parquet("/workspace/data/infinium450k_manifest.parquet")
 
-print(peg1_df.head())
-print(ppmi_df.head())
-print(sgpd_df.head())
-
 # 2. Extract just the Illumina IDs as sets
 peg1_probes = set(peg1_df['IlmnID'])
 ppmi_probes = set(ppmi_df['IlmnID'])
@@ -48,6 +44,8 @@ common_annotated_df = common_annotated_df.merge(peg1_top_500_ranked_annotated[['
 common_annotated_df.rename(columns={'compound_importance': 'compound_importance_peg1'}, inplace=True)
 common_annotated_df = common_annotated_df.merge(sgpd_top_500_ranked_annotated[['IlmnID', 'compound_importance']], left_on='IlmnID', right_on='IlmnID', how='left')
 common_annotated_df.rename(columns={'compound_importance': 'compound_importance_sgpd'}, inplace=True)
+
+print(peg1_top_500_ranked_annotated[peg1_top_500_ranked_annotated['IlmnID'] == 'cg10004976'])
 
 print("Common annotated probes between peg1, ppmi, and sgpd in the top 500:")
 print(common_annotated_df.head())
