@@ -12,12 +12,8 @@ manifest_df = pd.read_parquet("/workspace/data/infinium450k_manifest.parquet")
 print(peg1_df.head())
 print(ppmi_df.head())
 
-# 2. Extract just the Illumina IDs as sets
-peg1_probes = set(peg1_df['IlmnID'])
-ppmi_probes = set(ppmi_df['IlmnID'])
-
-peg1_common_probes = list(set(peg1_probes['IllmID']).intersection(set(manifest_df['IlmnID'])))
-ppmi_common_probes = list(set(ppmi_probes['IllmID']).intersection(set(manifest_df['IlmnID'])))
+peg1_common_probes = list(set(peg1_df['IllmID']).intersection(set(manifest_df['IlmnID'])))
+ppmi_common_probes = list(set(ppmi_df['IllmID']).intersection(set(manifest_df['IlmnID'])))
 
 export_strict_test_bed(
     drivers_csv_path=f"{results_path}/peg1/global_compound_importance_ranking.csv",
