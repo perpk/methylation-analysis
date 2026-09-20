@@ -24,7 +24,7 @@ export_strict_test_bed(
     manifest_df=manifest_df,
     top_n=500,
     output_path=f"{results_path}/top_500_peg1_strict.bed",
-    order_by="compound_importance"
+    sort_by="compound_importance"
 )
 
 export_strict_test_bed(
@@ -32,7 +32,7 @@ export_strict_test_bed(
     manifest_df=manifest_df,
     top_n=500,
     output_path=f"{results_path}/top_500_ppmi_strict.bed",
-    order_by="compound_importance"
+    sort_by="compound_importance"
 )
 
 export_strict_background_bed(
