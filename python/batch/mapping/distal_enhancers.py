@@ -89,6 +89,8 @@ def export_strict_test_bed(drivers_csv_path, manifest_df, top_n=500, output_path
         columns={'CHR_x': 'CHR', 'MAPINFO_x': 'MAPINFO'}
         )
     
+    merged_df = merged_df.merge(drivers_df[['IlmnID', sort_by]], on='IlmnID', how='left')
+    print(merged_df.head())
     return _format_and_export_strict_bed(merged_df, output_path)
 
 def export_strict_background_bed(manifest_df, common_probes, output_path="gat_background_universe_strict.bed"):

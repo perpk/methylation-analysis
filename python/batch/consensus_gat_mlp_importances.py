@@ -61,6 +61,7 @@ mapped_ppmi = set(mapped_enhancers_ppmi['cpg_id'])
 
 # 3. Calculate the exact intersection (probes that appear in the top 500 of BOTH cohorts)
 consensus_probes = mapped_peg1.intersection(mapped_ppmi)
+print(f"There are {len(consensus_probes)} consensus probes between PEG1 and PPMI in the top 500 ranked distal enhancers.")
 
 print(f"Number of overlapping probes in Top 500: {len(consensus_probes)}")
 
