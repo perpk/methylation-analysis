@@ -49,7 +49,8 @@ export_strict_background_bed(
 
 mapped_enhancers_peg1 = map_distal_enhancers_to_genes(f"{results_path}/top_500_peg1_strict.bed", f"{results_path}/peg1")
 mapped_enhancers_ppmi = map_distal_enhancers_to_genes(f"{results_path}/top_500_ppmi_strict.bed", f"{results_path}/ppmi")
-
+mapped_enhancers_peg1.head()
+mapped_enhancers_ppmi.head()
 # 3. Calculate the exact intersection (probes that appear in the top 500 of BOTH cohorts)
 consensus_probes = mapped_enhancers_peg1['IlmnID'].intersection(mapped_enhancers_ppmi['IlmnID'])
 
