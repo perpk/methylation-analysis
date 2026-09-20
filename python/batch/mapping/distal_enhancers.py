@@ -82,9 +82,7 @@ def export_strict_test_bed(drivers_csv_path, manifest_df, top_n=500, output_path
     ]
     # Get top drivers and merge with physical coordinates
     top_cpgs = unannotated.sort_values(by=sort_by, ascending=False).head(top_n)
-    print(top_cpgs.head())
-    print(unannotated.head())
-    merged_df = top_cpgs.merge(manifest_df[['IlmnID', 'CHR', 'MAPINFO', sort_by]], on='IlmnID', how='inner')
+    merged_df = top_cpgs.merge(manifest_df[['IlmnID', 'CHR', 'MAPINFO']], on='IlmnID', how='inner')
     merged_df = merged_df.drop(columns=['CHR_y', 'MAPINFO_y']).rename(
        columns={'CHR_x': 'CHR', 'MAPINFO_x': 'MAPINFO'}
     )
