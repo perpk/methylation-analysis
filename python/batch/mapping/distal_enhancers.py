@@ -70,7 +70,7 @@ def _format_and_export_strict_bed(df, output_path):
     
     return bed_df
 
-def export_strict_test_bed(drivers_csv_path, manifest_df, top_n=500, output_path="top_500_pd_enhancers_strict.bed"):
+def export_strict_test_bed(drivers_csv_path, manifest_df, top_n=500, output_path="top_500_pd_enhancers_strict.bed", sort_by='Attention_Score'):
     """Extracts top unannotated GAT drivers and exports directly to strict BED."""
     print(f"Generating strict test BED from {drivers_csv_path}...")
     drivers_df = pd.read_csv(drivers_csv_path)
@@ -82,7 +82,7 @@ def export_strict_test_bed(drivers_csv_path, manifest_df, top_n=500, output_path
     ]
     
     # Get top drivers and merge with physical coordinates
-    top_cpgs = unannotated.sort_values(by='Attention_Score', ascending=False).head(top_n)
+    top_cpgs = unannotated.sort_values(by=sort_by, ascending=False).head(top_n)
     merged_df = top_cpgs.merge(manifest_df[['IlmnID', 'CHR', 'MAPINFO']], on='IlmnID', how='inner')
     
     return _format_and_export_strict_bed(merged_df, output_path)
