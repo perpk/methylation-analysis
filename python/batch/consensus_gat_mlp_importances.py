@@ -52,22 +52,22 @@ mapped_enhancers_ppmi = map_distal_enhancers_to_genes(f"{results_path}/top_500_p
 print(mapped_enhancers_peg1.head())
 print(mapped_enhancers_ppmi.head())
 # 3. Calculate the exact intersection (probes that appear in the top 500 of BOTH cohorts)
-consensus_probes = mapped_enhancers_peg1['IlmnID'].intersection(mapped_enhancers_ppmi['IlmnID'])
+consensus_probes = mapped_enhancers_peg1['cpg_id'].intersection(mapped_enhancers_ppmi['cpg_id'])
 
 print(f"Number of overlapping probes in Top 500: {len(consensus_probes)}")
 
 # 4. Filter the PPMI dataframe to only contain the consensus probes
-consensus_df = mapped_enhancers_ppmi[mapped_enhancers_ppmi['IlmnID'].isin(consensus_probes)].copy()
+consensus_df = mapped_enhancers_ppmi[mapped_enhancers_ppmi['cpg_id'].isin(consensus_probes)].copy()
 
 # Sort them by their importance in PPMI to see the strongest shared drivers
 consensus_df = consensus_df.sort_values(by='compound_importance', ascending=False).reset_index(drop=True)
 
 # 5. Check exactly how many of these consensus probes are 'ch.' (non-CpG)
-ch_count = sum(consensus_df['IlmnID'].str.startswith('ch.'))
+ch_count = sum(consensus_df['cpg_id'].str.startswith('ch.'))
 print(f"Number of 'ch.' (non-CpG) probes in the consensus: {ch_count}")
 
 # 6. Save this high-confidence signature for pathway analysis
 consensus_df.to_csv('/workspace/results/peg1_ppmi_consensus_signature.csv', index=False)
 
 print("\n--- Top 20 Consensus Probes ---")
-print(consensus_df[['IlmnID', 'chromosome', 'MAPINFO', 'UCSC_RefGene_Name']].head(20))
+print(consensus_df.head(20))
