@@ -49,6 +49,10 @@ export_strict_background_bed(
 
 mapped_enhancers_peg1 = map_distal_enhancers_to_genes(f"{results_path}/top_500_peg1_strict.bed", f"{results_path}/peg1")
 mapped_enhancers_ppmi = map_distal_enhancers_to_genes(f"{results_path}/top_500_ppmi_strict.bed", f"{results_path}/ppmi")
+
+mapped_enhancers_peg1 = mapped_enhancers_peg1.merge(peg1_df[['IlmnID', 'compound_importance']], left_on='cpg_id', right_on='IlmnID', how='left', suffixes=('', '_importance'))
+mapped_enhancers_ppmi = mapped_enhancers_ppmi.merge(ppmi_df[['IlmnID', 'compound_importance']], left_on='cpg_id', right_on='IlmnID', how='left', suffixes=('', '_importance'))
+
 print(mapped_enhancers_peg1.head())
 print(mapped_enhancers_ppmi.head())
 
