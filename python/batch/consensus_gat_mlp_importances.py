@@ -51,7 +51,7 @@ mapped_enhancers_peg1 = map_distal_enhancers_to_genes(f"{results_path}/top_500_p
 mapped_enhancers_ppmi = map_distal_enhancers_to_genes(f"{results_path}/top_500_ppmi_strict.bed", f"{results_path}/ppmi")
 
 # 3. Calculate the exact intersection (probes that appear in the top 500 of BOTH cohorts)
-consensus_probes = mapped_enhancers_peg1.intersection(mapped_enhancers_ppmi)
+consensus_probes = mapped_enhancers_peg1['IlmnID'].intersection(mapped_enhancers_ppmi['IlmnID'])
 
 print(f"Number of overlapping probes in Top 500: {len(consensus_probes)}")
 
