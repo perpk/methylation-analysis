@@ -68,7 +68,7 @@ def main():
             organism='human', 
             outdir=None
         )
-        sleep(10)  # To avoid hitting API rate limits
+        sleep(20)  # To avoid hitting API rate limits
         results_df = enrichment.results
         fdr_sig = results_df[results_df['Adjusted P-value'] < 0.05]
         print(f"{name}: Found {len(fdr_sig)} strictly significant terms (FDR < 0.05)")
