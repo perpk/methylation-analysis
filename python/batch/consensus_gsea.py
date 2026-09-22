@@ -73,7 +73,7 @@ def main():
         fdr_sig = results_df[results_df['Adjusted P-value'] < 0.05]
         print(f"{name}: Found {len(fdr_sig)} strictly significant terms (FDR < 0.05)")
         print(f"{name}: Found {len(results_df[results_df['P-value'] < 0.05])} nominaly significant terms (pvalue < 0.05)")
-
+        results_df = results_df[~results_df['Term'].str.contains('mouse', case=False, na=False)].copy()
         results_df.to_csv(f"{results_path}/{name}_gsea_results.csv", index=False)
 
 if __name__ == "__main__":
