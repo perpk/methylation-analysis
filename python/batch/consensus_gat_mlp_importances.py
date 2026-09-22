@@ -48,6 +48,7 @@ common_annotated_df.rename(columns={'compound_importance': 'compound_importance_
 common_annotated_df['importance_mean'] = common_annotated_df[['compound_importance_ppmi', 'compound_importance_peg1', 'compound_importance_sgpd']].mean(axis=1)
 common_annotated_df['importance_median'] = common_annotated_df[['compound_importance_ppmi', 'compound_importance_peg1', 'compound_importance_sgpd']].median(axis=1)
 common_annotated_df['importance_std'] = common_annotated_df[['compound_importance_ppmi', 'compound_importance_peg1', 'compound_importance_sgpd']].std(axis=1)
+common_annotated_df['signal_to_noise'] = common_annotated_df['importance_mean'] / common_annotated_df['importance_std']
 
 common_annotated_df.to_csv(f"{results_path}/peg1_ppmi_sgpd_common_annotated.csv", index=False)
 
@@ -133,6 +134,8 @@ consensus_df.rename(columns={'compound_importance': 'compound_importance_sgpd'},
 consensus_df['importance_mean'] = consensus_df[['compound_importance_ppmi', 'compound_importance_peg1', 'compound_importance_sgpd']].mean(axis=1)
 consensus_df['importance_median'] = consensus_df[['compound_importance_ppmi', 'compound_importance_peg1', 'compound_importance_sgpd']].median(axis=1)
 consensus_df['importance_std'] = consensus_df[['compound_importance_ppmi', 'compound_importance_peg1', 'compound_importance_sgpd']].std(axis=1)
+consensus_df['signal_to_noise'] = consensus_df['importance_mean'] / consensus_df['importance_std']
+
 
 consensus_df.to_csv('/workspace/results/peg1_ppmi_sgpd_consensus_signature.csv', index=False)
 
@@ -145,6 +148,7 @@ consensus_df_peg1_ppmi.rename(columns={'compound_importance': 'compound_importan
 consensus_df_peg1_ppmi['importance_mean'] = consensus_df_peg1_ppmi[['compound_importance_ppmi', 'compound_importance_peg1']].mean(axis=1)
 consensus_df_peg1_ppmi['importance_median'] = consensus_df_peg1_ppmi[['compound_importance_ppmi', 'compound_importance_peg1']].median(axis=1)
 consensus_df_peg1_ppmi['importance_std'] = consensus_df_peg1_ppmi[['compound_importance_ppmi', 'compound_importance_peg1']].std(axis=1)
+consensus_df_peg1_ppmi['signal_to_noise'] = consensus_df_peg1_ppmi['importance_mean'] / consensus_df_peg1_ppmi['importance_std']
 
 print(consensus_df_peg1_ppmi.head(20))
 
