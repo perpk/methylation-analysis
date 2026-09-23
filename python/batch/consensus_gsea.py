@@ -15,7 +15,7 @@ def split_gene_names(gene_string):
 
 def main():
 
-    final_ranking = pd.read_csv("/Users/kpax/Documents/study/phd/projects/methylation/results/consensus_biomarkers_snr_ranked.csv")
+    final_ranking = pd.read_csv("/workspace/results/consensus_biomarkers_snr_ranked.csv")
 
     final_ranking_valid = final_ranking[final_ranking['Valid'] == True]
 
@@ -48,7 +48,7 @@ def main():
     print(f"Found {len(fdr_sig)} strictly significant terms (FDR < 0.05)")
     print(f"Found {len(results_df[results_df['P-value'] < 0.05])} nominaly significant terms (pvalue < 0.05)")
     results_df = results_df[~results_df['Term'].str.contains('mouse', case=False, na=False)].copy()
-    results_df.to_csv("/Users/kpax/Documents/study/phd/projects/methylation/results/final_ranking_gsea_results.csv", index=False)
+    results_df.to_csv("/workspace/results/final_ranking_gsea_results.csv", index=False)
 
 if __name__ == "__main__":
     main()
