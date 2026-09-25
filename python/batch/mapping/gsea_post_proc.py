@@ -56,29 +56,8 @@ def create_plots(cohort_name, file_path, filename="consolidated_pd_network_enric
     plt.tight_layout()
     plt.savefig(f'{file_path}{cohort_name}_significant_terms.png')
 
-def main():
-    cohort_files = {
-        "peg1": "/Users/kpax/Documents/study/phd/projects/methylation/results/peg1/torchgat2/",
-        "sgpd": "/Users/kpax/Documents/study/phd/projects/methylation/results/sgpd/",
-        "ppmi": "/Users/kpax/Documents/study/phd/projects/methylation/results/ppmi/"
-    }
-
-    consolidated_gsea_results = {
-        "all_cohorts_annotated_probes": "/Users/kpax/Documents/study/phd/projects/methylation/results/all_cohorts_annotated_probes_gsea_results.csv",
-        "peg1_ppmi_distal_enhancers_with_ch_probes": "/Users/kpax/Documents/study/phd/projects/methylation/results/peg1_ppmi_distal_ch_probes_gsea_results.csv",
-        "all_cohorts_distal_enhancers": "/Users/kpax/Documents/study/phd/projects/methylation/results/all_cohorts_distal_gsea_results.csv"
-    }
-
-    run_consolidated = True
-
-    for cohort_name, file_path in cohort_files.items():
-        if run_consolidated:
-            for consolidated_name, consolidated_path in consolidated_gsea_results.items():
-                path = consolidated_path.rsplit('/', 1)[0] + '/'
-                filename = consolidated_path.rsplit('/', 1)[1]
-                create_plots(consolidated_name, path, filename, True)
-        else:
-            create_plots(cohort_name, file_path)
+def main():    
+    create_plots("Consolidated Cohort GSEA Results", "/Users/kpax/Documents/study/phd/projects/methylation/results/", "final_ranking_gsea_results.csv", True)
 
 if __name__ == "__main__":
     main()

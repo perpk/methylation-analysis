@@ -72,3 +72,4 @@ print(f"Probes with consistent delta-beta direction across cohorts: {final_ranki
 
 final_ranking.to_csv("/Users/kpax/Documents/study/phd/projects/methylation/results/consensus_biomarkers_snr_ranked.csv", index=False)
 
+final_ranking
