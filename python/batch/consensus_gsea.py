@@ -27,7 +27,7 @@ def main():
 
     final_ranking_gsea_results = "final_ranking_gsea_results"
     if use_specific_genes:
-        final_ranking_genes = [gene for gene in final_ranking_genes if gene in genes_to_lookup]
+        final_ranking_genes = list(set([gene for gene in final_ranking_genes if gene in genes_to_lookup]))
         final_ranking_gsea_results = "final_ranking_gsea_results_specific_genes"
 
     databases = [
