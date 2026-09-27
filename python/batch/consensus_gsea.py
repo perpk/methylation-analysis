@@ -43,7 +43,6 @@ def main():
         'TRRUST_Transcription_Factors_2019',
         'TRANSFAC_and_JASPAR_PWMs',
         'ENCODE_TF_ChIP-seq_2015',
-        'WikiPathways_2024_Human',
         'SynGO_2024',
         'WikiPathways_2024_Human',
         'Elsevier_Pathway_Collection'
@@ -65,6 +64,7 @@ def main():
             outdir=None,
             format='png', 
             seed=42,
+            min_size=5,
             max_size=1000
         )
         results = pre_res.res2d
@@ -74,7 +74,7 @@ def main():
         else:
             print(f"Found {len(sig_results)} strictly significant terms (FDR < 0.05)")
             sig_results = sig_results.sort_values('NES', ascending=False)
-            sig_results.to_csv(f"/workspace/results/{final_ranking_gsea_results}_preranked.csv", index=False)
+            sig_results.to_csv(f"/workspace/results/{final_ranking_gsea_results}.csv", index=False)
 
     else:
         print(f"Performing GSEA for with {len(final_ranking_genes)} genes...")
