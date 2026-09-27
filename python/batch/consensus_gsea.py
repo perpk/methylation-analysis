@@ -50,6 +50,7 @@ def main():
     ]
 
     if run_preranked:
+        df = final_ranking_valid.copy()
         df['Clean_Gene'] = df['UCSC_RefGene_Name'].astype(str).str.split(';').str[0]
         df = df[df['Clean_Gene'] != 'nan']
         gene_ranks = final_ranking_valid.groupby('Clean_Gene')['signal_to_noise'].max().reset_index()
