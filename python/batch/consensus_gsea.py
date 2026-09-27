@@ -60,13 +60,12 @@ def main():
         pre_res = gp.prerank(
             rnk=rnk_df, 
             gene_sets=databases, 
-            processes=4, 
+            threads=4, 
             permutation_num=1000, 
             outdir=None,
             format='png', 
             seed=42,
-            min_size=5,
-            max_size=500
+            max_size=1000
         )
         results = pre_res.res2d
         sig_results = results[results['FDR q-val'] < 0.05].copy()
