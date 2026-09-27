@@ -1,63 +1,101 @@
-
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import textwrap
+import re
 
-def create_plots(cohort_name, file_path, filename="consolidated_pd_network_enrichment_results.csv", adjust_cohort_name=False):
+def sort_gene_string(gene_str):
+    """Sorts gene strings alphabetically to perfectly deduplicate shared pathways."""
+    if pd.isna(gene_str):
+        return gene_str
+    genes = str(gene_str).split(';') 
+    return ';'.join(sorted([g.strip() for g in genes]))
+
+def create_plots(cohort_name, file_path, filename="consolidated_pd_network_enrichment_results.csv"):
     df = pd.read_csv(f"{file_path}{filename}")
+    
+    # Dynamically handle the column name (gseapy defaults to 'Gene_set', but handles 'Database' if renamed)
+    db_column = 'Gene_set' if 'Gene_set' in df.columns else 'Database'
+    
+    # Extract all unique databases from the CSV
+    unique_databases = df[db_column].dropna().unique()
+    
+    print(f"Found {len(unique_databases)} databases. Processing...")
 
-    plot_title_cohort = cohort_name.upper()
-    if adjust_cohort_name:
-        plot_title_cohort = cohort_name.replace("_", " ").capitalize()
+    for db in unique_databases:
+        # 1. Isolate the data for the current database
+        db_df = df[df[db_column] == db].copy()
+        
+        # 2. Filter strictly for FDR significance
+        fdr_sign = db_df.loc[db_df['Adjusted P-value'] < 0.05].copy()
+        
+        # Skip this database if nothing survived the FDR threshold
+        if fdr_sign.empty:
+            print(f"  -> Skipping '{db}': No FDR-significant terms found.")
+            continue
+            
+        # 3. Clean GO IDs and Deduplicate
+        fdr_sign['Term'] = fdr_sign['Term'].str.replace(r' \(GO:.*\)', '', regex=True)
+        
+        if 'Genes' in fdr_sign.columns:
+            fdr_sign['Sorted_Genes'] = fdr_sign['Genes'].apply(sort_gene_string)
+            fdr_sign = fdr_sign.sort_values('Adjusted P-value', ascending=True)
+            fdr_sign = fdr_sign.drop_duplicates(subset=['Sorted_Genes'], keep='first')
 
-    corrected_p_sign = df.loc[df['Adjusted P-value'] < 0.05].copy()
-    corrected_p_sign.sort_values('Adjusted P-value', inplace=True, ascending=True)
-    corrected_p_sign['-log10(P-value)'] = -np.log10(corrected_p_sign['Adjusted P-value'])
-    top_corrected = corrected_p_sign.head(15).copy()
-    top_corrected['Term'] = top_corrected['Term'].map(
-        lambda term: textwrap.fill(str(term), width=35)
-    )
+        # 4. Extract Top 15 and calculate metrics
+        top_terms = fdr_sign.head(15).copy()
+        top_terms['-log10(FDR)'] = -np.log10(top_terms['Adjusted P-value'])
+        
+        if 'Overlap' in top_terms.columns:
+            top_terms['Gene_Count'] = top_terms['Overlap'].astype(str).str.split('/').str[0].astype(int)
+        else:
+            top_terms['Gene_Count'] = 1 
 
-    nominal_p_sign = df.loc[(df['P-value'] < 0.05) & (df['Adjusted P-value'] > 0.05)].copy()
-    nominal_p_sign.sort_values('P-value', inplace=True, ascending=True)
-    nominal_p_sign['-log10(P-value)'] = -np.log10(nominal_p_sign['P-value'])
-    top_terms = nominal_p_sign.head(15).copy()
-    top_terms['Term'] = top_terms['Term'].map(
-        lambda term: textwrap.fill(str(term), width=35)
-    )
+        top_terms['Term'] = top_terms['Term'].map(lambda term: textwrap.fill(str(term), width=20))
+        top_terms = top_terms.sort_values('-log10(FDR)', ascending=True)
 
-    fig, axes = plt.subplots(1, 2, figsize=(16, 9))
+        # 5. Build the Plot
+        fig, ax = plt.subplots(figsize=(10, 8))
 
-    sc1 = axes[0].scatter(
-        top_corrected['-log10(P-value)'],
-        top_corrected['Term'],
-        c=top_corrected['-log10(P-value)'],
-        cmap='viridis',
-        alpha=0.8
-    )
-    axes[0].grid(True)
-    axes[0].set_xlabel('-log10(Adjusted P-value)')
-    axes[0].set_title(f'{plot_title_cohort} corrected significant terms')
-    fig.colorbar(sc1, ax=axes[0])
+        sc = ax.scatter(
+            top_terms['-log10(FDR)'],
+            top_terms['Term'],
+            s=top_terms['Gene_Count'] * 150, 
+            c=top_terms['-log10(FDR)'],
+            cmap='viridis',
+            alpha=0.9,
+            edgecolor='black',
+            linewidth=0.6,
+            zorder=3
+        )
+        
+        ax.grid(axis='y', linestyle='--', alpha=0.6, zorder=1)
+        ax.grid(axis='x', linestyle='--', alpha=0.3, zorder=1)
+        ax.set_xlabel(r'$-\log_{10}(\text{Adjusted P-value})$', fontweight='bold', labelpad=10)
+        
+        # Format the title for readability (e.g., "KEGG_2021_Human" -> "KEGG 2021 Human")
+        clean_title = str(db).replace('_', ' ')
+        ax.set_title(f'{clean_title} Enrichment', fontweight='bold', pad=20)
+        
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
 
-    sc2 = axes[1].scatter(
-        top_terms['-log10(P-value)'],
-        top_terms['Term'],
-        c=top_terms['-log10(P-value)'],
-        cmap='viridis',
-        alpha=0.8
-    )
-    axes[1].grid(True)
-    axes[1].set_xlabel('-log10(P-value)')
-    axes[1].set_title(f'{plot_title_cohort} nominally significant terms')
-    fig.colorbar(sc2, ax=axes[1])
+        cbar = fig.colorbar(sc, ax=ax, pad=0.03)
+        cbar.set_label(r'$-\log_{10}(\text{FDR})$', rotation=270, labelpad=20, fontweight='bold')
 
-    plt.tight_layout()
-    plt.savefig(f'{file_path}{cohort_name}_significant_terms.png')
+        handles, labels = sc.legend_elements(prop="sizes", alpha=0.6, num=4, func=lambda s: s/150)
+        ax.legend(handles, labels, title="Gene Count", bbox_to_anchor=(1.05, 1), loc='lower left', frameon=False)
 
-def main():    
-    create_plots("Consolidated Cohort GSEA Results", "/Users/kpax/Documents/study/phd/projects/methylation/results/", "final_ranking_gsea_results.csv", True)
+        plt.tight_layout(rect=[0, 0, 0.95, 1])
+        
+        # 6. Save uniquely formatted filename and close figure to prevent RAM overload
+        safe_db_name = re.sub(r'[^A-Za-z0-9_]', '_', str(db))  # Strips weird characters
+        output_filename = f'{file_path}{cohort_name}_{safe_db_name}_FDR.png'
+        
+        plt.savefig(output_filename, dpi=300, bbox_inches='tight')
+        plt.close() 
+        
+        print(f"  -> Saved: {cohort_name}_{safe_db_name}_FDR.png")
 
 if __name__ == "__main__":
-    main()
+    create_plots("Consolidated_Cohort", "/Users/kpax/Documents/study/phd/projects/methylation/results/", "final_ranking_gsea_results_specific_genes.csv")
