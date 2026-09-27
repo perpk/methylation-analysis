@@ -53,7 +53,7 @@ def main():
         df = final_ranking_valid.copy()
         df['Clean_Gene'] = df['UCSC_RefGene_Name'].astype(str).str.split(';').str[0]
         df = df[df['Clean_Gene'] != 'nan']
-        gene_ranks = final_ranking_valid.groupby('Clean_Gene')['signal_to_noise'].max().reset_index()
+        gene_ranks = df.groupby('Clean_Gene')['signal_to_noise'].max().reset_index()
         gene_ranks = gene_ranks.sort_values('signal_to_noise', ascending=False).reset_index(drop=True)
         rnk_df = gene_ranks[['Clean_Gene', 'signal_to_noise']]
         print(f"Executing Preranked GSEA on {len(rnk_df)} unique mapped genes...")
