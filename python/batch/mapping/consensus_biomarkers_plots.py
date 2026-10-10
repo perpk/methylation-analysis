@@ -105,4 +105,41 @@ sns.despine()
 plt.tight_layout()
 fig3.savefig("/Users/kpax/Documents/study/phd/projects/methylation/results/fig3_regulatory_regions.png", dpi=300)
 
+# Methylation pattern per functional region
+
+fig4, ax4 = plt.subplots(figsize=(14, 6))
+methylation_region_counts = pd.crosstab(df['Regulatory_Region'], df['Methylation_State'], normalize='index') * 100
+
+methylation_region_counts.plot(kind='bar', stacked=True, color=[color_map['Hypermethylated'], color_map['Hypomethylated']], edgecolor='black', linewidth=0.5, ax=ax4)
+ax4.set_title("Methylation Pattern per Functional Regulatory Region", fontweight='bold', pad=15)
+ax4.set_xlabel("Regulatory Region", fontweight='bold')
+ax4.set_ylabel("Percentage of Probes (%)", fontweight='bold')
+ax4.legend(title="Direction", bbox_to_anchor=(1.02, 1), loc='upper left', frameon=False)
+sns.despine()
+plt.tight_layout()
+fig4.savefig("/Users/kpax/Documents/study/phd/projects/methylation/results/fig4_methylation_per_region.png", dpi=300)
+
+genes_to_lookup = ["DYRK1A", "GNAS", "KCNQ2", "RNF160", "NCAM2", "PRODH", "PTGES", "SH2D3C", "AP1B1", "GPC6", "SEC11C", "LPIN2"]
+
+# Panel of gene methylation status per functional region
+
+for gene in genes_to_lookup:
+    gene_df = df[df['UCSC_RefGene_Name'].str.contains(gene, na=False)]
+    if gene_df.empty:
+        print(f"No data found for {gene}. Skipping plot.")
+        continue
+
+    fig_gene, ax_gene = plt.subplots(figsize=(10, 6))
+    sns.countplot(data=gene_df, x='Regulatory_Region', hue='Methylation_State', palette=color_map, edgecolor='black', ax=ax_gene)
+    
+    ax_gene.set_title(f"Methylation Status of {gene} Across Functional Regions", fontweight='bold', pad=15)
+    ax_gene.set_xlabel("Regulatory Region", fontweight='bold')
+    ax_gene.set_ylabel("Number of Probes", fontweight='bold')
+    ax_gene.legend(title="Direction", bbox_to_anchor=(1.02, 1), loc='upper left', frameon=False)
+    sns.despine()
+    plt.tight_layout()
+    
+    # Save the figure with a unique filename
+    fig_gene.savefig(f"/Users/kpax/Documents/study/phd/projects/methylation/results/{gene}_methylation_status.png", dpi=300)
+
 plt.show()
