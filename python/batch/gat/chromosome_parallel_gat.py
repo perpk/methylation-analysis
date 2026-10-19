@@ -31,23 +31,48 @@ class ChromosomeParallelGAT(nn.Module):
         )
 
     # used with PEG1
-    def forward(self, batched_chrs, u_cells):
+    def forward(self, batched_chrs, u_cells, extract_attention=False):
         chr_embeddings = []
+        
+        # We will store the co-methylation weights here if requested
+        attention_dict = {} 
+
         for c_idx in range(22):
             batch = batched_chrs[c_idx]
             
             emb_func = self.func_embedding(batch.func_type)
             node_feat = torch.cat([batch.x, emb_func], dim=1)
             
-            h = torch.relu(self.gat1(node_feat, batch.edge_index))
-            h = torch.relu(self.gat2(h, batch.edge_index))
+            if extract_attention:
+                # PyTorch Geometric changes the output to a tuple when return_attention_weights=True
+                # It returns: new_node_features, (edge_index, attention_coefficients)
+                h, (edges_1, alpha_1) = self.gat1(node_feat, batch.edge_index, return_attention_weights=True)
+                h = torch.relu(h)
+                
+                h, (edges_2, alpha_2) = self.gat2(h, batch.edge_index, return_attention_weights=True)
+                h = torch.relu(h)
+                
+                # Store the edges and their weights, labeled by chromosome (1-22)
+                attention_dict[f'chr{c_idx+1}'] = {
+                    'layer_1': (edges_1, alpha_1),
+                    'layer_2': (edges_2, alpha_2)
+                }
+            else:
+                # Standard forward pass for your 40-epoch training loop (saves VRAM)
+                h = torch.relu(self.gat1(node_feat, batch.edge_index))
+                h = torch.relu(self.gat2(h, batch.edge_index))
             
             chr_emb = self.pool(h, batch.batch)
             chr_embeddings.append(chr_emb)
             
         genome_vector = torch.cat(chr_embeddings, dim=1)
         fused = torch.cat([genome_vector, u_cells], dim=1)
-        return self.classifier(fused)
+        logits = self.classifier(fused)
+        
+        if extract_attention:
+            return logits, attention_dict
+            
+        return logits
 
     # def forward(self, batched_chrs, u_cells):
     #     chr_embeddings = []
