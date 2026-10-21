@@ -45,7 +45,7 @@ def extract_fold_attention(fold_num, pheno_df, m_matrix_df, manifest_df, pt_file
                 weights_cpu = weights.mean(dim=1).cpu().numpy() 
                 
                 # The Modulo Trick: Revert stitched batch indices back to 0-to-N
-                num_nodes = len(chr_topologies[chr_key]['probes']) # Ensure 'probes' matches your dict key
+                num_nodes = len(chr_topologies[chr_num]['probes']) # Ensure 'probes' matches your dict key
                 src_idx = edges_cpu[0] % num_nodes
                 tgt_idx = edges_cpu[1] % num_nodes
                 
