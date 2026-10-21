@@ -167,11 +167,15 @@ def main(peg1_m_matrix_filepath, sgpd_m_matrix_filepath, ppmi_m_matrix_filepath,
         del pheno
         gc.collect()
     else:
-        cohort_consensus_dfs = [
-            pd.read_csv(f"{results_filepath}/PEG1_edge_consensus.csv"),
-            pd.read_csv(f"{results_filepath}/SGPD_edge_consensus.csv"),
-            pd.read_csv(f"{results_filepath}/PPMI_edge_consensus.csv"),
-        ]
+        cohort_consensus_dfs = []
+        for cohort_name in ["PEG1", "SGPD", "PPMI"]:
+            df = pd.read_csv(f"{results_filepath}/{cohort_name}_edge_consensus.csv")
+            df.rename(columns={
+                'Mean_Weight': f'{cohort_name}_Mean',
+                'Std_Weight': f'{cohort_name}_Std',
+                'SNR': f'{cohort_name}_SNR'
+            }, inplace=True)
+            cohort_consensus_dfs.append(df)
 
     # 2. Calculate Master Inter-Cohort Consensus
     print("\n=== Calculating Master 3-Cohort Consensus ===")
