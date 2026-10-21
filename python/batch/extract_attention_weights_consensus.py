@@ -90,10 +90,17 @@ def process_cohort_consensus(cohort_name, m_matrix, pheno, pt_dir, manifest, res
     print(f"Building topologies for {cohort_name}...")
     chr_topologies = build_chromosome_topologies(manifest, common_probes)
     
-    # Find all 5 pt files for this cohort
-    pt_files = sorted(glob.glob(os.path.join(pt_dir, "*.pt")))
-    if len(pt_files) != 5:
-        print(f"WARNING: Found {len(pt_files)} .pt files for {cohort_name}, expected 5.")
+    # REPLACED GLOB.GLOB: Deterministically generate the 5 expected paths
+    pt_files = []
+    for fold in range(1, 6):
+        # Adjust the prefix if your files are named differently (e.g., 'gat_fold_{fold}.pt')
+        expected_filename = f"{cohort_name}_gat_fold_{fold}.pt" 
+        full_path = os.path.join(pt_dir, expected_filename)
+        
+        if not os.path.exists(full_path):
+            raise FileNotFoundError(f"CRITICAL ERROR: Cannot find model at {full_path}")
+            
+        pt_files.append(full_path)
 
     fold_dfs = []
     for i, pt_file in enumerate(pt_files):
@@ -122,7 +129,6 @@ def process_cohort_consensus(cohort_name, m_matrix, pheno, pt_dir, manifest, res
     print(f"Saved {cohort_name} consensus to {out_path}")
     
     return cohort_consensus
-
 
 def main(peg1_m_matrix_filepath, sgpd_m_matrix_filepath, ppmi_m_matrix_filepath,
          peg1_pt_dir, sgpd_pt_dir, ppmi_pt_dir,
