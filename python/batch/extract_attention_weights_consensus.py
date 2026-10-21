@@ -94,7 +94,7 @@ def process_cohort_consensus(cohort_name, m_matrix, pheno, pt_dir, manifest, res
     pt_files = []
     for fold in range(1, 6):
         # Adjust the prefix if your files are named differently (e.g., 'gat_fold_{fold}.pt')
-        expected_filename = f"{cohort_name}_gat_fold_{fold}.pt" 
+        expected_filename = f"gat_fold_{fold}.pt" 
         full_path = os.path.join(pt_dir, expected_filename)
         
         if not os.path.exists(full_path):
