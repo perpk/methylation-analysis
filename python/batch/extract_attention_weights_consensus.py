@@ -17,7 +17,7 @@ def extract_fold_attention(fold_num, pheno_df, m_matrix_df, manifest_df, pt_file
     # 1. Filter for Parkinson's cases only
     pheno_pd = pheno_df[pheno_df['Sample_Group'] == 'PD'].copy()
     
-    cell_cols = ['CD8T', 'CD4T', 'NK', 'Bcell', 'Mono', 'Gran']
+    cell_cols = ['CD8T', 'CD4T', 'NK', 'Bcell', 'Mono', 'Neu']
     infer_ds = WholeBloodMethylationDataset(m_matrix_df, pheno_pd, cell_cols, chr_topologies)
     
     # batch_size=16 is safe here because we use the Modulo trick below
@@ -140,7 +140,7 @@ def main(peg1_m_matrix_filepath, sgpd_m_matrix_filepath, ppmi_m_matrix_filepath,
     
     cohort_paths = {
         # "PEG1": (peg1_m_matrix_filepath, peg1_pheno_filepath, peg1_pt_dir),
-        "SGPD": (sgpd_m_matrix_filepath, sgpd_pheno_filepath, sgpd_pt_dir),
+        # "SGPD": (sgpd_m_matrix_filepath, sgpd_pheno_filepath, sgpd_pt_dir),
         "PPMI": (ppmi_m_matrix_filepath, ppmi_pheno_filepath, ppmi_pt_dir)
     }
 
