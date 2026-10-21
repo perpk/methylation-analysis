@@ -65,8 +65,9 @@ def extract_fold_attention(fold_num, pheno_df, m_matrix_df, manifest_df, pt_file
     
     # 4. Map Integer Indices to string CpG names once at the end (saves RAM)
     def map_cpg(row, col_name):
-        chr_key = f"chr{int(row['Chromosome'])}"
-        return chr_topologies[chr_key]['probes'][int(row[col_name])]
+        # chr_key = f"chr{int(row['Chromosome'])}"
+        chr_index = int(row['Chromosome'])
+        return chr_topologies[chr_index]['probes'][int(row[col_name])]
 
     fold_df['Source_CpG'] = fold_df.apply(lambda r: map_cpg(r, 'Source_Node_Idx'), axis=1)
     fold_df['Target_CpG'] = fold_df.apply(lambda r: map_cpg(r, 'Target_Node_Idx'), axis=1)
