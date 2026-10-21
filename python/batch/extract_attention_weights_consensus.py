@@ -134,35 +134,44 @@ def main(peg1_m_matrix_filepath, sgpd_m_matrix_filepath, ppmi_m_matrix_filepath,
          peg1_pt_dir, sgpd_pt_dir, ppmi_pt_dir,
          peg1_pheno_filepath, sgpd_pheno_filepath, ppmi_pheno_filepath,
          manifest_filepath, results_filepath):
-    
-    print("Reading data...")
-    manifest = pd.read_parquet(manifest_filepath)
-    
-    cohort_paths = {
-        # "PEG1": (peg1_m_matrix_filepath, peg1_pheno_filepath, peg1_pt_dir),
-        # "SGPD": (sgpd_m_matrix_filepath, sgpd_pheno_filepath, sgpd_pt_dir),
-        "PPMI": (ppmi_m_matrix_filepath, ppmi_pheno_filepath, ppmi_pt_dir)
-    }
 
-    cohort_consensus_dfs = []
-    
-    # 1. Calculate Intra-Cohort Consensus
-    for cohort_name, (m_path, pheno_path, pt_dir) in cohort_paths.items():        
-        print(f"\n--- Loading {cohort_name} into RAM ---")
-        m_matrix = pd.read_parquet(m_path)
-        pheno = pd.read_parquet(pheno_path)
+    start_anew = False
+
+    if (start_anew):
+        print("Reading data...")
+        manifest = pd.read_parquet(manifest_filepath)
         
-        df_consensus = process_cohort_consensus(cohort_name, m_matrix, pheno, pt_dir, manifest, results_filepath)
-        df_consensus.rename(columns={
-            'Mean_Weight': f'{cohort_name}_Mean',
-            'Std_Weight': f'{cohort_name}_Std',
-            'SNR': f'{cohort_name}_SNR'
-        }, inplace=True)
-        cohort_consensus_dfs.append(df_consensus)
+        cohort_paths = {
+            # "PEG1": (peg1_m_matrix_filepath, peg1_pheno_filepath, peg1_pt_dir),
+            # "SGPD": (sgpd_m_matrix_filepath, sgpd_pheno_filepath, sgpd_pt_dir),
+            "PPMI": (ppmi_m_matrix_filepath, ppmi_pheno_filepath, ppmi_pt_dir)
+        }
 
-    del m_matrix
-    del pheno
-    gc.collect()
+        cohort_consensus_dfs = []
+        
+        # 1. Calculate Intra-Cohort Consensus
+        for cohort_name, (m_path, pheno_path, pt_dir) in cohort_paths.items():        
+            print(f"\n--- Loading {cohort_name} into RAM ---")
+            m_matrix = pd.read_parquet(m_path)
+            pheno = pd.read_parquet(pheno_path)
+            
+            df_consensus = process_cohort_consensus(cohort_name, m_matrix, pheno, pt_dir, manifest, results_filepath)
+            df_consensus.rename(columns={
+                'Mean_Weight': f'{cohort_name}_Mean',
+                'Std_Weight': f'{cohort_name}_Std',
+                'SNR': f'{cohort_name}_SNR'
+            }, inplace=True)
+            cohort_consensus_dfs.append(df_consensus)
+
+        del m_matrix
+        del pheno
+        gc.collect()
+    else:
+        cohort_consensus_dfs = [
+            pd.read_csv(f"{results_filepath}/PEG1_edge_consensus.csv"),
+            pd.read_csv(f"{results_filepath}/SGPD_edge_consensus.csv"),
+            pd.read_csv(f"{results_filepath}/PPMI_edge_consensus.csv"),
+        ]
 
     # 2. Calculate Master Inter-Cohort Consensus
     print("\n=== Calculating Master 3-Cohort Consensus ===")
