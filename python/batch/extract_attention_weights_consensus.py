@@ -1,3 +1,4 @@
+import gc
 import os
 import glob
 import pandas as pd
@@ -55,13 +56,18 @@ def extract_fold_attention(fold_num, pheno_df, m_matrix_df, manifest_df, pt_file
                     'Target_Node_Idx': tgt_idx,
                     'Attention_Weight': weights_cpu
                 })
-                all_batches_list.append(batch_df)
+                collapsed_batch = batch_df.groupby(
+                    ['Chromosome', 'Source_Node_Idx', 'Target_Node_Idx'], as_index=False
+                )['Attention_Weight'].sum()
+                
+                all_batches_list.append(collapsed_batch)
                 
     # 3. Aggregate all batches to get the FOLD's representative average
     df_all_batches = pd.concat(all_batches_list, ignore_index=True)
     fold_df = df_all_batches.groupby(
         ['Chromosome', 'Source_Node_Idx', 'Target_Node_Idx'], as_index=False
-    )['Attention_Weight'].mean()
+    )['Attention_Weight'].sum()
+    fold_df['Attention_Weight'] = fold_df['Attention_Weight'] / len(pheno_pd)    
     
     # 4. Map Integer Indices to string CpG names once at the end (saves RAM)
     def map_cpg(row, col_name):
@@ -126,24 +132,31 @@ def main(peg1_m_matrix_filepath, sgpd_m_matrix_filepath, ppmi_m_matrix_filepath,
     print("Reading data...")
     manifest = pd.read_parquet(manifest_filepath)
     
-    cohort_data = {
-        # "PEG1": (pd.read_parquet(peg1_m_matrix_filepath), pd.read_parquet(peg1_pheno_filepath), peg1_pt_dir),
-        "SGPD": (pd.read_parquet(sgpd_m_matrix_filepath), pd.read_parquet(sgpd_pheno_filepath), sgpd_pt_dir),
-        "PPMI": (pd.read_parquet(ppmi_m_matrix_filepath), pd.read_parquet(ppmi_pheno_filepath), ppmi_pt_dir)
+    cohort_paths = {
+        "PEG1": (peg1_m_matrix_filepath, peg1_pheno_filepath, peg1_pt_dir),
+        "SGPD": (sgpd_m_matrix_filepath, sgpd_pheno_filepath, sgpd_pt_dir),
+        "PPMI": (ppmi_m_matrix_filepath, ppmi_pheno_filepath, ppmi_pt_dir)
     }
 
     cohort_consensus_dfs = []
     
     # 1. Calculate Intra-Cohort Consensus
-    for cohort_name, (m_matrix, pheno, pt_dir) in cohort_data.items():
+    for cohort_name, (m_path, pheno_path, pt_dir) in cohort_paths.items():        
+        print(f"\n--- Loading {cohort_name} into RAM ---")
+        m_matrix = pd.read_parquet(m_path)
+        pheno = pd.read_parquet(pheno_path)
+        
         df_consensus = process_cohort_consensus(cohort_name, m_matrix, pheno, pt_dir, manifest, results_filepath)
-        # Rename columns to track which cohort they came from
         df_consensus.rename(columns={
             'Mean_Weight': f'{cohort_name}_Mean',
             'Std_Weight': f'{cohort_name}_Std',
             'SNR': f'{cohort_name}_SNR'
         }, inplace=True)
         cohort_consensus_dfs.append(df_consensus)
+
+    del m_matrix
+    del pheno
+    gc.collect()
 
     # 2. Calculate Master Inter-Cohort Consensus
     print("\n=== Calculating Master 3-Cohort Consensus ===")
