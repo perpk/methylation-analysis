@@ -27,6 +27,8 @@ def prepare_cytoscape_subnetwork(master_nodes_csv, master_edges_csv, manifest_pa
         if pd.isna(val) or val == "":
             return default_label
         return list(dict.fromkeys(str(val).split(';')))[0]
+
+    print(df_annotated_nodes.head())
         
     df_annotated_nodes['Target_Gene'] = df_annotated_nodes['UCSC_RefGene_Name'].apply(clean_illumina_string)
     df_annotated_nodes['Functional_Region'] = df_annotated_nodes['UCSC_RefGene_Group'].apply(clean_illumina_string)
