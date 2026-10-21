@@ -133,7 +133,7 @@ def main(peg1_m_matrix_filepath, sgpd_m_matrix_filepath, ppmi_m_matrix_filepath,
     manifest = pd.read_parquet(manifest_filepath)
     
     cohort_paths = {
-        "PEG1": (peg1_m_matrix_filepath, peg1_pheno_filepath, peg1_pt_dir),
+        # "PEG1": (peg1_m_matrix_filepath, peg1_pheno_filepath, peg1_pt_dir),
         "SGPD": (sgpd_m_matrix_filepath, sgpd_pheno_filepath, sgpd_pt_dir),
         "PPMI": (ppmi_m_matrix_filepath, ppmi_pheno_filepath, ppmi_pt_dir)
     }
