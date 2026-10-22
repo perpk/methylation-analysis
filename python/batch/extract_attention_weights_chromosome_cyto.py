@@ -9,6 +9,7 @@ def export_chromosome_networks(master_nodes_csv, master_edges_csv, target_chromo
     print("Loading Master Dataframes into RAM...")
     df_edges = pd.read_csv(master_edges_csv)
     df_nodes = pd.read_csv(master_nodes_csv)
+    df_nodes = df_nodes[df_nodes['Valid'] == True]
 
     real_snr_values = df_edges.loc[df_edges['Master_SNR'] < 1e7, 'Master_SNR']
 
@@ -19,7 +20,7 @@ def export_chromosome_networks(master_nodes_csv, master_edges_csv, target_chromo
     print(f"99th Percentile SNR: {p99:.2f}")
 
     # Then use the 99th percentile as your absolute biological threshold
-    snr_threshold = p99
+    snr_threshold = p95
     
     # Ensure output directory exists
     os.makedirs(output_dir, exist_ok=True)

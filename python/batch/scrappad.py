@@ -14,6 +14,8 @@ print(f"99th Percentile SNR: {p99:.2f}")
 
 print(df[df["Master_SNR"] >= 51.05].shape)
 
+print(df.columns)
+
 # import numpy as np
 # import matplotlib.pyplot as plt
 # import matplotlib.patches as mpatches
