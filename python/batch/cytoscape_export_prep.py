@@ -56,7 +56,7 @@ def prepare_cytoscape_subnetwork(master_nodes_csv, master_edges_csv, output_dir,
 def main():
     prepare_cytoscape_subnetwork(
         #"/workspace/results/consensus_biomarkers_snr_ranked.csv", 
-        "/workspace/results/consensus_biomarkers_snr_unfiltered.csv"
+        "/workspace/data/consensus_biomarkers_snr_unfiltered.csv",
         "/workspace/results/MASTER_3Cohort_Edge_Consensus.csv", 
         "/workspace/results", 
         top_n=100
