@@ -80,8 +80,9 @@ def main():
     # Set your SNR threshold. 
     # A threshold of 15-20 is usually a strong starting point to strip background noise.
     export_chromosome_networks(
-        master_nodes_csv="/workspace/data/consensus_biomarkers_snr_ranked.csv",
-        master_edges_csv="/workspace/data/MASTER_3Cohort_Edge_Consensus.csv",
+        #master_nodes_csv="/workspace/data/consensus_biomarkers_snr_ranked.csv",
+        master_nodes_csv="/workspace/data/consensus_biomarkers_snr_unfiltered.csv",
+        master_edges_csv="/workspace/results/MASTER_3Cohort_Edge_Consensus.csv",
         target_chromosomes=target_chromosomes,
         output_dir="/workspace/results"
     )
