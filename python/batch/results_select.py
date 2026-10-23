@@ -30,8 +30,10 @@ mean_threshold = df['importance_mean'].quantile(0.95)
 print(f"Mean importance threshold (Top 5%): {mean_threshold:.6e}")
 
 robust_probes = df[df['importance_mean'] >= mean_threshold].copy()
+all_probes = df.copy()
 
 final_ranking = robust_probes.sort_values(by='signal_to_noise', ascending=False).reset_index(drop=True)
+intermediate_ranking = all_probes.sort_values(by='signal_to_noise', ascending=False).reset_index(drop=True)
 
 print(f"Total probes evaluated: {len(df)}")
 print(f"Probes passing biological threshold (Top 5%): {len(final_ranking)}\n")
@@ -59,17 +61,28 @@ final_ranking = final_ranking.merge(df_peg1, on='IlmnID', how='left')
 final_ranking = final_ranking.merge(df_sgpd, on='IlmnID', how='left')
 final_ranking = final_ranking.merge(df_ppmi, on='IlmnID', how='left')
 
+intermediate_ranking = intermediate_ranking.merge(df_peg1, on='IlmnID', how='left')
+intermediate_ranking = intermediate_ranking.merge(df_sgpd, on='IlmnID', how='left')
+intermediate_ranking = intermediate_ranking.merge(df_ppmi, on='IlmnID', how='left')
+
 final_ranking['delta_beta_mean'] = final_ranking[['delta_beta_peg1', 'delta_beta_sgpd', 'delta_beta_ppmi']].mean(axis=1)
 final_ranking['delta_beta_median'] = final_ranking[['delta_beta_peg1', 'delta_beta_sgpd', 'delta_beta_ppmi']].median(axis=1)
 final_ranking['delta_beta_std'] = final_ranking[['delta_beta_peg1', 'delta_beta_sgpd', 'delta_beta_ppmi']].std(axis=1)
 final_ranking['delta_beta_signal_to_noise'] = final_ranking['delta_beta_mean'] / final_ranking['delta_beta_std']
 
+intermediate_ranking['delta_beta_mean'] = intermediate_ranking[['delta_beta_peg1', 'delta_beta_sgpd', 'delta_beta_ppmi']].mean(axis=1)
+intermediate_ranking['delta_beta_median'] = intermediate_ranking[['delta_beta_peg1', 'delta_beta_sgpd', 'delta_beta_ppmi']].median(axis=1)
+intermediate_ranking['delta_beta_std'] = intermediate_ranking[['delta_beta_peg1', 'delta_beta_sgpd', 'delta_beta_ppmi']].std(axis=1)
+intermediate_ranking['delta_beta_signal_to_noise'] = intermediate_ranking['delta_beta_mean'] / intermediate_ranking['delta_beta_std']
+
 cols_to_check = ['delta_beta_peg1', 'delta_beta_sgpd', 'delta_beta_ppmi']
 
 final_ranking['Valid'] = (final_ranking[cols_to_check] > 0).all(axis=1) | (final_ranking[cols_to_check] < 0).all(axis=1)
+intermediate_ranking['Valid'] = (intermediate_ranking[cols_to_check] > 0).all(axis=1) | (intermediate_ranking[cols_to_check] < 0).all(axis=1)
 
 print(f"Probes with consistent delta-beta direction across cohorts: {final_ranking['Valid'].sum()}")
 
-final_ranking.to_csv("/Users/kpax/Documents/study/phd/projects/methylation/results/consensus_biomarkers_snr_ranked.csv", index=False)
+# final_ranking.to_csv("/Users/kpax/Documents/study/phd/projects/methylation/results/consensus_biomarkers_snr_ranked.csv", index=False)
+intermediate_ranking.to_csv("/Users/kpax/Documents/study/phd/projects/methylation/results/consensus_biomarkers_snr_unfiltered.csv", index=False)
 
 final_ranking
