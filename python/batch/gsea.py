@@ -149,7 +149,13 @@ def perform_gsea_and_plot_panels(gene_list, databases, output_dir, file_prefix, 
 
 
 if __name__ == "__main__":
+    def clean_illumina_string(val, default_label="Intergenic"):
+        if pd.isna(val) or val == "":
+            return default_label
+        return list(dict.fromkeys(str(val).split(';')))[0]    
     df = pd.read_csv("/workspace/data/consensus_biomarkers_snr_ranked.csv")
+    df['Target_Gene'] = df['UCSC_RefGene_Name'].apply(clean_illumina_string)
+
     elite_genes = df['Target_Gene'].unique().tolist()
     
     output_directory = "/workspace/results"
