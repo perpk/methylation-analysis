@@ -19,23 +19,31 @@ df2_aligned = df2.rename(columns=rename_mapping)
 # 3. Stack the rows vertically
 # ignore_index=True ensures the final DataFrame has a clean, continuous index from 0 to N
 df = pd.concat([df1, df2_aligned], axis=0, ignore_index=True)
+print(df[df['signal_to_noise'] > 14].sort_values(by='signal_to_noise', ascending=False))
 
 # 4. Optional: If the two files have overlapping probes and you only want unique ones, 
 # you can drop duplicates based on the Illumina ID:
 # df = df.drop_duplicates(subset=['IlmnID'], keep='first').reset_index(drop=True)
 
-print(df.head())
+# print(df.head())
 
-mean_threshold = df['importance_mean'].quantile(0.95)
-print(f"Mean importance threshold (Top 5%): {mean_threshold:.6e}")
+median_threshold = df['importance_mean'].quantile(0.50)
+print(f"Median importance threshold: {median_threshold:.6e}")
 
-robust_probes = df[df['importance_mean'] >= mean_threshold].copy()
+print(f"Nodes before floor: {len(df)}")
+df = df[df['importance_mean'] >= median_threshold]
+print(f"Nodes after floor: {len(df)}")
+
+snr_threshold = df['signal_to_noise'].quantile(0.95)
+print(f"SNR threshold (Top 5%): {snr_threshold:.6e}")
+
+robust_probes = df[df['signal_to_noise'] >= snr_threshold].copy()
 all_probes = df.copy()
 
 final_ranking = robust_probes.sort_values(by='signal_to_noise', ascending=False).reset_index(drop=True)
 intermediate_ranking = all_probes.sort_values(by='signal_to_noise', ascending=False).reset_index(drop=True)
 
-print(f"Total probes evaluated: {len(df)}")
+print(f"Total probes evaluated: {len(df)}") 
 print(f"Probes passing biological threshold (Top 5%): {len(final_ranking)}\n")
 print("--- Top Consensus Biomarkers (Ranked by SNR) ---")
 print(final_ranking.head(20))
@@ -82,7 +90,7 @@ intermediate_ranking['Valid'] = (intermediate_ranking[cols_to_check] > 0).all(ax
 
 print(f"Probes with consistent delta-beta direction across cohorts: {final_ranking['Valid'].sum()}")
 
-# final_ranking.to_csv("/Users/kpax/Documents/study/phd/projects/methylation/results/consensus_biomarkers_snr_ranked.csv", index=False)
-intermediate_ranking.to_csv("/Users/kpax/Documents/study/phd/projects/methylation/results/consensus_biomarkers_snr_unfiltered.csv", index=False)
+final_ranking.to_csv("/Users/kpax/Documents/study/phd/projects/methylation/results/consensus_biomarkers_snr_ranked.csv", index=False)
+# intermediate_ranking.to_csv("/Users/kpax/Documents/study/phd/projects/methylation/results/consensus_biomarkers_snr_unfiltered.csv", index=False)
 
 final_ranking

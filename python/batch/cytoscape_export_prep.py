@@ -13,7 +13,7 @@ def prepare_cytoscape_subnetwork(master_nodes_csv, master_edges_csv, output_dir,
     df_nodes = pd.read_csv(master_nodes_csv)
 
     # Isolate the top diagnostic drivers (Nodes)
-    df_top_nodes = df_nodes[df_nodes['Valid'] == True].head(top_n).copy()
+    df_top_nodes = df_nodes[df_nodes['Valid'] == True]
     top_cpg_list = df_top_nodes['IlmnID'].tolist()
     
     def clean_illumina_string(val, default_label="Intergenic"):
@@ -55,10 +55,10 @@ def prepare_cytoscape_subnetwork(master_nodes_csv, master_edges_csv, output_dir,
 
 def main():
     prepare_cytoscape_subnetwork(
-        "/workspace/results/consensus_biomarkers_snr_ranked.csv", 
+        "/Users/kpax/Documents/study/phd/projects/methylation/results/consensus_biomarkers_snr_ranked.csv", 
         # "/workspace/data/consensus_biomarkers_snr_unfiltered.csv",
-        "/workspace/results/MASTER_3Cohort_Edge_Consensus.csv", 
-        "/workspace/results", 
+        "/Users/kpax/Documents/study/phd/projects/methylation/results/MASTER_3Cohort_Edge_Consensus.csv", 
+        "/Users/kpax/Documents/study/phd/projects/methylation/results", 
         top_n=100
     )
 
