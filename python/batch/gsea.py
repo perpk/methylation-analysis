@@ -15,7 +15,7 @@ def sort_gene_string(gene_str):
     genes = str(gene_str).split(';') 
     return ';'.join(sorted([g.strip() for g in genes]))
 
-def perform_gsea_and_plot_panels(gene_list, databases, output_dir, file_prefix, title="Enrichment"):
+def perform_gsea_and_plot_panels(gene_list, databases, output_dir, file_prefix, title="Enrichment", size_multiplier=150):
     """
     Executes GSEA via gseapy, filters for FDR < 0.05, deduplicates, and generates 
     a multi-panel (A, B, C) publication-ready bubble plot.
@@ -99,7 +99,7 @@ def perform_gsea_and_plot_panels(gene_list, databases, output_dir, file_prefix, 
         sc = ax.scatter(
             top_terms['-log10(FDR)'],
             top_terms['Term'],
-            s=top_terms['Gene_Count'] * 150, 
+            s=top_terms['Gene_Count'] * size_multiplier, 
             c=top_terms['-log10(FDR)'],
             cmap='viridis',
             alpha=0.9,
@@ -127,7 +127,7 @@ def perform_gsea_and_plot_panels(gene_list, databases, output_dir, file_prefix, 
         cbar = fig.colorbar(sc, ax=ax, pad=0.02, shrink=0.7)
         cbar.set_label(r'$-\log_{10}(\text{FDR})$', rotation=270, labelpad=20, fontweight='bold')
 
-        handles, labels = sc.legend_elements(prop="sizes", alpha=0.6, num=4, func=lambda s: s/150)
+        handles, labels = sc.legend_elements(prop="sizes", alpha=0.6, num=4, func=lambda s: s/size_multiplier)
         ax.legend(handles, labels, title="Gene Count", bbox_to_anchor=(1.05, 1), loc='upper left', frameon=False)
 
     # Hide any unused subplots (if you have an odd number of databases in a 2-column grid)
@@ -170,7 +170,8 @@ if __name__ == "__main__":
         gene_list=elite_genes, 
         databases=regulator_dbs, 
         output_dir=output_directory, 
-        file_prefix="Fig3_Regulators"
+        file_prefix="Fig3_Regulators",
+        size_multiplier=40
     )
     
     # Run 2: The Biological Pathways Figure (Figure 4 in your paper)
