@@ -13,7 +13,7 @@ print(df[df['signal_to_noise'] >= upper_5].shape)
 print(df[df['signal_to_noise'] >= upper_5]['CHR'].unique())
 print(df[df['signal_to_noise'] >= upper_5]['CHR'].value_counts())
 
-robust_probes = df[df['signal_to_noise'] >= upper_5]
+robust_probes = df.copy() #df[df['signal_to_noise'] >= upper_5]
 
 def clean_illumina_string(val, default_label="Intergenic"):
         if pd.isna(val) or val == "":
