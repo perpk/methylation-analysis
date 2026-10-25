@@ -30,10 +30,25 @@ print(f"Running pathway analysis on {len(elite_genes)} elite diagnostic genes.")
 
 import gseapy as gp
 
-# Run Enrichr locally in memory
+databases = [
+    'GO_Biological_Process_2026', 
+    'Reactome_2022', 
+    'KEGG_2021_Human',
+    'Reactome_Pathways_2024',
+    'GO_Molecular_Function_2026',
+    'TRRUST_Transcription_Factors_2019',
+    'TRANSFAC_and_JASPAR_PWMs',
+    'ENCODE_TF_ChIP-seq_2015',
+    'WikiPathways_2024_Human',
+    'SynGO_2024',
+    'WikiPathways_2024_Human',
+    'Elsevier_Pathway_Collection'
+]
+
+
 enr = gp.enrichr(
     gene_list=elite_genes,
-    gene_sets=['KEGG_2021_Human', 'GO_Biological_Process_2023'],
+    gene_sets=databases,
     organism='human',
     outdir=None # Keeps it in Pandas rather than writing to disk immediately
 )
