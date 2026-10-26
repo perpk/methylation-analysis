@@ -42,7 +42,7 @@ def generate_evaluation_plots(m_matrix_df, pheno_df, chr_topologies, cell_cols, 
         test_loader = DataLoader(test_ds, batch_size=16, shuffle=False, collate_fn=chromosome_collate_fn)
         
         model = ChromosomeParallelGAT().to(device)
-        fold_bin = torch.load(f"{results_filepath}/gat_fold_{fold + 1}.pt", map_location=device)
+        fold_bin = torch.load(f"/workspace/data/{file_suffix}/gat_fold_{fold + 1}.pt", map_location=device)
         model.load_state_dict(fold_bin['model_state_dict'])
         model.eval()
         
