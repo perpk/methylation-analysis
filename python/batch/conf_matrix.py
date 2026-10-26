@@ -50,9 +50,8 @@ def evaluate_cohorts():
     for cohort_name, cohort_path in cohorts.items():
         print(f"\n{'='*60}\nEvaluating Cohort: {cohort_name}\n{'='*60}")
         
-        # 1. Load the pre-processed data saved by your training script
         pheno_path = os.path.join(cohort_path, "pheno_data.parquet")
-        m_matrix_path = os.path.join(cohort_path, cohort_m_matrix[cohort_name])
+        m_matrix_path = os.path.join(cohort_path, "m_matrix_full_reduced.parquet")
         
         if not os.path.exists(pheno_path) or not os.path.exists(m_matrix_path):
             print(f"Skipping {cohort_name}: Processed data files not found in {cohort_path}")
@@ -61,18 +60,34 @@ def evaluate_cohorts():
         pheno_df = pd.read_parquet(pheno_path)
         m_matrix_df = pd.read_parquet(m_matrix_path)
         
+        # FIX 1: Rename Neu to Gran BEFORE feeding to the dataset!
+        if 'Neu' in pheno_df.columns:
+            pheno_df = pheno_df.rename(columns={'Neu': 'Gran'})
+            
         if pheno_df.index.name != "Sample_Name":
             pheno_df = pheno_df.set_index("Sample_Name")
         m_matrix_df.set_index('Sample_Name', inplace=True)
         
-        # 2. Build Topologies
-        common_probes = list(set(m_matrix_df.columns).intersection(set(manifest_df['IlmnID'])))
+        # FIX 2: Enforce deterministic sorting to fix the `set()` randomization bug
+        # By sorting alphabetically, we guarantee the column order matches perfectly 
+        # with how PyTorch Geometric builds the node topologies.
+        raw_intersection = set(m_matrix_df.columns).intersection(set(manifest_df['IlmnID']))
+        common_probes = sorted(list(raw_intersection)) # <-- The critical fix
+        
         m_matrix_df = m_matrix_df[common_probes]
+        print(f"Total overlapping autosome probes (Sorted): {len(common_probes):,}")
+        
         print("Building chromosome topologies...")
         chr_topologies = build_chromosome_topologies(manifest_df, common_probes)
         
         # 3. Setup the Exact Cross-Validation Splitter
-        y = pheno_df['Sample_Group'].map(LABEL_MAP).to_numpy(dtype=np.int64)
+        y = pheno_df['Sample_Group'].map(LABEL_MAP)
+        
+        # Safety Check: Did the mapping fail?
+        if y.isna().any():
+            raise ValueError(f"Label Mapping failed! Check for NaNs. Unique values: {pheno_df['Sample_Group'].unique()}")
+            
+        y = y.to_numpy(dtype=np.int64)
         skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
         
         all_oof_probs = []
