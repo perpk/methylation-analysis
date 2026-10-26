@@ -1,11 +1,12 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
 import torch
 from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import (roc_curve, auc, precision_recall_curve, 
                              average_precision_score, accuracy_score, 
-                             precision_score, recall_score, f1_score)
+                             precision_score, recall_score, f1_score, confusion_matrix)
 from torch.utils.data import DataLoader
 from gat import ChromosomeParallelGAT, WholeBloodMethylationDataset, chromosome_collate_fn
 
@@ -26,7 +27,10 @@ def generate_evaluation_plots(m_matrix_df, pheno_df, chr_topologies, cell_cols, 
     val_tprs, val_aucs, val_pr_aucs, val_precs = [], [], [], []
     metrics_records = []
     
-    # Prefix formatting for files
+    # Global accumulators for the Aggregated Confusion Matrix
+    global_val_preds = []
+    global_val_truths = []
+    
     prefix = f"{file_suffix}_" if file_suffix else ""
     
     for fold, (train_idx, test_idx) in enumerate(skf.split(pheno_df, y)):
@@ -62,6 +66,10 @@ def generate_evaluation_plots(m_matrix_df, pheno_df, chr_topologies, cell_cols, 
                 logits = model(batched_chrs, u_cells.to(device)).squeeze(1)
                 val_preds.extend(torch.sigmoid(logits).cpu().numpy())
                 val_truths.extend(batch_y.numpy())
+                
+        # Append to global lists for the confusion matrix later
+        global_val_preds.extend(val_preds)
+        global_val_truths.extend(val_truths)
 
         # --- 2. Calculate Soft Metrics (AUCs) ---
         tr_fpr, tr_tpr, _ = roc_curve(train_truths, train_preds)
@@ -110,11 +118,9 @@ def generate_evaluation_plots(m_matrix_df, pheno_df, chr_topologies, cell_cols, 
 
         # --- 4. Generate Per-Fold Plot ---
         fig_fold, (ax_f_roc, ax_f_pr) = plt.subplots(1, 2, figsize=(16, 7))
-        
         ax_f_roc.plot(tr_fpr, tr_tpr, color='#ffb347', lw=2.5, label=f'Train ROC (AUC = {tr_roc_auc:.4f})')
         ax_f_roc.plot(v_fpr, v_tpr, color='#779ecb', lw=2.5, label=f'Val ROC (AUC = {v_roc_auc:.4f})')
         ax_f_roc.plot([0, 1], [0, 1], linestyle='--', lw=2, color='gray', label='Chance')
-        
         ax_f_roc.set_xlim([-0.05, 1.05])
         ax_f_roc.set_ylim([-0.05, 1.05])
         ax_f_roc.set_xlabel("False Positive Rate", fontsize=16)
@@ -129,7 +135,6 @@ def generate_evaluation_plots(m_matrix_df, pheno_df, chr_topologies, cell_cols, 
         ax_f_pr.plot(tr_rec, tr_prec, color='#ffb347', lw=2.5, label=f'Train PR (AP = {tr_pr_auc:.4f})')
         ax_f_pr.plot(v_rec, v_prec, color='#779ecb', lw=2.5, label=f'Val PR (AP = {v_pr_auc:.4f})')
         ax_f_pr.axhline(y=baseline_fold, color='gray', linestyle='--', lw=2, label='Val Baseline')
-        
         ax_f_pr.set_xlim([-0.05, 1.05])
         ax_f_pr.set_ylim([-0.05, 1.05])
         ax_f_pr.set_xlabel("Recall", fontsize=16)
@@ -150,8 +155,7 @@ def generate_evaluation_plots(m_matrix_df, pheno_df, chr_topologies, cell_cols, 
     # --- 5. Export Metrics to CSV ---
     metrics_df = pd.DataFrame(metrics_records)
     metrics_df.to_csv(f"{results_filepath}/{prefix}cv_evaluation_metrics.csv", index=False)
-    print(f"\nSaved detailed evaluation metrics to {prefix}cv_evaluation_metrics.csv")
-
+    
     # --- 6. Generate Global Mean Plot ---
     fig_mean, (ax_roc, ax_pr) = plt.subplots(1, 2, figsize=(16, 7))
     
@@ -196,3 +200,47 @@ def generate_evaluation_plots(m_matrix_df, pheno_df, chr_topologies, cell_cols, 
     plt.tight_layout()
     fig_mean.savefig(f"{results_filepath}/{prefix}mean_evaluation_curves.pdf", format="pdf", bbox_inches="tight")
     plt.close(fig_mean)
+
+    # --- 7. Aggregated Confusion Matrix ---
+    print("\nGenerating Aggregated Confusion Matrix...")
+    y_true_all = np.array(global_val_truths)
+    y_probs_all = np.array(global_val_preds)
+    
+    # Calculate optimal threshold across all validation data
+    precision, recall, thresholds = precision_recall_curve(y_true_all, y_probs_all)
+    f1_scores = (2 * precision * recall) / (precision + recall + 1e-8)
+    opt_idx = np.argmax(f1_scores)
+    opt_thresh = thresholds[opt_idx]
+    
+    y_preds_all = (y_probs_all >= opt_thresh).astype(int)
+    cm = confusion_matrix(y_true_all, y_preds_all)
+    tn, fp, fn, tp = cm.ravel()
+    
+    plt.figure(figsize=(7, 6))
+    cm_percentages = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+    
+    labels = np.asarray([
+        f"True Negative\n{tn}\n({cm_percentages[0, 0]:.1%})",
+        f"False Positive\n{fp}\n({cm_percentages[0, 1]:.1%})",
+        f"False Negative\n{fn}\n({cm_percentages[1, 0]:.1%})",
+        f"True Positive\n{tp}\n({cm_percentages[1, 1]:.1%})"
+    ]).reshape(2, 2)
+
+    ax_cm = sns.heatmap(
+        cm, annot=labels, fmt="", cmap='Blues', cbar=False, square=True,
+        annot_kws={"size": 13, "weight": "bold"}, linewidths=2, linecolor='black'
+    )
+
+    cohort_title = file_suffix.upper() if file_suffix else "All Folds"
+    ax_cm.set_title(f'Aggregated Cross-Validation Performance\n{cohort_title} (F1 Threshold = {opt_thresh:.3f})', 
+                    fontsize=16, fontweight='bold', pad=20)
+    ax_cm.set_xlabel('Predicted Diagnosis (GATv2)', fontsize=14, fontweight='bold', labelpad=15)
+    ax_cm.set_ylabel('True Clinical Diagnosis', fontsize=14, fontweight='bold', labelpad=15)
+    ax_cm.set_xticklabels(['Control (0)', 'Parkinson\'s (1)'], fontsize=12)
+    ax_cm.set_yticklabels(['Control (0)', 'Parkinson\'s (1)'], fontsize=12, rotation=0, va='center')
+
+    plt.tight_layout()
+    plt.savefig(f"{results_filepath}/{prefix}aggregated_confusion_matrix.pdf", format="pdf", bbox_inches="tight")
+    plt.savefig(f"{results_filepath}/{prefix}aggregated_confusion_matrix.png", dpi=300, bbox_inches="tight")
+    plt.close()
+    print(f"Saved confusion matrix to {prefix}aggregated_confusion_matrix.pdf")
