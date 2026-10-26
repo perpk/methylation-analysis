@@ -51,7 +51,7 @@ def evaluate_cohorts():
         print(f"\n{'='*60}\nEvaluating Cohort: {cohort_name}\n{'='*60}")
         
         pheno_path = os.path.join(cohort_path, "pheno_data.parquet")
-        m_matrix_path = os.path.join(cohort_path, "m_matrix_full_reduced.parquet")
+        m_matrix_path = os.path.join(cohort_path, cohort_m_matrix[cohort_name])
         
         if not os.path.exists(pheno_path) or not os.path.exists(m_matrix_path):
             print(f"Skipping {cohort_name}: Processed data files not found in {cohort_path}")
