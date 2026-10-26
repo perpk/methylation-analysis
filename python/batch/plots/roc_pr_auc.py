@@ -30,13 +30,13 @@ def generate_evaluation_plots(m_matrix_df, pheno_df, chr_topologies, cell_cols, 
     # Global accumulators for the Aggregated Confusion Matrix
     global_val_preds = []
     global_val_truths = []
+    global_val_preds_bin = []
     
     prefix = f"{file_suffix}_" if file_suffix else ""
     
     for fold, (train_idx, test_idx) in enumerate(skf.split(pheno_df, y)):
         print(f"Evaluating Fold {fold + 1}...")
         
-        global_val_preds_bin = []
 
         train_pheno = pheno_df.iloc[train_idx]
         test_pheno = pheno_df.iloc[test_idx]
