@@ -154,6 +154,7 @@ if __name__ == "__main__":
             return default_label
         return list(dict.fromkeys(str(val).split(';')))[0]    
     df = pd.read_csv("/workspace/data/consensus_biomarkers_snr_ranked.csv")
+    df = df[df['Valid'] == True]
     df['Target_Gene'] = df['UCSC_RefGene_Name'].apply(clean_illumina_string)
 
     elite_genes = df['Target_Gene'].unique().tolist()
