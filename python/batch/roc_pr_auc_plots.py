@@ -4,10 +4,10 @@ import sys
 
 from gat import build_chromosome_topologies
 
-def main(m_matrix_path, pheno_path, manifest_path, results_filepath, panel_1, panel_2, file_suffix):
+def main(m_matrix_path, pheno_path, manifest_path, results_filepath, panel_1, panel_2, panel_3, file_suffix):
     cell_cols = ['CD8T', 'CD4T', 'NK', 'Bcell', 'Mono', 'Gran']
 
-    custom_labels = (panel_1, panel_2)
+    custom_labels = (panel_1, panel_2, panel_3)
 
     m_matrix_df = pd.read_parquet(m_matrix_path)
     pheno_df = pd.read_parquet(pheno_path)
@@ -30,5 +30,5 @@ def main(m_matrix_path, pheno_path, manifest_path, results_filepath, panel_1, pa
     
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7])
+    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8])
 
