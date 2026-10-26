@@ -1,149 +1,192 @@
-import torch
+import os
+import gc
 import numpy as np
+import pandas as pd
+import torch
+from torch.utils.data import DataLoader
+from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import precision_recall_curve, confusion_matrix, roc_auc_score
 import matplotlib.pyplot as plt
 import seaborn as sns
-import os
+import torch.multiprocessing
 
-from gat import ChromosomeParallelGAT
+from gat import ChromosomeParallelGAT, WholeBloodMethylationDataset, chromosome_collate_fn, build_chromosome_topologies
 
-# Instantiate the model architecture once
-model = ChromosomeParallelGAT(num_node_classes=7, chr_embed_dim=16, cell_prop_dim=6)
-model.eval() # Critical: disable dropout for inference
+def evaluate_cohorts():
+    torch.multiprocessing.set_sharing_strategy('file_system')
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print(f"Executing GAT Evaluation Pipeline on: {device}")
 
-cohorts = {
-    "PEG1": "/workspace/data/peg1",
-    "SGPD": "/workspace/data/sgpd",
-    "PPMI": "/workspace/data/ppmi"
-}
-
-output_dir = "/workspace/results/confusion_matrices/"
-os.makedirs(output_dir, exist_ok=True)
-
-# Loop through each cohort independently
-for cohort_name, cohort_path in cohorts.items():
-    print(f"\n{'='*50}\nEvaluating Cohort: {cohort_name}\n{'='*50}")
+    # =====================================================================
+    # CONFIGURATION
+    # =====================================================================
+    # Adjust this path to wherever your global array manifest is stored
+    manifest_filepath = "/workspace/data/infinium450k_manifest.parquet" 
     
-    # CRITICAL FIX 1: Reset accumulators FOR EACH COHORT
-    all_oof_probs = []
-    all_oof_targets = []
+    cohorts = {
+        "PEG1": "/workspace/data/peg1",
+        "SGPD": "/workspace/data/sgpd",
+        "PPMI": "/workspace/data/ppmi"
+    }
+
+    cohort_m_matrix = {
+        "PEG1": "GSE111629_data_test.parquet",
+        "SGPD": "GSE145361_data_corrected.parquet",
+        "PPMI": "ppmi_data_test.parquet"
+    }
+
+    output_dir = "/workspace/results/confusion_matrices/"
+    os.makedirs(output_dir, exist_ok=True)
+
+    LABEL_MAP = {'Control': 0, 'PD': 1}
+    cell_cols = ['CD8T', 'CD4T', 'NK', 'Bcell', 'Mono', 'Gran']
     
-    for fold in range(1, 6):
-        checkpoint_path = f"{cohort_path}/gat_fold_{fold}.pt"
-        try:
-            checkpoint = torch.load(checkpoint_path, map_location='cpu')
-            model.load_state_dict(checkpoint['model_state_dict'])
-        except FileNotFoundError:
-            print(f"  -> Skipping fold {fold}: Checkpoint not found.")
+    # Load manifest once globally
+    manifest_df = pd.read_parquet(manifest_filepath)
+
+    # =====================================================================
+    # COHORT LOOP
+    # =====================================================================
+    for cohort_name, cohort_path in cohorts.items():
+        print(f"\n{'='*60}\nEvaluating Cohort: {cohort_name}\n{'='*60}")
+        
+        # 1. Load the pre-processed data saved by your training script
+        pheno_path = os.path.join(cohort_path, "pheno_data.parquet")
+        m_matrix_path = os.path.join(cohort_path, cohort_m_matrix[cohort_name])
+        
+        if not os.path.exists(pheno_path) or not os.path.exists(m_matrix_path):
+            print(f"Skipping {cohort_name}: Processed data files not found in {cohort_path}")
             continue
 
-        # ========================================================
-        # TODO: Insert your validation loader logic here
-        # val_loader = get_fold_val_loader(cohort_name, fold)
-        # ========================================================
+        pheno_df = pd.read_parquet(pheno_path)
+        m_matrix_df = pd.read_parquet(m_matrix_path)
         
-        with torch.no_grad():
-            for batched_chrs, u_cells, batch_y in val_loader:
-                # Forward pass
-                logits = model(batched_chrs, u_cells)
+        if pheno_df.index.name != "Sample_Name":
+            pheno_df = pheno_df.set_index("Sample_Name")
+        m_matrix_df.set_index('Sample_Name', inplace=True)
+        
+        # 2. Build Topologies
+        common_probes = list(set(m_matrix_df.columns).intersection(set(manifest_df['IlmnID'])))
+        m_matrix_df = m_matrix_df[common_probes]
+        print("Building chromosome topologies...")
+        chr_topologies = build_chromosome_topologies(manifest_df, common_probes)
+        
+        # 3. Setup the Exact Cross-Validation Splitter
+        y = pheno_df['Sample_Group'].map(LABEL_MAP).to_numpy(dtype=np.int64)
+        skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+        
+        all_oof_probs = []
+        all_oof_targets = []
+        
+        # Instantiate model architecture and move to device
+        model = ChromosomeParallelGAT().to(device)
+        
+        # 4. Iterate over the folds
+        for fold, (train_idx, test_idx) in enumerate(skf.split(pheno_df, y)):
+            print(f"  -> Processing Fold {fold + 1}...")
+            
+            checkpoint_path = f"{cohort_path}/gat_fold_{fold + 1}.pt"
+            if not os.path.exists(checkpoint_path):
+                print(f"     [!] Checkpoint not found: {checkpoint_path}")
+                continue
                 
-                # Convert logits to probabilities
-                probs = torch.sigmoid(logits).squeeze()
-                
-                # Ensure probs is iterable even if batch_size=1
-                if probs.dim() == 0:
-                    probs = probs.unsqueeze(0)
+            # Load weights
+            checkpoint = torch.load(checkpoint_path, map_location=device)
+            model.load_state_dict(checkpoint['model_state_dict'])
+            model.eval() # Disable dropout/batchnorm for inference
+            
+            # Recreate test subset exactly as done in training
+            test_pheno = pheno_df.iloc[test_idx]
+            test_ds = WholeBloodMethylationDataset(m_matrix_df, test_pheno, cell_cols, chr_topologies)
+            
+            test_loader = DataLoader(
+                test_ds, 
+                batch_size=16, # Matching your training script
+                shuffle=False, 
+                collate_fn=chromosome_collate_fn,
+                num_workers=6,
+                pin_memory=True
+            )
+
+            # 5. Inference Loop
+            with torch.no_grad():
+                for batched_chrs, u_cells, batch_y in test_loader:
+                    # Move to GPU via non_blocking to match your training style
+                    batched_chrs = [c.to(device, non_blocking=True) for c in batched_chrs]
+                    u_cells = u_cells.to(device, non_blocking=True)
                     
-                all_oof_probs.extend(probs.cpu().numpy())
-                all_oof_targets.extend(batch_y.cpu().numpy())
+                    logits = model(batched_chrs, u_cells).squeeze(1)
+                    probs = torch.sigmoid(logits).cpu().numpy()
+                    
+                    if probs.ndim == 0:
+                        probs = np.expand_dims(probs, 0)
+                        
+                    all_oof_probs.extend(probs)
+                    all_oof_targets.extend(batch_y.numpy())
+                    
+                    # Prevent VRAM spikes
+                    del batched_chrs, u_cells, logits
+                    
+            # Clear memory between folds
+            torch.cuda.empty_cache()
+            gc.collect()
 
-    # Skip to next cohort if no data was processed
-    if len(all_oof_targets) == 0:
-        print(f"No validation data processed for {cohort_name}. Skipping...")
-        continue
+        if len(all_oof_targets) == 0:
+            print(f"No validation data processed for {cohort_name}.")
+            continue
 
-    # Convert pooled lists to numpy arrays
-    y_true = np.array(all_oof_targets)
-    y_probs = np.array(all_oof_probs)
+        # =====================================================================
+        # METRICS & PLOTTING 
+        # =====================================================================
+        y_true = np.array(all_oof_targets)
+        y_probs = np.array(all_oof_probs)
 
-    # Calculate global metrics
-    auc_score = roc_auc_score(y_true, y_probs)
-    precision, recall, thresholds = precision_recall_curve(y_true, y_probs)
+        # Optimize Threshold via F1 Score
+        precision, recall, thresholds = precision_recall_curve(y_true, y_probs)
+        f1_scores = (2 * precision * recall) / (precision + recall + 1e-8)
+        optimal_idx = np.argmax(f1_scores)
+        optimal_threshold = thresholds[optimal_idx]
 
-    # Find the threshold that maximizes the F1 Score
-    f1_scores = (2 * precision * recall) / (precision + recall + 1e-8)
-    optimal_idx = np.argmax(f1_scores)
-    optimal_threshold = thresholds[optimal_idx]
-    best_f1 = f1_scores[optimal_idx]
+        y_preds = (y_probs >= optimal_threshold).astype(int)
+        cm = confusion_matrix(y_true, y_preds)
+        tn, fp, fn, tp = cm.ravel()
+        
+        sensitivity = tp / (tp + fn) if (tp + fn) > 0 else 0
+        specificity = tn / (tn + fp) if (tn + fp) > 0 else 0
+        auc_score = roc_auc_score(y_true, y_probs)
 
-    print(f"--- Threshold Optimization ---")
-    print(f"Optimal Probability Threshold : {optimal_threshold:.4f}")
-    print(f"Maximum F1 Score              : {best_f1:.4f}")
-    print(f"Area Under Curve (AUROC)      : {auc_score:.4f}\n")
+        print(f"\n     --- {cohort_name} Aggregated Metrics ---")
+        print(f"     Optimal Threshold : {optimal_threshold:.4f}")
+        print(f"     Global ROC AUC    : {auc_score:.4f}")
+        print(f"     Sensitivity       : {sensitivity:.1%}")
+        print(f"     Specificity       : {specificity:.1%}\n")
 
-    # Apply the optimal threshold to get binary predictions
-    y_preds = (y_probs >= optimal_threshold).astype(int)
+        # Plotting
+        plt.figure(figsize=(7, 6))
+        cm_percentages = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+        
+        labels = np.asarray([
+            f"True Negative\n{tn}\n({cm_percentages[0, 0]:.1%})",
+            f"False Positive\n{fp}\n({cm_percentages[0, 1]:.1%})",
+            f"False Negative\n{fn}\n({cm_percentages[1, 0]:.1%})",
+            f"True Positive\n{tp}\n({cm_percentages[1, 1]:.1%})"
+        ]).reshape(2, 2)
 
-    # Generate the Aggregated Confusion Matrix
-    cm = confusion_matrix(y_true, y_preds)
-    tn, fp, fn, tp = cm.ravel()
-    
-    # Calculate clinical metrics
-    sensitivity = tp / (tp + fn) if (tp + fn) > 0 else 0
-    specificity = tn / (tn + fp) if (tn + fp) > 0 else 0
+        ax = sns.heatmap(
+            cm, annot=labels, fmt="", cmap='Blues', cbar=False, square=True,
+            annot_kws={"size": 13, "weight": "bold"}, linewidths=2, linecolor='black'
+        )
 
-    print(f"--- Clinical Metrics ({cohort_name}) ---")
-    print(f"Sensitivity (Recall) : {sensitivity:.1%}")
-    print(f"Specificity          : {specificity:.1%}\n")
+        ax.set_title(f'Aggregated Validation Performance\nCohort: {cohort_name}', fontsize=16, fontweight='bold', pad=20)
+        ax.set_xlabel('Predicted Diagnosis (GATv2)', fontsize=14, fontweight='bold', labelpad=15)
+        ax.set_ylabel('True Clinical Diagnosis', fontsize=14, fontweight='bold', labelpad=15)
+        ax.set_xticklabels(['Control (0)', 'Parkinson\'s (1)'], fontsize=12)
+        ax.set_yticklabels(['Control (0)', 'Parkinson\'s (1)'], fontsize=12, rotation=0, va='center')
 
-    # ==========================================
-    # Publication-Ready Plotting
-    # ==========================================
-    plt.figure(figsize=(7, 6))
+        plt.tight_layout()
+        plt.savefig(os.path.join(output_dir, f"Fig_CM_{cohort_name}.png"), dpi=300, bbox_inches='tight')
+        plt.savefig(os.path.join(output_dir, f"Fig_CM_{cohort_name}.pdf"), dpi=300, bbox_inches='tight')
+        plt.close()
 
-    # Calculate row-wise percentages for the plot labels
-    cm_percentages = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
-    
-    # Create custom labels showing count AND percentage
-    labels = np.asarray([
-        f"True Negative\n{tn}\n({cm_percentages[0, 0]:.1%})",
-        f"False Positive\n{fp}\n({cm_percentages[0, 1]:.1%})",
-        f"False Negative\n{fn}\n({cm_percentages[1, 0]:.1%})",
-        f"True Positive\n{tp}\n({cm_percentages[1, 1]:.1%})"
-    ]).reshape(2, 2)
-
-    # Create a clean, light-themed heatmap
-    ax = sns.heatmap(
-        cm, 
-        annot=labels, 
-        fmt="", # Set to empty string since our labels are pre-formatted strings
-        cmap='Blues', 
-        cbar=False, 
-        square=True,
-        annot_kws={"size": 13, "weight": "bold"},
-        linewidths=2,
-        linecolor='black' # Black borders look sharper in print than white
-    )
-
-    # Customize fonts and layout for a clean, academic look
-    ax.set_title(f'Aggregated Cross-Validation Performance\nCohort: {cohort_name}', fontsize=16, fontweight='bold', pad=20)
-    ax.set_xlabel('Predicted Diagnosis (GATv2)', fontsize=14, fontweight='bold', labelpad=15)
-    ax.set_ylabel('True Clinical Diagnosis', fontsize=14, fontweight='bold', labelpad=15)
-
-    class_names = ['Control (0)', 'Parkinson\'s (1)']
-    ax.set_xticklabels(class_names, fontsize=12)
-    ax.set_yticklabels(class_names, fontsize=12, rotation=0, va='center')
-
-    plt.tight_layout()
-    
-    # Export as both PNG and PDF
-    png_path = os.path.join(output_dir, f"Fig_CM_{cohort_name}.png")
-    pdf_path = os.path.join(output_dir, f"Fig_CM_{cohort_name}.pdf")
-    
-    plt.savefig(png_path, dpi=300, bbox_inches='tight')
-    plt.savefig(pdf_path, dpi=300, bbox_inches='tight')
-    
-    print(f"Saved plots to:\n -> {png_path}\n -> {pdf_path}")
-    
-    # CRITICAL FIX 2: Close the figure to prevent overlapping plots
-    plt.close()
+if __name__ == "__main__":
+    evaluate_cohorts()
