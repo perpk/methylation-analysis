@@ -205,7 +205,7 @@ def generate_evaluation_plots(m_matrix_df, pheno_df, chr_topologies, cell_cols, 
     )
 
     ax_cm.set_title(panel_labels[2], loc="left", fontsize=22, fontweight="bold")
-    ax_cm.set_title(f"Aggregated CM (F1 Thresh={opt_thresh:.2f})", loc="center", fontsize=18)
+    ax_cm.set_title(f"Aggregated CM (Youden Thresh={opt_thresh:.2f})", loc="center", fontsize=18)
     ax_cm.set_xlabel('Predicted Diagnosis', fontsize=16, fontweight='bold', labelpad=15)
     ax_cm.set_ylabel('True Clinical Diagnosis', fontsize=16, fontweight='bold', labelpad=15)
     ax_cm.set_xticklabels(['Control (0)', 'PD (1)'], fontsize=14)
