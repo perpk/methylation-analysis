@@ -99,21 +99,29 @@ def generate_evaluation_plots(m_matrix_df, pheno_df, chr_topologies, cell_cols, 
         val_precs.append(interp_prec)
 
         # --- 3. Calculate Hard Metrics ---
-        tr_preds_bin = (np.array(train_preds) >= 0.5).astype(int)
-        v_preds_bin = (np.array(val_preds) >= 0.5).astype(int)
+        # Find the optimal threshold for this specific fold using Youden's J on the TRAIN set
+        fpr_tr, tpr_tr, thresholds_tr = roc_curve(train_truths, train_preds)
+        j_scores_tr = tpr_tr - fpr_tr
+        opt_thresh_fold = thresholds_tr[np.argmax(j_scores_tr)]
+        
+        # Apply the fold-specific threshold instead of a static 0.5
+        tr_preds_bin = (np.array(train_preds) >= opt_thresh_fold).astype(int)
+        v_preds_bin = (np.array(val_preds) >= opt_thresh_fold).astype(int)
         
         metrics_records.extend([{
             'Fold': fold + 1, 'Set': 'Train', 'ROC_AUC': tr_roc_auc, 'PR_AUC': tr_pr_auc,
             'Accuracy': accuracy_score(train_truths, tr_preds_bin),
             'Precision': precision_score(train_truths, tr_preds_bin, zero_division=0),
             'Recall': recall_score(train_truths, tr_preds_bin, zero_division=0),
-            'F1': f1_score(train_truths, tr_preds_bin, zero_division=0)
+            'F1': f1_score(train_truths, tr_preds_bin, zero_division=0),
+            'Opt_Threshold': opt_thresh_fold
         }, {
             'Fold': fold + 1, 'Set': 'Validation', 'ROC_AUC': v_roc_auc, 'PR_AUC': v_pr_auc,
             'Accuracy': accuracy_score(val_truths, v_preds_bin),
             'Precision': precision_score(val_truths, v_preds_bin, zero_division=0),
             'Recall': recall_score(val_truths, v_preds_bin, zero_division=0),
-            'F1': f1_score(val_truths, v_preds_bin, zero_division=0)
+            'F1': f1_score(val_truths, v_preds_bin, zero_division=0),
+            'Opt_Threshold': opt_thresh_fold
         }])
 
         del train_ds, test_ds, train_loader, test_loader, model
