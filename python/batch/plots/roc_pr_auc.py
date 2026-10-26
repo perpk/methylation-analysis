@@ -128,10 +128,10 @@ def generate_evaluation_plots(m_matrix_df, pheno_df, chr_topologies, cell_cols, 
     y_true_all = np.array(global_val_truths)
     y_probs_all = np.array(global_val_preds)
     
-    precision_agg, recall_agg, thresholds_agg = precision_recall_curve(y_true_all, y_probs_all)
-    f1_scores = (2 * precision_agg * recall_agg) / (precision_agg + recall_agg + 1e-8)
-    opt_idx = np.argmax(f1_scores)
-    opt_thresh = thresholds_agg[opt_idx]
+    fpr_agg, tpr_agg, thresholds_roc = roc_curve(y_true_all, y_probs_all)
+    j_scores = tpr_agg - fpr_agg
+    opt_idx = np.argmax(j_scores)
+    opt_thresh = thresholds_roc[opt_idx]
     
     y_preds_all = (y_probs_all >= opt_thresh).astype(int)
     cm = confusion_matrix(y_true_all, y_preds_all)
