@@ -171,7 +171,7 @@ if __name__ == "__main__":
         databases=regulator_dbs, 
         output_dir=output_directory, 
         file_prefix="Fig3_Regulators",
-        size_multiplier=40
+        size_multiplier=1
     )
     
     # Run 2: The Biological Pathways Figure (Figure 4 in your paper)
