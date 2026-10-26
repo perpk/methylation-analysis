@@ -36,6 +36,8 @@ def generate_evaluation_plots(m_matrix_df, pheno_df, chr_topologies, cell_cols, 
     for fold, (train_idx, test_idx) in enumerate(skf.split(pheno_df, y)):
         print(f"Evaluating Fold {fold + 1}...")
         
+        global_val_preds_bin = []
+
         train_pheno = pheno_df.iloc[train_idx]
         test_pheno = pheno_df.iloc[test_idx]
         
@@ -108,6 +110,8 @@ def generate_evaluation_plots(m_matrix_df, pheno_df, chr_topologies, cell_cols, 
         tr_preds_bin = (np.array(train_preds) >= opt_thresh_fold).astype(int)
         v_preds_bin = (np.array(val_preds) >= opt_thresh_fold).astype(int)
         
+        global_val_preds_bin.extend(v_preds_bin)
+        
         metrics_records.extend([{
             'Fold': fold + 1, 'Set': 'Train', 'ROC_AUC': tr_roc_auc, 'PR_AUC': tr_pr_auc,
             'Accuracy': accuracy_score(train_truths, tr_preds_bin),
@@ -132,16 +136,10 @@ def generate_evaluation_plots(m_matrix_df, pheno_df, chr_topologies, cell_cols, 
     metrics_df.to_csv(f"{results_filepath}/{prefix}cv_evaluation_metrics.csv", index=False)
     
     # --- 5. Prepare Aggregated Data for Confusion Matrix ---
-    print("\nCalculating Optimal Threshold for Confusion Matrix...")
+    print("\nGenerating Aggregated Confusion Matrix from fold-calibrated predictions...")
     y_true_all = np.array(global_val_truths)
-    y_probs_all = np.array(global_val_preds)
+    y_preds_all = np.array(global_val_preds_bin)
     
-    fpr_agg, tpr_agg, thresholds_roc = roc_curve(y_true_all, y_probs_all)
-    j_scores = tpr_agg - fpr_agg
-    opt_idx = np.argmax(j_scores)
-    opt_thresh = thresholds_roc[opt_idx]
-    
-    y_preds_all = (y_probs_all >= opt_thresh).astype(int)
     cm = confusion_matrix(y_true_all, y_preds_all)
     tn, fp, fn, tp = cm.ravel()
 
@@ -205,7 +203,7 @@ def generate_evaluation_plots(m_matrix_df, pheno_df, chr_topologies, cell_cols, 
     )
 
     ax_cm.set_title(panel_labels[2], loc="left", fontsize=22, fontweight="bold")
-    ax_cm.set_title(f"Aggregated CM (Youden Thresh={opt_thresh:.2f})", loc="center", fontsize=18)
+    ax_cm.set_title("Aggregated CM (Fold-Calibrated)", loc="center", fontsize=18)
     ax_cm.set_xlabel('Predicted Diagnosis', fontsize=16, fontweight='bold', labelpad=15)
     ax_cm.set_ylabel('True Clinical Diagnosis', fontsize=16, fontweight='bold', labelpad=15)
     ax_cm.set_xticklabels(['Control (0)', 'PD (1)'], fontsize=14)
