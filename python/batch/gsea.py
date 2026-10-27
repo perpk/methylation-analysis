@@ -85,7 +85,7 @@ def plot_consolidated_from_csvs(csv_files, output_dir, file_prefix, size_multipl
         sc = ax.scatter(
             top_terms['-log10(FDR)'],
             top_terms['Term'],
-            s=top_terms['Gene_Count'] * size_multiplier if "SynGO" not in str(db) else 20, 
+            s=top_terms['Gene_Count'] * (size_multiplier if "SynGO_2024" != db else 20), 
             c=top_terms['-log10(FDR)'],
             cmap='viridis',
             alpha=0.9,
