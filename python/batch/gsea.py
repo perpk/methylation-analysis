@@ -187,5 +187,6 @@ if __name__ == "__main__":
         gene_list=elite_genes, 
         databases=pathway_dbs, 
         output_dir=output_directory, 
-        file_prefix="Fig4_Pathways"
+        file_prefix="Fig4_Pathways",
+        size_multiplier=2
     )
