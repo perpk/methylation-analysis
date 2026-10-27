@@ -15,6 +15,122 @@ def sort_gene_string(gene_str):
     genes = str(gene_str).split(';') 
     return ';'.join(sorted([g.strip() for g in genes]))
 
+def plot_consolidated_from_csvs(csv_files, output_dir, file_prefix, size_multiplier=1.5):
+    """
+    Reads raw CSV results from previous GSEA runs, collects them,
+    and plots all significant databases in a single consolidated grid.
+    """
+    print(f"Consolidating results from {len(csv_files)} files...")
+    
+    # 1. Collect and combine data
+    all_data = []
+    for csv_file in csv_files:
+        if os.path.exists(csv_file):
+            all_data.append(pd.read_csv(csv_file))
+        else:
+            print(f"Warning: {csv_file} not found. Skipping.")
+            
+    if not all_data:
+        print("No CSV files found to consolidate.")
+        return
+        
+    df = pd.concat(all_data, ignore_index=True)
+    
+    # 2. Filter for databases that have FDR-significant hits
+    valid_dbs = df[df['Adjusted P-value'] < 0.05]['Gene_set'].unique().tolist()
+    
+    n_panels = len(valid_dbs)
+    if n_panels == 0:
+        print("No significant databases found across the provided CSVs.")
+        return
+
+    print(f"Found {n_panels} significant databases for the consolidated grid. Building panels...")
+
+    # 3. Dynamic Grid Layout
+    cols = 2 if n_panels > 1 else 1
+    rows = math.ceil(n_panels / cols)
+    
+    fig, axes = plt.subplots(rows, cols, figsize=(10 * cols, 8 * rows))
+    
+    if n_panels > 1:
+        axes = axes.flatten()
+    else:
+        axes = [axes]
+        
+    panel_labels = string.ascii_uppercase
+    
+    # 4. Process and Plot Each Valid Database
+    for i, db in enumerate(valid_dbs):
+        ax = axes[i]
+        
+        fdr_sign = df[(df['Gene_set'] == db) & (df['Adjusted P-value'] < 0.05)].copy()
+        fdr_sign['Term'] = fdr_sign['Term'].str.replace(r' \(GO:.*\)', '', regex=True)
+        
+        if 'Genes' in fdr_sign.columns:
+            fdr_sign['Sorted_Genes'] = fdr_sign['Genes'].apply(sort_gene_string)
+            fdr_sign = fdr_sign.sort_values('Adjusted P-value', ascending=True)
+            fdr_sign = fdr_sign.drop_duplicates(subset=['Sorted_Genes'], keep='first')
+
+        top_terms = fdr_sign.head(15).copy()
+        top_terms['-log10(FDR)'] = -np.log10(top_terms['Adjusted P-value'])
+        
+        if 'Overlap' in top_terms.columns:
+            top_terms['Gene_Count'] = top_terms['Overlap'].astype(str).str.split('/').str[0].astype(int)
+        else:
+            top_terms['Gene_Count'] = 1 
+
+        top_terms['Term'] = top_terms['Term'].map(lambda term: textwrap.fill(str(term), width=30))
+        top_terms = top_terms.sort_values('-log10(FDR)', ascending=True)
+
+        sc = ax.scatter(
+            top_terms['-log10(FDR)'],
+            top_terms['Term'],
+            s=top_terms['Gene_Count'] * size_multiplier, 
+            c=top_terms['-log10(FDR)'],
+            cmap='viridis',
+            alpha=0.9,
+            edgecolor='black',
+            linewidth=0.6,
+            zorder=3
+        )
+        
+        ax.grid(axis='y', linestyle='--', alpha=0.6, zorder=1)
+        ax.grid(axis='x', linestyle='--', alpha=0.3, zorder=1)
+        ax.set_xlabel(r'$-\log_{10}(\text{Adjusted P-value})$', fontweight='bold', labelpad=10)
+        
+        clean_title = str(db).replace('_', ' ')
+        ax.set_title(f'{clean_title}', fontweight='bold', pad=15)
+        
+        # Handle label limits just in case panels exceed 26
+        label = panel_labels[i] if i < len(panel_labels) else str(i+1)
+        ax.annotate(f"{label}", xy=(-0.4, 1.05), xycoords='axes fraction',
+                    fontsize=20, fontweight='bold', va='bottom', ha='right')
+        
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+
+        cbar = fig.colorbar(sc, ax=ax, pad=0.02, shrink=0.7)
+        cbar.set_label(r'$-\log_{10}(\text{FDR})$', rotation=270, labelpad=20, fontweight='bold')
+
+        handles, labels = sc.legend_elements(prop="sizes", alpha=0.6, num=4, func=lambda s: s/size_multiplier)
+        ax.legend(handles, labels, title="Gene Count", bbox_to_anchor=(1.05, 1), loc='upper left', frameon=False)
+
+    # Hide unused subplots
+    for j in range(i + 1, len(axes)):
+        fig.delaxes(axes[j])
+
+    # 5. Save the Multi-Panel Figure
+    plt.tight_layout(rect=[0, 0, 1, 1])
+    
+    png_path = os.path.join(output_dir, f'{file_prefix}.png')
+    pdf_path = os.path.join(output_dir, f'{file_prefix}.pdf')
+    
+    plt.savefig(png_path, dpi=300, bbox_inches='tight')
+    plt.savefig(pdf_path, dpi=300, bbox_inches='tight')
+    plt.close() 
+    
+    print(f"Successfully generated consolidated figure:\n  -> {png_path}\n  -> {pdf_path}")
+
 def perform_gsea_and_plot_panels(gene_list, databases, output_dir, file_prefix, title="Enrichment", size_multiplier=150):
     """
     Executes GSEA via gseapy, filters for FDR < 0.05, deduplicates, and generates 
@@ -190,3 +306,16 @@ if __name__ == "__main__":
         file_prefix="Fig4_Pathways",
         size_multiplier=2
     )
+    
+    # Run 3: The Consolidated Grid (Combining Fig 3 and Fig 4 data)
+    csv_paths = [
+        os.path.join(output_directory, "Fig3_Regulators_raw_results.csv"),
+        os.path.join(output_directory, "Fig4_Pathways_raw_results.csv")
+    ]
+    
+    plot_consolidated_from_csvs(
+        csv_files=csv_paths,
+        output_dir=output_directory,
+        file_prefix="Fig5_Consolidated_All_Databases",
+        size_multiplier=1.5  # Balances the visual size between the previous scales of 1 and 2
+    )    
