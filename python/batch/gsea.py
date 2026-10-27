@@ -304,7 +304,7 @@ if __name__ == "__main__":
         databases=pathway_dbs, 
         output_dir=output_directory, 
         file_prefix="Fig4_Pathways",
-        size_multiplier=2
+        size_multiplier=20
     )
     
     # Run 3: The Consolidated Grid (Combining Fig 3 and Fig 4 data)
